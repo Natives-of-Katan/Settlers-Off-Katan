@@ -34,7 +34,7 @@ router.get('/getNames', async(req, res) => {
 })
 
 router.get("*", (req, res) => {
-   res.sendFile(path.resolve(__dirname, "tech-demo-client", "build",     
+   res.sendFile(path.resolve(__dirname, "client", "build",     
     "index.html"));
     //res.send("we are online!");
  });
