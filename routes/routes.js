@@ -39,5 +39,5 @@ router.get("*", (req, res) => {
     res.send("we are online!");
  });
 
-//export the router so that these route handlers can be used, it is imported in the server.js file
+//export the router so tha these route handlers can be used, it is imported in the server.js file
 module.exports = router;
