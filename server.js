@@ -18,7 +18,7 @@ mongoose.connect(db).then(con => {
     console.log('connected to MongoDb!');
 });
 
-//tells the server to use body-parser
+//tells server to use body-parser
 app.use(bodyParser.urlencoded({ limit : '10mb', extended: true}));
 app.use(bodyParser.json());
 app.use(cors(corsOptions));
