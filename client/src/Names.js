@@ -7,7 +7,7 @@ const Names = () => {
     const [names, setNames] = useState([]);
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/getNames").then((response) => {
+        Axios.get("/getNames").then((response) => {
             setNames(response.data)
         })
     }, []);

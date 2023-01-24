@@ -10,7 +10,7 @@ const Home = () => {
 
     const submitName = () => {
       setdisplayName("hello "  + name +" !");
-      Axios.post("http://localhost:8080/name", {name}).then((response) => {
+      Axios.post("/name", {name}).then((response) => {
         alert("Your  name was added to the database!");
       });
     }
