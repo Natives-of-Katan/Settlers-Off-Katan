@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 
-function App() {
+/*function App() {
   return (
     <div className="App">
       <header className="App-header">
@@ -19,6 +19,23 @@ function App() {
         </a>
       </header>
     </div>
+  );
+}*/
+import './App.css';
+import {BrowserRouter} from 'react-router-dom';
+import {Routes, Route} from 'react-router-dom';
+import Names from './Names';
+import Home from './Home';
+
+
+function App() {
+  return (
+        <BrowserRouter>
+          <Routes>
+          <Route exact path="/Names" element={<Names/>} />
+            <Route exact path="/" element={<Home/>} />
+          </Routes>
+        </BrowserRouter>
   );
 }
 
