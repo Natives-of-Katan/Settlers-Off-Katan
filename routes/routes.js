@@ -34,9 +34,9 @@ router.get('/getNames', async(req, res) => {
 })
 
 router.get("*", (req, res) => {
-   /* res.sendFile(path.resolve(__dirname, "tech-demo-client", "build",     
-    "index.html"));*/
-    res.send("we are online!");
+   res.sendFile(path.resolve(__dirname, "tech-demo-client", "build",     
+    "index.html"));
+    //res.send("we are online!");
  });
 
 //export the router so tha these route handlers can be used, it is imported in the server.js file
