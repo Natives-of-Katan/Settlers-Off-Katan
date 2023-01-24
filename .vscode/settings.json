@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/443a1d63-1543-4858-919c-932193641f01/AppServices/subscriptions/443a1d63-1543-4858-919c-932193641f01/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/practiceTech",
+    "appService.deploySubpath": "."
+}
