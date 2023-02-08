@@ -4,23 +4,29 @@ import {useState} from 'react';
 import {Link} from 'react-router-dom';
 
 const Home = () => {
+    
     const [name, setName] = useState([""]);
     const [displayName, setdisplayName] = useState([""]);
 
-
     const submitName = () => {
-      setdisplayName("hello "  + name +" !");
+      setdisplayName("Hello "  + name +" !");
       Axios.post("/name", {name}).then((response) => {
-        alert("Your  name was added to the database!");
+        alert("You have logged in!");
       });
     }
 
     return(
         <div className="App">
-            <div className ="nameForm">
-                <h1>Enter Name to Log into Database</h1>
+            <div className ="loginForm">
+                <h1>Welcome to Settlers Off Katan</h1>
+
+                <a href="/Play">
+                    <button>Play</button>
+                </a>
+
+                <h3>Enter Your Username</h3>
                 <form onSubmit={submitName}>
-                    <input type ="text" placeHolder="Enter Name" 
+                    <input type ="text" placeHolder="Enter Username" 
                         onChange={(event)=> {
                             setName(event.target.value);
                         }} />
@@ -28,7 +34,7 @@ const Home = () => {
                 </form>
             </div>
             <div className="Link">
-                <Link to={"/Names"}>View Submitted Names</Link>
+                <Link to={"/CreateAccount"}>Not yet a member? Create an Account</Link>
                 <h1>{displayName}</h1>
             </div>
         </div>
