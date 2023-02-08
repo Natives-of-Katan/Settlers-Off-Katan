@@ -10,7 +10,7 @@ var corsOptions = {
 }
 const port = process.env.PORT || 8080;
 app.use(express.static('./client/build'));
-const db = "mongodb+srv://Natives-of-Katan:COSC481@cluster0.lzewhnq.mongodb.net/test";  //database URI
+const db = "mongodb+srv://Natives-of-Katan:COSC481@cluster0.lzewhnq.mongodb.net/NativesOffKatan";  //database URI
 
 
 //connects to database
