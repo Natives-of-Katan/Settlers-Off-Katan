@@ -6,9 +6,9 @@ const Account = () => {
 
 return(
     <div className="App">
-    <div className="content">
-        <h1>Your Account</h1>
-                <form>
+        <div className="content">
+            <h1>Your Account</h1>
+            <form>
                 <fieldset disabled="disabled">
                     <input type ="text" placeHolder="{Username}" 
                         /><br />
@@ -27,13 +27,10 @@ return(
                     <input type ="text
                     " placeHolder="{Native Losses}" 
                         /><br />
-                    <button type="submit"> Submit </button>
-                    </fieldset>
-                </form>
-            </div>
-
-            <span><Link to={"/"}>Home Page</Link> </span>
-
+                </fieldset>
+            </form>
+        </div>
+        <span><Link to={"/"}>Home Page</Link> </span>
     </div>    
 );
 }

@@ -6,28 +6,20 @@ const Login = () => {
 
 return(
     <div className="App">
-    <div className="content">
-        <div className ="loginForm">
-        <h1>Login</h1>
-                <form>
-                    <input type ="text" placeHolder="Enter Username" 
-                        /><br />
-                    <input type ="text
-                    " placeHolder="Enter an Email" 
-                        /><br />                        
-                    <input type ="text
-                    " placeHolder="Enter Password" 
-                        /><br />
-                    <input type ="text
-                    " placeHolder="Re-enter Password" 
-                        /><br />                                                                        
-                    <button type="submit"> Submit </button>
-                </form>
-            </div>
-
-            <span><Link to={"/"}>Home Page</Link> </span>
-
-    </div>
+        <div className="content">
+            <div className ="loginForm">
+            <h1>Login</h1>
+            <form>
+                <input type ="text" placeHolder="Enter Username" 
+                    /><br /><br />                
+                <input type ="text
+                " placeHolder="Enter Password" 
+                    /><br /><br />                                                                      
+                <Link to="/"><button type="submit">Submit</button></Link>
+            </form>
+            </div><br />
+        <span><Link to={"/"}>Back</Link> </span>
+        </div>
     </div>    
 );
 }

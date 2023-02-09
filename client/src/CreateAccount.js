@@ -6,28 +6,26 @@ const CreateAccount = () => {
 
 return(
     <div className="App">
-    <div className="content">
-        <div className ="createAccountForm">
-        <h1>Create Account</h1>
-                <form>
-                    <input type ="text" placeHolder="Enter Username" 
-                        /><br />
-                    <input type ="text
-                    " placeHolder="Enter an Email" 
-                        /><br />                        
-                    <input type ="text
-                    " placeHolder="Enter Password" 
-                        /><br />
-                    <input type ="text
-                    " placeHolder="Re-enter Password" 
-                        /><br />                                                                        
-                    <button type="submit"> Submit </button>
-                </form>
-            </div>
-
-            <span><Link to={"/"}>Home Page</Link> </span>
-
-    </div>
+        <div className="content">
+            <div className ="createAccountForm">
+            <h1>Create Your Account</h1>
+            <form>
+                <input type ="text" placeHolder="Enter Username" 
+                    /><br /><br />
+                <input type ="text
+                " placeHolder="Enter an Email" 
+                    /><br /><br />                        
+                <input type ="text
+                " placeHolder="Enter Password" 
+                    /><br /><br />
+                <input type ="text
+                " placeHolder="Re-enter Password" 
+                    /><br /><br />                                                                       
+            <Link to="/"><button type="submit">Submit</button></Link>
+            </form>
+            </div><br />               
+            <Link to="/"><button type="submit">Cancel</button></Link>
+        </div>
     </div>    
 );
 }
