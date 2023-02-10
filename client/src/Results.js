@@ -1,17 +1,21 @@
-import './App.css';
+//Board model goes here
+import React from "react";
+//import Axios from 'axios';
+//import {useState} from 'react';
+import {Link} from 'react-router-dom';
 
-function Results() {
-  return (
-    <div className="Results">
-        <div>
-            <h1>Declare the Winner</h1>
-            <h1>Player Stats</h1>
+const Results = () => {
+    return(
+        <div className="App">
+            <div className ="content">
+                <h1>*Results go here*</h1>
+
+            </div><br />
+            <br />
+            <Link to="/Lobby">Rematch</Link><br />
+            <Link to="/">Back home</Link>
         </div>
-        <button>Rematch</button>
-        <button>Leave Game</button>
-    </div>
+      )     
+ }
 
-  );
-}
-
-export default Results;
+ export default Results;

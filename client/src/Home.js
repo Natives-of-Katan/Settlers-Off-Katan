@@ -1,35 +1,29 @@
 import React from "react";
-import Axios from 'axios';
-import {useState} from 'react';
+//import Axios from 'axios';
+//import {useState} from 'react';
 import {Link} from 'react-router-dom';
 
 const Home = () => {
-    const [name, setName] = useState([""]);
-    const [displayName, setdisplayName] = useState([""]);
-
-
-    const submitName = () => {
-      setdisplayName("hello "  + name +" !");
-      Axios.post("/name", {name}).then((response) => {
-        alert("Your  name was added to the database!");
-      });
-    }
-
+    
     return(
         <div className="App">
-            <div className ="nameForm">
-                <h1>Enter Name to Log into Database</h1>
-                <form onSubmit={submitName}>
-                    <input type ="text" placeHolder="Enter Name" 
-                        onChange={(event)=> {
-                            setName(event.target.value);
-                        }} />
-                    <button type="submit"> Submit </button>
-                </form>
-            </div>
+            <div className ="loginForm">
+                <h1>Welcome to Settlers Off Katan</h1>
+                <a href="/Play">
+                    <button>Play</button>
+                </a><br /><br />
+                <a href="/Rules">
+                    <button>Rules</button>
+                </a><br /><br />
+                <a href="/Options">
+                    <button>Options</button>
+                </a><br />
+            </div><br />
             <div className="Link">
-                <Link to={"/Names"}>View Submitted Names</Link>
-                <h1>{displayName}</h1>
+                <Link to={"/Login"}>Log in to start a new game</Link>
+            </div><br />
+            <div className="Link">
+                <Link to={"/CreateAccount"}>Not yet a member? Create an Account</Link>
             </div>
         </div>
       )    
