@@ -10,15 +10,14 @@ const PassAndPlay = () => {
             <div className ="loginForm">
                 <h1>Pass and Play mode</h1>
                 <form>
-                <p>Number of players (4-8):</p>
-                <input type ="text" placeHolder="Enter a number" 
-                        /><br /><br />
-                <Link to="/Game"><button type="submit">Start Game</button></Link>
+                    <p>Number of players (4-8):</p>
+                    <input type ="text" name="numPlayers" placeHolder="Enter a number" /><br /><br />
+                    <Link to="/Game"><button type="submit">Start Game</button></Link>
                 </form>
             </div><br />
             <Link to="/Play">Back to modes</Link>
         </div>
-      )    
+    )    
  }
 
  export default PassAndPlay;

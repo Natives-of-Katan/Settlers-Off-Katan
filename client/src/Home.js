@@ -7,7 +7,7 @@ const Home = () => {
     
     return(
         <div className="App">
-            <div className ="loginForm">
+            <div className ="content">
                 <h1>Welcome to Settlers Off Katan</h1>
                 <a href="/Play">
                     <button>Play</button>
@@ -27,6 +27,6 @@ const Home = () => {
             </div>
         </div>
       )    
- }
+}
 
- export default Home;
+export default Home;

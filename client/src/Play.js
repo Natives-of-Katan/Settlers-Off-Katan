@@ -7,9 +7,8 @@ const Play = () => {
     
     return(
         <div className="App">
-            <div className ="loginForm">
+            <div className ="content">
                 <h1>Choose Your Game Mode</h1>
-
                 <a href="/PassAndPlay">
                     <button>Pass and Play</button>
                 </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -19,11 +18,10 @@ const Play = () => {
                 <a href="/Lobby">
                     <button>Create Online Match</button>
                 </a><br />
-
             </div><br />
             <Link to="/">Back</Link>
         </div>
-      )    
- }
+    )    
+}
 
- export default Play;
+export default Play;

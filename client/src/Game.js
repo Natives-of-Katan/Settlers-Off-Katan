@@ -15,6 +15,6 @@ const Game = () => {
             <Link to="/">Back Home</Link>
         </div>
       )     
- }
+}
 
- export default Game;
+export default Game;

@@ -9,17 +9,16 @@ const JoinMatch = () => {
     return(
         <div className="App">
             <div className ="content">
-                <form>
                 <h1>Join Match</h1>
-                <p>Invite Code:</p>
-                <input type ="text" placeHolder="Enter code here" 
-                        />&nbsp;
-                <Link to="/Lobby"><button type="submit">Join Public</button></Link>
+                <form>
+                    <p>Invite Code:</p>
+                    <input type ="text" name="joinMatchCode" placeHolder="Enter code here" /><br /><br />
+                    <Link to="/Lobby"><button type="submit">Join Public</button></Link>
                 </form>
             </div><br />
             <Link to="/Play">Back</Link>
         </div>
-      )     
- }
+    )     
+}
 
- export default JoinMatch;
+export default JoinMatch;

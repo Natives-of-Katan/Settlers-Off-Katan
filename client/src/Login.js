@@ -4,24 +4,21 @@ import {Link} from "react-router-dom";
 
 const Login = () => {
 
-return(
-    <div className="App">
-        <div className="content">
-            <div className ="loginForm">
-            <h1>Login</h1>
-            <form>
-                <input type ="text" placeHolder="Enter Username" 
-                    /><br /><br />                
-                <input type ="text
-                " placeHolder="Enter Password" 
-                    /><br /><br />                                                                      
-                <Link to="/"><button type="submit">Submit</button></Link>
-            </form>
-            </div><br />
-        <span><Link to={"/"}>Back</Link> </span>
-        </div>
-    </div>    
-);
+    return(
+        <div className="App">
+            <div className="content">
+                <div className="loginForm">
+                    <h1>Login</h1>
+                    <form>
+                        <input type="text" name="name" placeHolder="Enter Username" required /><br /><br />                
+                        <input type="password" name="password" placeHolder="Enter Password" required /><br /><br />                                                                      
+                        <Link to="/"><button type="submit">Submit</button></Link>
+                    </form>
+                    </div><br />               
+                <Link to="/"><button type="submit">Cancel</button></Link>
+            </div>
+        </div>    
+    );
 }
 
 export default Login;
