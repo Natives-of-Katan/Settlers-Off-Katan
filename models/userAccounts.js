@@ -29,6 +29,10 @@ const userAccount = new mongoose.Schema({
         nativeLosses: {
             type: Number,
             required: false
+        },
+        sessionID: {
+            type: String,
+            required: false
         }
 
  });
