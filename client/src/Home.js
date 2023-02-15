@@ -9,15 +9,18 @@ const Home = () => {
         <div className="App">
             <div className ="content">
                 <h1>Welcome to Settlers Off Katan</h1>
-                <a href="/Play">
+                <Link to={"/Play"}>
                     <button>Play</button>
-                </a><br /><br />
-                <a href="/Rules">
+                </Link>
+                <br /><br />
+                <Link to={"/Rules"}>
                     <button>Rules</button>
-                </a><br /><br />
-                <a href="/Options">
+                    </Link>
+                <br/><br />
+                <Link to={"/Options"}>
                     <button>Options</button>
-                </a><br />
+                </Link>
+                <br />
             </div><br />
             <div className="Link">
                 <Link to={"/Login"}>Log in to start a new game</Link>
