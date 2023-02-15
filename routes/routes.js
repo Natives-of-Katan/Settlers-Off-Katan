@@ -15,7 +15,13 @@ router.post('/sign_up', async (req, res) => {
         }
 
     //log the name entered
-    console.log(req.body);  
+    console.log(req.body);
+    
+    if(req.body.password!=req.body.passwordCheck) {
+        console.log('unsuccessful account creation, passwords do not match');
+        res.send('passwords do not match');
+        return
+    }
 
     //create the user object according to the schema defined in userAccounts.js, and save it to database
     var user = new User( {
