@@ -1,38 +1,35 @@
 import React from "react";
-import Axios from 'axios';
-import {useState} from 'react';
+//import Axios from 'axios';
+//import {useState} from 'react';
 import {Link} from 'react-router-dom';
 
 const Home = () => {
-    const [name, setName] = useState([""]);
-    const [displayName, setdisplayName] = useState([""]);
-
-
-    const submitName = () => {
-      setdisplayName("hello "  + name +" !");
-      Axios.post("/name", {name}).then((response) => {
-        alert("Your  name was added to the database!");
-      });
-    }
-
+    
     return(
         <div className="App">
-            <div className ="nameForm">
-                <h1>Enter Name to Log into Database</h1>
-                <form onSubmit={submitName}>
-                    <input type ="text" placeHolder="Enter Name" 
-                        onChange={(event)=> {
-                            setName(event.target.value);
-                        }} />
-                    <button type="submit"> Submit </button>
-                </form>
-            </div>
+            <div className ="content">
+                <h1>Welcome to Settlers Off Katan</h1>
+                <Link to={"/Play"}>
+                    <button>Play</button>
+                </Link>
+                <br /><br />
+                <Link to={"/Rules"}>
+                    <button>Rules</button>
+                    </Link>
+                <br/><br />
+                <Link to={"/Options"}>
+                    <button>Options</button>
+                </Link>
+                <br />
+            </div><br />
             <div className="Link">
-                <Link to={"/Names"}>View Submitted Names</Link>
-                <h1>{displayName}</h1>
+                <Link to={"/Login"}>Log in to start a new game</Link>
+            </div><br />
+            <div className="Link">
+                <Link to={"/CreateAccount"}>Not yet a member? Create an Account</Link>
             </div>
         </div>
       )    
- }
+}
 
- export default Home;
+export default Home;
