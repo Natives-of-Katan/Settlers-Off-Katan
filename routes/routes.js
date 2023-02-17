@@ -7,7 +7,6 @@ var session;
 
 //handle request for profile data after user logs in
 router.get('/account', async(req, res) => {
-    console.log(req.sessionID);
     const userAccount = await User.findOne({sessionID: req.sessionID})
         if(userAccount) {
             const userData = {
@@ -19,7 +18,6 @@ router.get('/account', async(req, res) => {
                 "nativeLosses": userAccount.nativeLosses
             }
             res.status(200).send({userData})
-            console.log(userData);
             return;
         }
         else console.log('user not found');
@@ -114,26 +112,51 @@ router.post('/logout', async(req, res) => {
 
 //account deletion route handler
 router.post('/delete_acct', async(req, res) => {
-       const user = await User.findOneAndDelete({"sessionID": req.sessionID});
-       if(!user) {
-        console.log('user does not exist');
-        res.send('no');
-       }
-        else {
-            console.log('user %s deleted', user);
-            res.status(200).end();
-        }
+    const user = await User.findOneAndDelete({"sessionID": req.sessionID});
+    if(!user) {
+    console.log('user does not exist');
+    res.send('no');
+    }
+    else {
+        console.log('user %s deleted', user);
+        res.status(200).end();
+    }
     });
 
 
 //edit accout route handler
-router.post('/edit_acct', async(req, res) => {
- 
+router.post('/edit_account', async(req, res) => {
+    const opts = {new:true};
 
+    if(req.body.hasOwnProperty('username')) {
+        const user = await User.findOneAndUpdate({"sessionID" : req.sessionID},
+            {
+            $set: {
+                username: req.body.username,
+                email: req.body.email,
+                }
+            },
+            opts
+        );
+        console.log("updated user account: %s", user);
+        res.status(200).send(user);
+    }
+
+    else if(req.body.password === req.body.passwordCheck) {
+        const user = await User.findOneAndUpdate({"sessionID" : req.sessionID},
+        {
+            $set: {
+                password: req.body.password
+                }
+        },
+        opts
+        );
+        console.log("updated user account: %s", user);
+        res.status(200).send(user);
+    }
 })
 
-
-//direct to index page
+//direct to index page upon visiting application
 router.get("*", (req, res) => {
    res.sendFile(path.resolve(__dirname, "client", "build",     
     "index.html"));
