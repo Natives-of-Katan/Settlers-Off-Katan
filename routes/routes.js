@@ -133,6 +133,18 @@ router.post('/edit_account', async(req, res) => {
             {
             $set: {
                 username: req.body.username,
+                }
+            },
+            opts
+        );
+        console.log("updated user account: %s", user);
+        res.status(200).send(user);
+    }
+
+    else if(req.body.hasOwnProperty('email')) {
+        const user = await User.findOneAndUpdate({"sessionID" : req.sessionID},
+            {
+            $set: {
                 email: req.body.email,
                 }
             },

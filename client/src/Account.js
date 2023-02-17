@@ -4,13 +4,15 @@ import axios from "axios";
 
 const Account = () => {
 
-   const [user, setUser] = useState(['hi']);
+   const [user, setUser] = useState(['']);
    const [edit, setEdit] = useState(false);
+   const [editEmail, setEditEmail] = useState(false);
+   const [editUserName, setEditUserName] = useState(false);
    const [isEdited, setIsEdited] = useState(false);
    const [password, setPassword] = useState(false);
    const navigate = useNavigate();
 
-
+   
     useEffect(() => {
         axios.get("/account").then((response) => {
             setUser([response.data.userData]);
@@ -37,17 +39,20 @@ const Account = () => {
         setEdit(true);
     }
 
-    const hideEdit = () => {
+    const showUsername = () => {
         setEdit(false);
+        setEditUserName(true);
     }
+
+    const showEmail = () => {
+        setEdit(false);
+        setEditEmail(true);
+    }
+
 
     const showPassword = () => {
-        hideEdit();
+        setEdit(false);
         setPassword(true);
-    }
-
-    const hidePassword = () => {
-        setPassword(false);
     }
 
     const handleSubmit = event => {
@@ -61,8 +66,9 @@ const Account = () => {
         })
         .catch(err => console.log(err));
         setIsEdited(true);
-        hideEdit();
-        hidePassword();
+        setPassword(false);
+        setEditEmail(false);
+        setEditUserName(false);
     };
 
      return(
@@ -77,30 +83,48 @@ const Account = () => {
                         <h3>Settler Losses: {acct.settlerLosses}</h3>
                         <h3>Native Wins: {acct.nativeWins}</h3>
                         <h3>Native Losses: {acct.nativeLosses}</h3>
+                   
                         <div>
                             {edit && <div className="modal">
-                                 <h1>Edit Account</h1>
-                                 <form onSubmit={handleSubmit}>
-                                <label for='new-username'>New Username:</label>
-                                <input type='text' name='username' value={acct.username}/>
-                                <label for='new-email'>New Email:</label>
-                                <input type='text' name='email' value={acct.email}/>
-                                <button type='submit'>Submit</button>
-                                <button onClick={hideEdit}>Cancel</button>
-                                <button onClick={showPassword}>Change Password</button>
-                                 </form>
-                                 </div>}
+                                <h1>Edit Account</h1>
+                                <button onClick={showUsername}>Edit Username</button>
+                                <button onClick={showEmail}>Edit Email</button>
+                                <button onClick={showPassword}>Edit Password</button>
+                                </div>
+                            }
 
-                                 {password && <div className="modal">
+                            {editUserName && <div className="modal">
+                                <h1>Edit Username</h1>
+                                <form onSubmit={handleSubmit}>
+                                    <label for='new-username'>New Username:</label>
+                                    <input type='text' name='username'/>
+                                    <button type='submit'>Submit</button>
+                                 </form>
+                                 <button onClick={() => setEditUserName(false)}>Cancel</button>
+                                 </div>
+                                 }
+
+                            {editEmail && <div className="modal">
+                                <h1>Edit Email</h1>
+                                <form onSubmit={handleSubmit}>
+                                    <label for='new-email'>New Email:</label>
+                                    <input type='text' name='email'/>
+                                    <button type='submit'>Submit</button>
+                                </form>
+                                <button onClick={() => setEditEmail(false)}>Cancel</button>
+                                </div>
+                                 }
+
+                            {password && <div className="modal">
                                  <h1>Edit Password</h1>
                                  <form onSubmit={handleSubmit}>
-                                <label for='new-password'>New Password:</label>
-                                <input type='password' name='password'/>
-                                <label for='new-email'>Confirm New Password:</label>
-                                <input type='password' name='passwordCheck'/>
-                                <button type='submit'>Submit</button>
-                                <button onClick={hidePassword}>Cancel</button>
+                                    <label for='new-password'>New Password:</label>
+                                    <input type='password' name='password'/>
+                                    <label for='new-passwordCheck'>Confirm New Password:</label>
+                                    <input type='password' name='passwordCheck'/>
+                                    <button type='submit'>Submit</button>
                                  </form>
+                                 <button onClick={() =>setPassword(false)}>Cancel</button>
                                  </div>}
                         </div>
                     </div>
