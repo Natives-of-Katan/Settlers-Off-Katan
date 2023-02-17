@@ -21,8 +21,6 @@ app.use(cors(corsOptions));
 
 //session setup
 const oneDay = 1000 * 60 * 60 * 24;
-//app.use(cookieParser);
-//app.use(cookieParser());
 app.use(session({
     secret:"secret",
     saveUninitialized:true,

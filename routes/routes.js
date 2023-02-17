@@ -5,12 +5,37 @@ const User = require('../models/userAccounts');  //import the userAccounts.js fi
 
 var session;
 
+//
+router.get('/account', async(req, res) => {
+    console.log(req.sessionID);
+    const userAccount = await User.findOne({sessionID: req.sessionID})
+        if(userAccount) {
+            const userData = {
+                "username": userAccount.username,
+                "email": userAccount.email,
+                "settlerWins": userAccount.settlerWins,
+                "settlerLosses": userAccount.settlerLosses,
+                "nativeWins": userAccount.nativeWins,
+                "nativeLosses": userAccount.nativeLosses
+            }
+            res.status(200).send({userData})
+            console.log(userData);
+            return;
+        }
+        else console.log('user not found');
+            res.send({"username":null})
+});
+
+
+
 //sign up route handler
 router.post('/sign_up', async (req, res) => {
     const accountExists = await User.exists({username: req.body.username})
         if(accountExists) {
             console.log('account exists');
-            res.send('no');
+            res.status(200).send({
+                "sessionID": null
+            })
             return;
         }
 
@@ -38,10 +63,12 @@ router.post('/sign_up', async (req, res) => {
     user.save(err => {
         if(err)
             console.error(err);
-        else
+        else {
             console.log('new user added: ', user);
+            res.status(200).send({"sessionID": req.sessionID});
+        }
     })
-    res.send('ok');
+
 })
 
 
@@ -62,17 +89,16 @@ router.post('/sign_in', async(req, res) => {
         opts
     );
 
-    session.userID = user.username;
     session.sessionID = req.sessionID;
 
     if(!user) {
         console.log('username or password incorrect');
-        res.send('incorrect login');
+        res.status(200).send({"sessionID": null});
     }
 
     else {
        console.log('user logged in: \n %s', user);
-       res.redirect('/');
+       res.status(200).send({"sessionID" : req.sessionID})
     }
 })
 
@@ -90,17 +116,14 @@ router.post('/logout', async(req, res) => {
 
 //account deletion route handler
 router.post('/delete_acct', async(req, res) => {
-    var username = req.body.username;
-    var pw = req.body.password;
-
-       const user = await User.findOneAndDelete({username: username, password: pw});
+       const user = await User.findOneAndDelete({"sessionID": req.sessionID});
        if(!user) {
         console.log('user does not exist');
         res.send('no');
        }
         else {
             console.log('user %s deleted', user);
-            res.send('deleted');
+            res.status(200).end();
         }
     });
 
@@ -114,7 +137,6 @@ router.post('/edit_acct', async(req, res) => {
 
 //direct to index page
 router.get("*", (req, res) => {
-    console.log('lol');
    res.sendFile(path.resolve(__dirname, "client", "build",     
     "index.html"));
  });
