@@ -4,17 +4,17 @@ import axios from "axios";
 
 const Account = () => {
 
-   const [accountData, setAccountData] = useState({});
+   const [user, setUser] = useState(['hi']);
    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get("/account").then((response) => {
-            setAccountData(response.data);
-            console.log(response.data);
+            setUser([response.data.userData]);
         })
     }, []);
 
     const deleteAcct = () => {
+        console.log(user);
         axios.post("/delete_acct",
         {
           headers:  {
@@ -28,18 +28,32 @@ const Account = () => {
         <div className="App">
             <div className="content">
                 <h1>Your Account</h1>
-                <form>
-                    <fieldset disabled="disabled">
-                        <input type="text" name="username" placeHolder="{Username}" /><br />
-                        <input type="text" name="email" placeHolder="{Email Address}" /><br />                        
-                        <input type="text" name="settlerWins" placeHolder="{Settler Wins}" /><br />
-                        <input type="text" name="settlerLosses" placeHolder="{Settler Losses}" /><br />                                                                        
-                        <input type="text" name="nativeWins" placeHolder="{Native Wins}" /><br />           
-                        <input type="text" name="nativeLosses" placeHolder="{Native Losses}" /><br />
-                    </fieldset>
-                </form>
-                <button onClick={deleteAcct}>Delete Account</button>
+                {user.map((acct) => {
+                return (
+                    <div className="content">
+                        <form>
+                        <fieldset disabled="disabled">
+                            <label for='username'>Username</label>
+                                <input type='text' name='username' placeholder={acct.username}/><br/>
+                            <label for='username'>Email</label>
+                                <input type='text' name='username' placeholder={acct.email}/><br/>
+                            <label for='username'>Settler Wins</label>
+                                <input type='text' name='username' placeholder={acct.settlerWins}/><br/>
+                            <label for='username'>Settler Losses</label>
+                                <input type='text' name='username' placeholder={acct.settlerLosses}/><br/>
+                            <label for='username'>Native Wins</label>
+                                <input type='text' name='username' placeholder={acct.nativeWins}/><br/>
+                            <label for='username'>Native Losses</label>
+                                <input type='text' name='username' placeholder={acct.nativeLosses}/><br/>
+                        </fieldset>
+                        </form>
+                    </div>
+                )
+            })}  
+                <button class='btn-small'>Edit Account</button>
+                <button class='btn-small' onClick={deleteAcct}>Delete Account</button>
             </div>
+                
             <span><Link to={"/"}>Home Page</Link> </span>
         </div>    
      )

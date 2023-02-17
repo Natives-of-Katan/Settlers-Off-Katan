@@ -5,7 +5,7 @@ const User = require('../models/userAccounts');  //import the userAccounts.js fi
 
 var session;
 
-//
+//handle request for profile data after user logs in
 router.get('/account', async(req, res) => {
     console.log(req.sessionID);
     const userAccount = await User.findOne({sessionID: req.sessionID})
@@ -25,8 +25,6 @@ router.get('/account', async(req, res) => {
         else console.log('user not found');
             res.send({"username":null})
 });
-
-
 
 //sign up route handler
 router.post('/sign_up', async (req, res) => {
@@ -141,5 +139,5 @@ router.get("*", (req, res) => {
     "index.html"));
  });
 
-//export the router so tha these route handlers can be used, it is imported in the server.js file
+//export the router so that these route handlers can be used, it is imported in the server.js file
 module.exports = router;
