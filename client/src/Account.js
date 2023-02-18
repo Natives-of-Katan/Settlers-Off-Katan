@@ -4,7 +4,7 @@ import axios from "axios";
 
 const Account = () => {
 
-   const [user, setUser] = useState(['']);
+   const [user, setUser] = useState({});
    const [edit, setEdit] = useState(false);
    const [editEmail, setEditEmail] = useState(false);
    const [editUserName, setEditUserName] = useState(false);
@@ -15,11 +15,11 @@ const Account = () => {
    
     useEffect(() => {
         axios.get("/account").then((response) => {
-            setUser([response.data.userData]);
+            setUser(response.data.userData);
         });
         if(isEdited)
             axios.get("/account").then((response) => {
-                setUser([response.data.userData]);
+                setUser(response.data.userData);
             });
             setIsEdited(false);
     }, [isEdited]);
@@ -63,26 +63,27 @@ const Account = () => {
           headers:  {
             'Content-Type': 'application/json'
           } 
-        })
-        .catch(err => console.log(err));
+        }).then( () => {
         setIsEdited(true);
         setPassword(false);
         setEditEmail(false);
         setEditUserName(false);
+        })
+        .catch(err => console.log(err));
     };
 
      return(
         <div className="App">
             <div className="content">
-                {user.map((acct) => {
-                return (
+               
+                
                     <div className="content">
-                        <h1>{acct.username}</h1>
-                        <h2>{acct.email}</h2>
-                        <h3>Settler Wins: {acct.settlerWins}</h3>
-                        <h3>Settler Losses: {acct.settlerLosses}</h3>
-                        <h3>Native Wins: {acct.nativeWins}</h3>
-                        <h3>Native Losses: {acct.nativeLosses}</h3>
+                        <h1>{user.username}</h1>
+                        <h2>{user.email}</h2>
+                        <h3>Settler Wins: {user.settlerWins}</h3>
+                        <h3>Settler Losses: {user.settlerLosses}</h3>
+                        <h3>Native Wins: {user.nativeWins}</h3>
+                        <h3>Native Losses: {user.nativeLosses}</h3>
                    
                         <div>
                             {edit && <div className="modal">
@@ -128,8 +129,8 @@ const Account = () => {
                                  </div>}
                         </div>
                     </div>
-                )
-            })}  
+        
+            
                 <button onClick={showEdit}>Edit Account</button>
                 <button onClick={deleteAcct}>Delete Account</button>
             </div>

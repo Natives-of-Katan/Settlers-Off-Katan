@@ -7,6 +7,7 @@ var session;
 
 //handle request for profile data after user logs in
 router.get('/account', async(req, res) => {
+    console.log('incoming profile data request from: %s', req.sessionID);
     const userAccount = await User.findOne({sessionID: req.sessionID})
         if(userAccount) {
             const userData = {
@@ -17,11 +18,12 @@ router.get('/account', async(req, res) => {
                 "nativeWins": userAccount.nativeWins,
                 "nativeLosses": userAccount.nativeLosses
             }
-            res.status(200).send({userData})
+            res.status(200).json({userData})
             return;
         }
-        else console.log('user not found');
-            res.send({"username":null})
+        else {console.log('user not found');
+            res.send({"username":''})
+    }
 });
 
 //sign up route handler
@@ -169,8 +171,8 @@ router.post('/edit_account', async(req, res) => {
 })
 
 //direct to index page upon visiting application
-router.get("*", (req, res) => {
-   res.sendFile(path.resolve(__dirname, "client", "build",     
+router.get("/*", (req, res) => {
+   res.sendFile(path.join(__dirname, '..' ,"client", "build",     
     "index.html"));
  });
 
