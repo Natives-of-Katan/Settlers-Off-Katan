@@ -19,6 +19,7 @@ router.get('/account', async(req, res) => {
                 "nativeLosses": userAccount.nativeLosses
             }
             res.status(200).json({userData})
+            console.log('sent userData for %s\n%s', req.sessionID, userData)
             return;
         }
         else {console.log('user not found');
@@ -28,6 +29,7 @@ router.get('/account', async(req, res) => {
 
 //sign up route handler
 router.post('/sign_up', async (req, res) => {
+    console.log("incoming account creation request from: %s", req.sessionID);
     const accountExists = await User.exists({username: req.body.username})
         if(accountExists) {
             console.log('account exists');
@@ -62,7 +64,7 @@ router.post('/sign_up', async (req, res) => {
         if(err)
             console.error(err);
         else {
-            console.log('new user added: ', user);
+            console.log('new account created successfully for %s:\n: ', req.sessionID, user);
             res.status(200).send({"sessionID": req.sessionID});
         }
     })
@@ -114,13 +116,14 @@ router.post('/logout', async(req, res) => {
 
 //account deletion route handler
 router.post('/delete_acct', async(req, res) => {
+    console.log('incoming delete profile request from: %s', req.sessionID);
     const user = await User.findOneAndDelete({"sessionID": req.sessionID});
     if(!user) {
     console.log('user does not exist');
     res.send('no');
     }
     else {
-        console.log('user %s deleted', user);
+        console.log('successfully deleted user:%s\n %s',req.sessionID, user);
         res.status(200).end();
     }
     });
