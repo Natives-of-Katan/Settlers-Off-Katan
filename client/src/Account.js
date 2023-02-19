@@ -1,38 +1,47 @@
 import React, {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
+import {AuthContext} from './Contexts/AuthContext'
+import {ProfileContext} from './Contexts/ProfileContext';
+import {useContext} from 'react'
+
 
 const Account = () => {
 
-   const [user, setUser] = useState({});
    const [edit, setEdit] = useState(false);
    const [editEmail, setEditEmail] = useState(false);
    const [editUserName, setEditUserName] = useState(false);
    const [isEdited, setIsEdited] = useState(false);
    const [password, setPassword] = useState(false);
+   const {auth, setAuth} = useContext(AuthContext);
+   const {profile, setProfile} = useContext(ProfileContext);
    const navigate = useNavigate();
+   
 
    
     useEffect(() => {
         axios.get("/account").then((response) => {
-            setUser(response.data.userData);
+            setProfile(response.data.userData);
         });
         if(isEdited)
             axios.get("/account").then((response) => {
-                setUser(response.data.userData);
+                setProfile(response.data.userData);
             });
             setIsEdited(false);
     }, [isEdited]);
 
     const deleteAcct = () => {
-        console.log(user);
         axios.post("/delete_acct",
         {
           headers:  {
             'Content-Type': 'application/json'
           } 
-        }).then(res=> (res.status===200) ? navigate('/'): navigate('/'))
-        .catch(err => console.log(err));
+        }).then(res=> {
+            if(res.status===200) {
+            setAuth(false);
+            navigate('/');
+            }
+        }).catch(err => console.log(err));
     }
 
     const showEdit= () => {
@@ -48,7 +57,6 @@ const Account = () => {
         setEdit(false);
         setEditEmail(true);
     }
-
 
     const showPassword = () => {
         setEdit(false);
@@ -75,16 +83,13 @@ const Account = () => {
      return(
         <div className="App">
             <div className="content">
-               
-                
                     <div className="content">
-                        <h1>{user.username}</h1>
-                        <h2>{user.email}</h2>
-                        <h3>Settler Wins: {user.settlerWins}</h3>
-                        <h3>Settler Losses: {user.settlerLosses}</h3>
-                        <h3>Native Wins: {user.nativeWins}</h3>
-                        <h3>Native Losses: {user.nativeLosses}</h3>
-                   
+                        <h1>{profile.username}</h1>
+                        <h2>{profile.email}</h2>
+                        <h3>Settler Wins: {profile.settlerWins}</h3>
+                        <h3>Settler Losses: {profile.settlerLosses}</h3>
+                        <h3>Native Wins: {profile.nativeWins}</h3>
+                        <h3>Native Losses: {profile.nativeLosses}</h3>
                         <div>
                             {edit && <div className="modal">
                                 <h1>Edit Account</h1>
@@ -129,8 +134,6 @@ const Account = () => {
                                  </div>}
                         </div>
                     </div>
-        
-            
                 <button onClick={showEdit}>Edit Account</button>
                 <button onClick={deleteAcct}>Delete Account</button>
             </div>

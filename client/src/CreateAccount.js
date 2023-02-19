@@ -1,11 +1,14 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {Link} from "react-router-dom";
-import  {useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom';
+import {AuthContext} from './Contexts/AuthContext';
+import {useContext} from 'react';
 import axios from "axios";
 
 const CreateAccount = () => {
 
     const navigate = useNavigate();
+    const {setAuth} = useContext(AuthContext);
 
     const handleSubmit = event => {
         event.preventDefault();
@@ -15,8 +18,12 @@ const CreateAccount = () => {
           headers:  {
             'Content-Type': 'application/json'
           } 
-        }).then(res=> (res.data.sessionID !=null) ? navigate('/Account'): navigate('/'))
-        .catch(err => console.log(err));
+        }).then(res=> {
+            if(res.status===200) {
+                setAuth(true);
+                navigate('/Account');
+            }
+        }).catch(err => console.log(err));
     };
 
     return(

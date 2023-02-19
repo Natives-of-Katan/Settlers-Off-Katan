@@ -2,8 +2,12 @@ import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import axios from "axios";
 import  {useNavigate} from 'react-router-dom'
+import {AuthContext} from './Contexts/AuthContext'
+import {useContext} from 'react'
 
 const Login = () => {
+
+    const {setAuth} = useContext(AuthContext);
 
     const navigate = useNavigate();
 
@@ -15,8 +19,13 @@ const Login = () => {
           headers:  {
             'Content-Type': 'application/json'
           } 
-        }).then(res=> (res.data.sessionID !=null) ? navigate('/Account'): navigate('/'))
-        .catch(err => console.log(err));
+        }).then(res=> {
+            if(res.status===200) {
+             setAuth(true);
+             navigate('/Account');
+            }
+            else navigate('/');
+        }).catch(err => console.log(err));
     };
 
     return(

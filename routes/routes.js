@@ -108,7 +108,7 @@ router.post('/logout', async(req, res) => {
     if(req.session) {
         req.session.destroy( ()=> {
             console.log('logout successful')
-            res.redirect('/');
+            res.status(200).send('ok');
         })
     }
 })
@@ -173,7 +173,7 @@ router.post('/edit_account', async(req, res) => {
     }
 })
 
-//direct to index page upon visiting application
+//catchall handler to send index.html when requests are made
 router.get("/*", (req, res) => {
    res.sendFile(path.join(__dirname, '..' ,"client", "build",     
     "index.html"));
