@@ -14,7 +14,7 @@ function Navbar() {
 
   const handleSubmit = event => {
     event.preventDefault();
-    axios.post("/logout",
+    axios.post("/api/logout",
     {
       headers:  {
         'Content-Type': 'application/json'

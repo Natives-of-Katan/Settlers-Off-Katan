@@ -13,6 +13,10 @@ const Account = () => {
    const [editUserName, setEditUserName] = useState(false);
    const [isEdited, setIsEdited] = useState(false);
    const [password, setPassword] = useState(false);
+   const [pwValid, setPwValid] = useState(false);
+   const [pwCheckValid, setPwCheckValid] = useState(false);
+   const [emailValid, setEmailValid] = useState(false);
+   const [nameValid, setNameValid] = useState(false);
    const [formError, setFormError] = useState(false);
    const [nameError, setNameError] = useState('');
    const [emailError, setEmailError] = useState('');
@@ -22,21 +26,24 @@ const Account = () => {
    const {profile, setProfile} = useContext(ProfileContext);
    const navigate = useNavigate();
    
+   const disabledNameBtn = !nameValid;
+   const disabledEmailBtn = !emailValid;
+   const disabledPwBtn = !(pwValid && pwCheckValid);
 
-   
+
     useEffect(() => {
-        axios.get("/account").then((response) => {
+        axios.get("/api/userData").then((response) => {
             setProfile(response.data.userData);
         });
         if(isEdited)
-            axios.get("/account").then((response) => {
+            axios.get("/api/userData").then((response) => {
                 setProfile(response.data.userData);
             });
             setIsEdited(false);
     }, [isEdited]);
 
     const deleteAcct = () => {
-        axios.post("/delete_acct",
+        axios.post("/api/delete_acct",
         {
           headers:  {
             'Content-Type': 'application/json'
@@ -51,25 +58,49 @@ const Account = () => {
     }
 
     const handleNameChange = event => {
-        event.target.value.length < 4 ? setNameError('username must be at least four characters!') : setNameError('');
+            if(event.target.value.length < 4) {
+                setNameError('username must be at least 4 characters!')
+                setNameValid(false);
+            }
+            else {
+                setNameError('');
+                setNameValid(true);
+            }
     }
 
     const handleEmailChange = event => {
-            const emailRegex = /^\S+@\S+\.\S+$/;
-            !emailRegex.test(event.target.value) ? setEmailError('not a valid email format') : setEmailError('');
+        const emailRegex = /^\S+@\S+\.\S+$/;
+        if( !emailRegex.test(event.target.value)) {
+            setEmailError('not a valid email format')
+            setEmailValid(false);
+        } 
+         else {
+            setEmailError('');
+            setEmailValid(true);
+         }
     }
 
     const handlePasswordChange = event => {
-        if(event.target.value.length < 8)
+        if(event.target.value.length < 8) {
             setPwError('password must be minimum 8 characters!');
+            setPwCheckValid(false);
+        }
         else {
             setPwError('');
             setPassword(event.target.value);
+            setPwValid(true);
         }
     }
 
     const handlePwCheck = event => {
-        event.target.value != password ? setPwCheckError('passwords do not match!') : setPwCheckError('');
+        if(event.target.value!= password) {
+            setPwCheckError('passwords do not match!');
+            setPwCheckValid(false);
+        }
+        else {
+            setPwCheckError('');
+            setPwCheckValid(true);
+        }
     }
 
     const showEdit= () => {
@@ -94,7 +125,7 @@ const Account = () => {
     const handleSubmit = event => {
         event.preventDefault();
         const data = new FormData(event.target);
-        axios.post("/edit_account", data,
+        axios.post("/api/edit_account", data,
         {
           headers:  {
             'Content-Type': 'application/json'
@@ -140,7 +171,7 @@ const Account = () => {
                                     <label for='new-username'>New Username:</label>
                                     <p>{nameError}</p>
                                     <input type='text' name='username' onChange={handleNameChange}/>
-                                    <button type='submit'>Submit</button>
+                                    <button type='submit' disabled={disabledNameBtn}>Submit</button>
                                  </form>
                                  <button onClick={() =>{setEditUserName(false); setFormError(false)}}>Cancel</button>
                                  </div>
@@ -152,7 +183,7 @@ const Account = () => {
                                     <p>{emailError}</p>
                                     <label for='new-email'>New Email:</label>
                                     <input type='text' name='email' onChange={handleEmailChange}/>
-                                    <button type='submit'>Submit</button>
+                                    <button type='submit' disabled={disabledEmailBtn}>Submit</button>
                                 </form>
                                 <button onClick={() => setEditEmail(false)}>Cancel</button>
                                 </div>
@@ -167,7 +198,7 @@ const Account = () => {
                                     <label for='new-passwordCheck'>Confirm New Password:</label>
                                     {pwCheckError}
                                     <input type='password' name='passwordCheck' onChange={handlePwCheck}/>
-                                    <button type='submit'>Submit</button>
+                                    <button type='submit' disabled={disabledPwBtn}>Submit</button>
                                  </form>
                                  <button onClick={() =>setPassword(false)}>Cancel</button>
                                  </div>}

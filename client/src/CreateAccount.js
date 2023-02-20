@@ -19,7 +19,7 @@ const CreateAccount = () => {
     const [nameValid, setNameValid] = useState(false);
     const [emailValid, setEmailValid] = useState(false);
     const [pwValid, setPwValid] = useState(false);
-    const [pwCheckValid, setPwCHeckValid] = useState(false);
+    const [pwCheckValid, setPwCheckValid] = useState(false);
 
     const disabled = !(nameValid && emailValid && pwValid && pwCheckValid);
 
@@ -52,7 +52,7 @@ const CreateAccount = () => {
     const handlePasswordChange = event => {
         if(event.target.value.length < 8) {
             setPwError('password must be minimum 8 characters!');
-            setPwCHeckValid(false);
+            setPwCheckValid(false);
         }
         else {
             setPwError('');
@@ -64,11 +64,11 @@ const CreateAccount = () => {
     const handlePwCheck = event => {
         if(event.target.value!= password) {
             setPwCheckError('passwords do not match!');
-            setPwCHeckValid(false);
+            setPwCheckValid(false);
         }
         else {
             setPwCheckError('');
-            setPwCHeckValid(true);
+            setPwCheckValid(true);
         }
     }
 
@@ -76,7 +76,7 @@ const CreateAccount = () => {
         event.preventDefault();
         const data = new FormData(event.target);
         console.log(data);
-        axios.post("/sign_up", data,
+        axios.post("/api/sign_up", data,
         {
           headers:  {
             'Content-Type': 'application/json'

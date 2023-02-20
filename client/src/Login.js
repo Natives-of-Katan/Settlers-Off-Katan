@@ -8,7 +8,7 @@ import {useContext} from 'react'
 
 const Login = () => {
 
-    const {setAuth} = useContext(AuthContext);
+    const {auth, setAuth} = useContext(AuthContext);
     const {setProfile} = useContext(ProfileContext);
     const [loginError, setLoginError] = useState(false);
 
@@ -17,7 +17,7 @@ const Login = () => {
     const handleSubmit = event => {
         event.preventDefault();
         const data = new FormData(event.target);
-        axios.post("/sign_in", data,
+        axios.post("/api/sign_in", data,
         {
           headers:  {
             'Content-Type': 'application/json'

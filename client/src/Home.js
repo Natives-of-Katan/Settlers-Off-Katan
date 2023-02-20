@@ -5,7 +5,7 @@ import {Link} from 'react-router-dom';
 
 const Home = () => {
 
-    const {auth} = useContext(AuthContext);
+    const {auth, setAuth} = useContext(AuthContext);
 
     return(
         <div className="App">

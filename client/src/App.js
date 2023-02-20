@@ -35,7 +35,7 @@ function App() {
             <Route exact path="/Options" element={<Options/>} />
             <Route exact path="/Rules" element={<Rules/>} />
             <Route exact path="/Play" element={<Play/>} />
-            <Route exact path="/Account" element={<Account/>} />
+            <Route exact path="/Account" element={auth ? <Account/> : <Login/>} />
             <Route exact path="/Login" element={<Login/>} />
             <Route exact path="/CreateAccount" element={<CreateAccount/>} />
             <Route exact path="/" element={<Home/>} />

@@ -6,7 +6,7 @@ const User = require('../models/userAccounts');  //import the userAccounts.js fi
 var session;
 
 //handle request for profile data after user logs in
-router.get('/account', async(req, res) => {
+router.get('/api/userData', async(req, res) => {
     console.log('incoming profile data request from: %s', req.sessionID);
     const userAccount = await User.findOne({sessionID: req.sessionID})
         if(userAccount) {
@@ -28,7 +28,7 @@ router.get('/account', async(req, res) => {
 });
 
 //sign up route handler
-router.post('/sign_up', async (req, res) => {
+router.post('/api/sign_up', async (req, res) => {
     console.log("incoming account creation request from: %s", req.sessionID);
     const accountExists = await User.exists({username: req.body.username})
         if(accountExists) {
@@ -71,7 +71,7 @@ router.post('/sign_up', async (req, res) => {
 
 
 //sign-in route handler
-router.post('/sign_in', async(req, res) => {
+router.post('/api/sign_in', async(req, res) => {
     session = req.session;
     const opts = {new: true};
 
@@ -101,7 +101,7 @@ router.post('/sign_in', async(req, res) => {
 })
 
 //logout route handler, destroys session
-router.post('/logout', async(req, res) => {
+router.post('/api/logout', async(req, res) => {
     if(req.session) {
         req.session.destroy( ()=> {
             console.log('logout successful')
@@ -112,7 +112,7 @@ router.post('/logout', async(req, res) => {
 
 
 //account deletion route handler
-router.post('/delete_acct', async(req, res) => {
+router.post('/api/delete_acct', async(req, res) => {
     console.log('incoming delete profile request from: %s', req.sessionID);
     const user = await User.findOneAndDelete({"sessionID": req.sessionID});
     if(!user) {
@@ -127,7 +127,7 @@ router.post('/delete_acct', async(req, res) => {
 
 
 //edit accout route handler
-router.post('/edit_account', async(req, res) => {
+router.post('/api/edit_account', async(req, res) => {
     const opts = {new:true};
 
     if(req.body.hasOwnProperty('username')) {
