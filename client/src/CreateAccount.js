@@ -2,6 +2,7 @@ import React from "react";
 import {Link} from "react-router-dom";
 import {useNavigate} from 'react-router-dom';
 import {AuthContext} from './Contexts/AuthContext';
+import {ProfileContext} from './Contexts/ProfileContext';
 import {useContext, useState} from 'react';
 import axios from "axios";
 
@@ -23,6 +24,7 @@ const CreateAccount = () => {
     const disabled = !(nameValid && emailValid && pwValid && pwCheckValid);
 
     const {setAuth} = useContext(AuthContext);
+    const {setProfile} = useContext(ProfileContext);
 
     const handleNameChange = event => {
         if(event.target.value.length < 4) {
@@ -82,8 +84,11 @@ const CreateAccount = () => {
         }).then(res=> {
             if(res.status===200) {
                 setAuth(true);
-                navigate('/Account');
-            }
+                axios.get("/account").then((response) => {
+                   setProfile(response.data.userData);
+               }).then(
+                navigate('/Account'));
+               }
             else {   
                 setFormError('The username you selected was already taken!');
             }

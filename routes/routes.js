@@ -100,7 +100,6 @@ router.post('/sign_in', async(req, res) => {
     }
 })
 
-
 //logout route handler, destroys session
 router.post('/logout', async(req, res) => {
     if(req.session) {
@@ -130,8 +129,6 @@ router.post('/delete_acct', async(req, res) => {
 //edit accout route handler
 router.post('/edit_account', async(req, res) => {
     const opts = {new:true};
-
-   
 
     if(req.body.hasOwnProperty('username')) {
         const accountExists = await User.exists({username: req.body.username});

@@ -3,11 +3,13 @@ import {Link} from "react-router-dom";
 import axios from "axios";
 import  {useNavigate} from 'react-router-dom'
 import {AuthContext} from './Contexts/AuthContext'
+import {ProfileContext} from './Contexts/ProfileContext'
 import {useContext} from 'react'
 
 const Login = () => {
 
     const {setAuth} = useContext(AuthContext);
+    const {setProfile} = useContext(ProfileContext);
     const [loginError, setLoginError] = useState(false);
 
     const navigate = useNavigate();
@@ -23,7 +25,10 @@ const Login = () => {
         }).then(res=> {
             if(res.status===200) {
              setAuth(true);
-             navigate('/Account');
+             axios.get("/account").then((response) => {
+                setProfile(response.data.userData);
+            }).then(
+             navigate('/Account'));
             }
             else {
                 setLoginError(true)
