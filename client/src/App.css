@@ -3,16 +3,21 @@
 }
 
 html, body, .App {
-  height: 100vh;
+  height: 100%;
+  width: 100vw;
 }
 
 .App {
+  background: url("./Components/background.png");
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+
   display: inline-block;
   width: 100%;
-  background-image: url("./Components/background.png");
   /* Creative Commons: https://www.deviantart.com/areckt/art/Safe-Haven-896065891 */
   background-repeat: no-repeat;
-  background-size: cover;
   background-attachment: fixed;
   text-align: center;
 }
@@ -57,10 +62,6 @@ h1 {
   margin-bottom: 30px;
 }
 
-#logo {
-  float: left;
-}
-
 button {
   height: 70px;
   width: 250px;
@@ -91,8 +92,14 @@ button:hover {
 .rules {
   background-color: #ffffffd2;
   width: 75%;
-  margin: auto;
+  margin: 20px auto;
 }
+
+#logo {
+  float: left;
+}
+
+/* Game board styles */
 
 svg g polygon {
   stroke: #ffffff;
