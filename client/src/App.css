@@ -75,6 +75,10 @@ button:hover {
   background-color: #5bbcda;
 }
 
+.error-msg {
+  color: red;
+}
+
 .game-tile {
   height: 5%;
   width: 5%;

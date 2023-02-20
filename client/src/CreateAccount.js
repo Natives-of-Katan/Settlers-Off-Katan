@@ -27,7 +27,7 @@ const CreateAccount = () => {
     //create account submission button disabled if any of the inputs are invalid
     const disabled = !(nameValid && emailValid && pwValid && pwCheckValid);
 
-    //function used to set authentication status
+    //function used to set authentication status, using AuthContext that was imported
     const {setAuth} = useContext(AuthContext);
 
     //as long as their username is <n4 characters, user is told so
@@ -109,16 +109,16 @@ const CreateAccount = () => {
                 <div className ="createAccountForm">
                     <h1>Create Your Account</h1>
                     <form classname = "post" onSubmit={handleSubmit}>
-                        <p>{formError}</p>
+                        <p className='error-msg'>{formError}</p>
                         <input type="text" name="username" placeHolder="Enter Username" onChange={handleNameChange}
-                            /><br /><span>{nameError}</span><br />
+                            /><br /><span className='error-msg'>{nameError}</span><br />
                         <input type="text" name="email" placeHolder="Enter an Email" onChange={handleEmailChange}
                             />
-                            <br /><span>{emailError}</span><br />                        
+                            <br /><span className='error-msg'>{emailError}</span><br />                        
                         <input type="password" name="password" placeHolder="Enter Password" onChange={handlePasswordChange}
-                            /><br /><span>{pwError}</span><br />
+                            /><br /><span className='error-msg'>{pwError}</span><br />
                         <input type="password" name="passwordCheck" placeHolder="Re-enter Password" onChange={handlePwCheck}
-                            /><br /><span>{pwCheckError}</span><br />                                                                       
+                            /><br /><span className='error-msg'>{pwCheckError}</span><br />                                                                       
                         <button type="submit" disabled={disabled}>Submit</button>
                     </form>
                 </div><br />               

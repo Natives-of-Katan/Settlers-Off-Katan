@@ -190,9 +190,9 @@ const Account = () => {
                             {editUserName && <div className="modal">
                                 <h1>Edit Username</h1>
                                 <form onSubmit={handleSubmit}>
-                                    {formError && <p>username taken, please choose another!</p>}
+                                    {formError && <p className='error-msg'>username taken, please choose another!</p>}
                                     <label for='new-username'>New Username:</label>
-                                    <p>{nameError}</p>
+                                    <p className='error-msg'>{nameError}</p>
                                     <input type='text' name='username' onChange={handleNameChange}/>
                                     <button type='submit' disabled={disabledNameBtn}>Submit</button>
                                  </form>
@@ -203,7 +203,7 @@ const Account = () => {
                             {editEmail && <div className="modal">
                                 <h1>Edit Email</h1>
                                 <form onSubmit={handleSubmit}>
-                                    <p>{emailError}</p>
+                                    <p className='error-msg'>{emailError}</p>
                                     <label for='new-email'>New Email:</label>
                                     <input type='text' name='email' onChange={handleEmailChange}/>
                                     <button type='submit' disabled={disabledEmailBtn}>Submit</button>
@@ -215,7 +215,7 @@ const Account = () => {
                             {pwModal && <div className="modal">
                                  <h1>Edit Password</h1>
                                  <form onSubmit={handleSubmit}>
-                                    <p>{pwError}</p>
+                                    <p className='error-msg'>{pwError}</p>
                                     <label for='new-password'>New Password:</label>
                                     <input type='password' name='password' onChange={handlePasswordChange}/>
                                     <label for='new-passwordCheck'>Confirm New Password:</label>
