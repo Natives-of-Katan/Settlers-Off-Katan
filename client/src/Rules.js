@@ -9,7 +9,7 @@ const Rules = () => {
     
     return(
         <div className="App">
-            <div className ="content">
+            <div className ="content rules">
                 <h1>Game Rules</h1>
                 <form>
                 <p>
