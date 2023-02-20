@@ -103,24 +103,6 @@ const Account = () => {
         }
     }
 
-    const showEdit= () => {
-        setEdit(true);
-    }
-
-    const showUsername = () => {
-        setEdit(false);
-        setEditUserName(true);
-    }
-
-    const showEmail = () => {
-        setEdit(false);
-        setEditEmail(true);
-    }
-
-    const showPassword = () => {
-        setEdit(false);
-        setPassword(true);
-    }
 
     const handleSubmit = event => {
         event.preventDefault();
@@ -140,10 +122,26 @@ const Account = () => {
         setEditEmail(false);
         setEditUserName(false);
         setFormError(false);
+        setEdit(true);
             }
         })
         .catch(err => console.log(err));
     };
+
+    const showUsername = () => {
+        setEdit(false);
+        setEditUserName(true);
+    }
+
+    const showEmail = () => {
+        setEdit(false);
+        setEditEmail(true);
+    }
+
+    const showPassword = () => {
+        setEdit(false);
+        setPassword(true);
+    }
 
      return(
         <div className="App">
@@ -161,6 +159,7 @@ const Account = () => {
                                 <button onClick={showUsername}>Edit Username</button>
                                 <button onClick={showEmail}>Edit Email</button>
                                 <button onClick={showPassword}>Edit Password</button>
+                                <button onClick={() => {setEdit(false)}}>Cancel</button>
                                 </div>
                             }
 
@@ -173,7 +172,7 @@ const Account = () => {
                                     <input type='text' name='username' onChange={handleNameChange}/>
                                     <button type='submit' disabled={disabledNameBtn}>Submit</button>
                                  </form>
-                                 <button onClick={() =>{setEditUserName(false); setFormError(false)}}>Cancel</button>
+                                 <button onClick={() =>{setEditUserName(false); setFormError(false); setEdit(true)}}>Cancel</button>
                                  </div>
                                  }
 
@@ -185,7 +184,7 @@ const Account = () => {
                                     <input type='text' name='email' onChange={handleEmailChange}/>
                                     <button type='submit' disabled={disabledEmailBtn}>Submit</button>
                                 </form>
-                                <button onClick={() => setEditEmail(false)}>Cancel</button>
+                                <button onClick={() => {setEditEmail(false); setEdit(true)}}>Cancel</button>
                                 </div>
                                  }
 
@@ -200,11 +199,11 @@ const Account = () => {
                                     <input type='password' name='passwordCheck' onChange={handlePwCheck}/>
                                     <button type='submit' disabled={disabledPwBtn}>Submit</button>
                                  </form>
-                                 <button onClick={() =>setPassword(false)}>Cancel</button>
+                                 <button onClick={() => {setPassword(false); setEdit(true)}}>Cancel</button>
                                  </div>}
                         </div>
                     </div>
-                <button onClick={showEdit}>Edit Account</button>
+                <button onClick={() => {setEdit(true)}}>Edit Account</button>
                 <button onClick={deleteAcct}>Delete Account</button>
             </div>
             <span><Link to={"/"}>Home Page</Link> </span>
