@@ -2,13 +2,15 @@ import React from "react";
 import {Link} from "react-router-dom";
 import {useNavigate} from 'react-router-dom';
 import {AuthContext} from './Contexts/AuthContext';
-import {ProfileContext} from './Contexts/ProfileContext';
 import {useContext, useState} from 'react';
 import axios from "axios";
 
 const CreateAccount = () => {
-
+    
+    //used to navigating to account page upon successful login
     const navigate = useNavigate();
+
+    //states for error messages
     const [nameError, setNameError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [pwError, setPwError] = useState('');
@@ -16,16 +18,19 @@ const CreateAccount = () => {
     const [password, setPassword] = useState('');
     const [formError, setFormError] = useState('');
 
+    //become true when their respective fields satisfy their criteria
     const [nameValid, setNameValid] = useState(false);
     const [emailValid, setEmailValid] = useState(false);
     const [pwValid, setPwValid] = useState(false);
     const [pwCheckValid, setPwCheckValid] = useState(false);
 
+    //create account submission button disabled if any of the inputs are invalid
     const disabled = !(nameValid && emailValid && pwValid && pwCheckValid);
 
+    //function used to set authentication status
     const {setAuth} = useContext(AuthContext);
-    const {setProfile} = useContext(ProfileContext);
 
+    //as long as their username is <n4 characters, user is told so
     const handleNameChange = event => {
         if(event.target.value.length < 4) {
             setNameError('username must be at least 4 characters!')
@@ -37,6 +42,7 @@ const CreateAccount = () => {
         }
     }
 
+    //user notified their email does not match the required format, until it does 
     const handleEmailChange = event => {
         const emailRegex = /^\S+@\S+\.\S+$/;
         if( !emailRegex.test(event.target.value)) {
@@ -49,6 +55,7 @@ const CreateAccount = () => {
          }
     }
 
+    //user notified of password requirements (8 chars long) until it satisfies requirement
     const handlePasswordChange = event => {
         if(event.target.value.length < 8) {
             setPwError('password must be minimum 8 characters!');
@@ -61,6 +68,7 @@ const CreateAccount = () => {
         }
     }
 
+    //as user retypes their chosen password, they are notified as long as it is not equivalent to the original
     const handlePwCheck = event => {
         if(event.target.value!= password) {
             setPwCheckError('passwords do not match!');
@@ -72,10 +80,13 @@ const CreateAccount = () => {
         }
     }
 
+    /*n submit, account creation data sent to server, if successful user is routed to their account
+    if username is taken, user is notified
+    */
     const handleSubmit = event => {
         event.preventDefault();
+        //capture the form data
         const data = new FormData(event.target);
-        console.log(data);
         axios.post("/api/sign_up", data,
         {
           headers:  {
