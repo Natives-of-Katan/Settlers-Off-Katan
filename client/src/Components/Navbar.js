@@ -9,7 +9,7 @@ import axios from "axios";
 function Navbar() {
 
   const {auth, setAuth} = useContext(AuthContext);
-  const {profile} = useContext(ProfileContext);
+  const {profile, setProfile} = useContext(ProfileContext);
   const navigate = useNavigate();
 
   const handleSubmit = event => {
@@ -22,6 +22,7 @@ function Navbar() {
     }).then(res=>{
         if(res.status===200) {
           setAuth(false);
+          setProfile({});
           navigate('/');
         }
     }).catch(err => console.log(err));

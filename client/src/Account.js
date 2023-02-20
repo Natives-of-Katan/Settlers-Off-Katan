@@ -44,6 +44,7 @@ const Account = () => {
         }).then(res=> {
             if(res.status===200) {
             setAuth(false);
+            setProfile({});
             navigate('/');
             }
         }).catch(err => console.log(err));

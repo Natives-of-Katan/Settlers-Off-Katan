@@ -84,10 +84,7 @@ const CreateAccount = () => {
         }).then(res=> {
             if(res.status===200) {
                 setAuth(true);
-                axios.get("/account").then((response) => {
-                   setProfile(response.data.userData);
-               }).then(
-                navigate('/Account'));
+                navigate('/Account');
                }
             else {   
                 setFormError('The username you selected was already taken!');

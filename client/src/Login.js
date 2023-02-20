@@ -25,10 +25,7 @@ const Login = () => {
         }).then(res=> {
             if(res.status===200) {
              setAuth(true);
-             axios.get("/account").then((response) => {
-                setProfile(response.data.userData);
-            }).then(
-             navigate('/Account'));
+             navigate('/Account');
             }
             else {
                 setLoginError(true)
