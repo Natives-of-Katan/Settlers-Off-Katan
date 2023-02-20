@@ -23,7 +23,7 @@ router.get('/account', async(req, res) => {
             return;
         }
         else {console.log('user not found');
-            res.send({"username":''})
+            res.status(201).send('user not logged in');
     }
 });
 
@@ -33,9 +33,7 @@ router.post('/sign_up', async (req, res) => {
     const accountExists = await User.exists({username: req.body.username})
         if(accountExists) {
             console.log('account exists');
-            res.status(200).send({
-                "sessionID": null
-            })
+            res.status(201).send('username taken');
             return;
         }
 
@@ -93,7 +91,7 @@ router.post('/sign_in', async(req, res) => {
 
     if(!user) {
         console.log('username or password incorrect');
-        res.status(200).send({"sessionID": null});
+        res.status(201).send('username or password incorrect');
     }
 
     else {
@@ -133,17 +131,25 @@ router.post('/delete_acct', async(req, res) => {
 router.post('/edit_account', async(req, res) => {
     const opts = {new:true};
 
+   
+
     if(req.body.hasOwnProperty('username')) {
-        const user = await User.findOneAndUpdate({"sessionID" : req.sessionID},
-            {
-            $set: {
-                username: req.body.username,
-                }
-            },
-            opts
-        );
-        console.log("updated user account: %s", user);
-        res.status(200).send(user);
+        const accountExists = await User.exists({username: req.body.username});
+            if(accountExists) {
+                res.status(201).send('username taken');
+            }
+            else {
+                const user = await User.findOneAndUpdate({"sessionID" : req.sessionID},
+                    {
+                    $set: {
+                        username: req.body.username,
+                        }
+                    },
+                    opts
+                );
+                console.log("updated user account: %s", user);
+                res.status(200).send(user);
+            }
     }
 
     else if(req.body.hasOwnProperty('email')) {

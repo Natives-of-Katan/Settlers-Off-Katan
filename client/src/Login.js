@@ -8,6 +8,7 @@ import {useContext} from 'react'
 const Login = () => {
 
     const {setAuth} = useContext(AuthContext);
+    const [loginError, setLoginError] = useState(false);
 
     const navigate = useNavigate();
 
@@ -24,7 +25,9 @@ const Login = () => {
              setAuth(true);
              navigate('/Account');
             }
-            else navigate('/');
+            else {
+                setLoginError(true)
+            }
         }).catch(err => console.log(err));
     };
 
@@ -34,6 +37,7 @@ const Login = () => {
                 <div className="loginForm">
                     <h1>Login</h1>
                     <form onSubmit={handleSubmit}>
+                        {loginError && <div>username or password incorrect, did you mean to <Link to='/CreateAccount'>create an account?</Link></div>}
                         <input type="text" name="username" placeHolder="Enter Username" required /><br /><br />                
                         <input type="password" name="password" placeHolder="Enter Password" required /><br /><br />                                                                      
                         <button type="submit">Submit</button>

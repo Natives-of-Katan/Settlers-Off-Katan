@@ -13,7 +13,12 @@ const Account = () => {
    const [editUserName, setEditUserName] = useState(false);
    const [isEdited, setIsEdited] = useState(false);
    const [password, setPassword] = useState(false);
-   const {auth, setAuth} = useContext(AuthContext);
+   const [formError, setFormError] = useState(false);
+   const [nameError, setNameError] = useState('');
+   const [emailError, setEmailError] = useState('');
+   const [pwCheckError, setPwCheckError] = useState('');
+   const [pwError, setPwError] = useState('');
+   const {setAuth} = useContext(AuthContext);
    const {profile, setProfile} = useContext(ProfileContext);
    const navigate = useNavigate();
    
@@ -44,6 +49,28 @@ const Account = () => {
         }).catch(err => console.log(err));
     }
 
+    const handleNameChange = event => {
+        event.target.value.length < 4 ? setNameError('username must be at least four characters!') : setNameError('');
+    }
+
+    const handleEmailChange = event => {
+            const emailRegex = /^\S+@\S+\.\S+$/;
+            !emailRegex.test(event.target.value) ? setEmailError('not a valid email format') : setEmailError('');
+    }
+
+    const handlePasswordChange = event => {
+        if(event.target.value.length < 8)
+            setPwError('password must be minimum 8 characters!');
+        else {
+            setPwError('');
+            setPassword(event.target.value);
+        }
+    }
+
+    const handlePwCheck = event => {
+        event.target.value != password ? setPwCheckError('passwords do not match!') : setPwCheckError('');
+    }
+
     const showEdit= () => {
         setEdit(true);
     }
@@ -71,11 +98,17 @@ const Account = () => {
           headers:  {
             'Content-Type': 'application/json'
           } 
-        }).then( () => {
+        }).then((res) => {
+            if(res.status===201) {
+                setFormError(true);
+            }
+            else {
         setIsEdited(true);
         setPassword(false);
         setEditEmail(false);
         setEditUserName(false);
+        setFormError(false);
+            }
         })
         .catch(err => console.log(err));
     };
@@ -102,19 +135,22 @@ const Account = () => {
                             {editUserName && <div className="modal">
                                 <h1>Edit Username</h1>
                                 <form onSubmit={handleSubmit}>
+                                    {formError && <p>username taken, please choose another!</p>}
                                     <label for='new-username'>New Username:</label>
-                                    <input type='text' name='username'/>
+                                    <p>{nameError}</p>
+                                    <input type='text' name='username' onChange={handleNameChange}/>
                                     <button type='submit'>Submit</button>
                                  </form>
-                                 <button onClick={() => setEditUserName(false)}>Cancel</button>
+                                 <button onClick={() =>{setEditUserName(false); setFormError(false)}}>Cancel</button>
                                  </div>
                                  }
 
                             {editEmail && <div className="modal">
                                 <h1>Edit Email</h1>
                                 <form onSubmit={handleSubmit}>
+                                    <p>{emailError}</p>
                                     <label for='new-email'>New Email:</label>
-                                    <input type='text' name='email'/>
+                                    <input type='text' name='email' onChange={handleEmailChange}/>
                                     <button type='submit'>Submit</button>
                                 </form>
                                 <button onClick={() => setEditEmail(false)}>Cancel</button>
@@ -124,10 +160,12 @@ const Account = () => {
                             {password && <div className="modal">
                                  <h1>Edit Password</h1>
                                  <form onSubmit={handleSubmit}>
+                                    <p>{pwError}</p>
                                     <label for='new-password'>New Password:</label>
-                                    <input type='password' name='password'/>
+                                    <input type='password' name='password' onChange={handlePasswordChange}/>
                                     <label for='new-passwordCheck'>Confirm New Password:</label>
-                                    <input type='password' name='passwordCheck'/>
+                                    {pwCheckError}
+                                    <input type='password' name='passwordCheck' onChange={handlePwCheck}/>
                                     <button type='submit'>Submit</button>
                                  </form>
                                  <button onClick={() =>setPassword(false)}>Cancel</button>
@@ -142,4 +180,4 @@ const Account = () => {
      )
 }
 
-export default Account;
+export default Account; 
