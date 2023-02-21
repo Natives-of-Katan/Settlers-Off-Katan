@@ -7,10 +7,9 @@ import GameBoard from "./Components/GameBoard"
 
 const Game = () => {
     return(
-        <div className="App">
+        <div className="Game">
             <GameBoard />
-            <div className ="content">
-            </div><br />
+            <br />
             <Link to="/Results">Results</Link><br />
             <Link to="/">Back Home</Link>
         </div>

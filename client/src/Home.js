@@ -8,7 +8,7 @@ const Home = () => {
     const {auth, setAuth} = useContext(AuthContext);
 
     return(
-        <div className="App">
+        <div className="App home">
             <div className ="content">
                 <h1>Welcome to Settlers Off Katan</h1>
                 <Link to={"/Play"}>
