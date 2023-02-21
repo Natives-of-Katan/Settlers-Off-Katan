@@ -19,10 +19,12 @@ const Rules = () => {
                 
                 Settlers work against both each other and the Natives and win the game by being the first to 10 Victory points. Each Settlement is worth 1 VP, each City is worth 2 VP, each Victory Point card is worth 1 VP, and the Largest Army and Longest Road special cards are each worth 2 VP<br/><br/>
                 
-                Natives work together to try to get the Settlers off Katan, and can win in one of two ways. If there are ever at least twice as many non-destroyed Tribes as there are non-destroyed Settlements plus non-destroyed Cities, the Natives have enough manpower to force the Settlers off Katan. Alternatively, if any two Settler's Settlements and Cities are all destroyed, then all the remaining Settlers become too scared of the Natives and flee the island.</p><br/>
-                <p>
+                Natives work together to try to get the Settlers off Katan, and can win in one of two ways. If there are ever at least twice as many non-destroyed Tribes as there are non-destroyed Settlements plus non-destroyed Cities, the Natives have enough manpower to force the Settlers off Katan. Alternatively, if any two Settler's Settlements and Cities are all destroyed, then all the remaining Settlers become too scared of the Natives and flee the island.
+                <br/><br/>
+                
                 There are 5 types of terrain tiles on Katan. Each tile produces 2 different resources, 1 normal resource and 1 Native resource.<br/><br/>
-
+                </p>
+                <p>
                 Pasture<br/>
                 Normal Resource: Sheep<br/>
                 Native Resource: Fiber<br/><br/>
@@ -80,11 +82,9 @@ const Rules = () => {
                 At the start of each Settler's turn they roll 2 six sided dice. If the total of the 2 dice is anything other than 7, then each Settlement on a tile that matches the value rolled produces 1 normal resource matching the tile for the Settler it belongs to. Cities produce 2 resources instead of 1.<br/><br/>
                 
                 If the total of the 2 dice is 7, then each Settler with more than 7 resource cards in their hand discards half their resources (rounded down), then the Settler who rolled the 7 moves the Robber to any tile and steals a random resource from a Settler who has a Settlement or City on the tile. The tile the Robber is on will not produce resources until the Robber is moved.<br/><br/>
-                </p>
-                <p>
+                
                 The Settler then takes any number of the following actions, in any order, as many times as they would like and have resources for (unless stated otherwise).<br/><br/>
-                </p>
-                <p class="rules-paragraph">
+                
                 Offer a Trade: Offer to trade any number and type(s) of resource cards for any other type(s) of resource cards. Each player then refuses or accepts the offer. If more than 1 player accepts the offer, the Settler who made the offer choses who they trade with.<br/><br/>
                 
                 Trade with the Bank: Pay 4 of any one resource to draw 1 of any other resource. If they have a ? port, they may instead pay 3 of any one resource to draw 1 of any other resource. If they have a resource specific port, they may instead pay 2 of that specific resource to draw 1 of any other resource.<br/><br/>
