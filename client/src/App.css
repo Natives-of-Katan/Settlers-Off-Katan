@@ -1,38 +1,123 @@
+:root {
+  --primary-text: #ffaa3c;
+}
+
+html, body, .App {
+  min-height: 100vh;
+  width: 100vw;
+}
+
 .App {
+  background: url("./Components/background.png");
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+
+  display: inline-block;
+  width: 100%;
+  /* Creative Commons: https://www.deviantart.com/areckt/art/Safe-Haven-896065891 */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+ul {
+  list-style-type: none;
+  position:absolute;
+  padding: 0px;
+  margin: 0px;
+  height: 80px;
+  width: 100%;
+  overflow: hidden;
+  border-bottom: 1px solid #ffffff;
+  background-color: #0000004f;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+li {
+  float: right;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+li a {
+  display: block;
+  color: var(--primary-text);
+  text-align: center;
+  padding: 20px 40px;
+  text-decoration: none;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+li a:hover {
+  color: wheat;
+}
+
+a {
+  color: #060541;
+}
+
+h1 {
+  color: #ffb400;
+  margin-top: 130px;
+  margin-bottom: 30px;
+}
+
+button {
+  height: 70px;
+  width: 250px;
+  background-color: white;
+  border-radius: 40px;
+  border: 1px solid var(--primary-text);
+  font-size: 1.2em;
+}
+
+button:hover {
+  background-color: #00000052;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.Game {
+  text-align: center;
+  padding-top: 80px;
+  background-image: url("./Components/gameBackground.png");
+  background-size: cover;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.Link a {
+  background-color: rgba(255, 255, 255, 0.908);
+  border-radius: 10px;
+  color: darkblue;
+}
+
+.rules {
+  background-color: #ffffffd2;
+  width: 75%;
+  margin: 20px auto;
+}
+
+#logo {
+  float: left;
+}
+
+/* Game board styles */
+
+svg g polygon {
+  stroke: #ffffff;
+  stroke-width: 0.2;
+  transition: fill-opacity .3s;
+}
+
+svg g {
+  fill-opacity: 0.6;
+}
+
+svg g:hover {
+  fill-opacity: 1;
+}
+
+svg g text {
+  font-size: 0.3em;
+  fill: #000000;
+  fill-opacity: 0.9;
+  transition: fill-opacity .2s;
 }

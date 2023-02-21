@@ -1,0 +1,11 @@
+{
+    "hexagon": {
+      "width": 1000,
+      "height": 800,
+      "layout": { "width": 8, "height": 8, "flat": false, "spacing": 1.02 },
+      "origin": { "x": 0, "y": 0 },
+      "map": "hexagon",
+      "mapProps": [ 2 ]
+    }
+  }
+  
