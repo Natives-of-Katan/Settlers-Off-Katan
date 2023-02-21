@@ -9,9 +9,8 @@ const Rules = () => {
     
     return(
         <div className="App">
-            <div className ="content">
+            <div className ="content rules">
                 <h1>Game Rules</h1>
-                <form>
                 <p>
                 General Overview<br/>
                 </p>
@@ -302,7 +301,6 @@ const Rules = () => {
                 Pay 2 Herbs and 2 Mana to look at the top 6 cards of any deck. You may put any number of them on the bottom of that deck in a random order, then return the rest to the top in any order.
                 </p><br/>
                 <Link to="/">Back</Link>           
-                </form>
             </div><br />   
         </div>
       )    

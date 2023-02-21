@@ -3,6 +3,9 @@ const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
+//var cookieParser = require('cookie-parser');
+const session = require('express-session');
+
 
 var corsOptions = {
     origin: '*', 
@@ -10,18 +13,28 @@ var corsOptions = {
 }
 const port = process.env.PORT || 8080;
 app.use(express.static('./client/build'));
-const db = "mongodb+srv://Natives-of-Katan:COSC481@cluster0.lzewhnq.mongodb.net/test";  //database URI
-
-
-//connects to database
-mongoose.connect(db).then(con => {
-    console.log('connected to MongoDb!');
-});
 
 //tells server to use body-parser
 app.use(bodyParser.urlencoded({ limit : '10mb', extended: true}));
 app.use(bodyParser.json());
 app.use(cors(corsOptions));
+
+//session setup
+const oneDay = 1000 * 60 * 60 * 24;
+//app.use(cookieParser);
+//app.use(cookieParser());
+app.use(session({
+    secret:"secret",
+    saveUninitialized:true,
+    cookie: { maxAge: oneDay },
+    resave: false
+}));
+
+//database connection
+const db = "mongodb+srv://Natives-of-Katan:COSC481@cluster0.lzewhnq.mongodb.net/NativesOffKatan";  //database URI
+mongoose.connect(db).then(con => {
+    console.log('connected to MongoDb!');
+});
 
 //import the routes folder for route handling
 const routes = require('./routes/routes');
@@ -32,4 +45,4 @@ app.listen(port, () => {
     console.log('Server listening on ' + port);
 })
 
-module.exports = port;
+module.exports = {port, session};
