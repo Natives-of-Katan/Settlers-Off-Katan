@@ -14,10 +14,14 @@ const Rules = () => {
                 <form>
                 <p>
                 General Overview<br/>
-                Each player will play as either a Settler or a Native. Settlers are each working against both eachother and the Natives and win the game by being the first to 10 Victory points. Each Settlement is worth 1 VP, each City is worth 2 VP, each Victory Point card is worth 1 VP, and the Largest Army and Longest Road special cards are each worth 2 VP<br/><br/>
+                </p>
+                <p class = "rules-paragraph">
+                Each player will play as either a Settler or a Native.
                 
-                Natives are working together to try to get the Settlers off Katan, and can win in one of two ways. If there are ever at least twice as many non-destroyed Tribes as there are non-destroyed Settlements plus non-destroyed Cities, the Natives have enough manpower to force the Settlers off Katan. Alternatively, if of any two Settler's Settlements and Cities are all destroyed, then all the remaining Settlers become too scared of the Natives and flee the island.<br/><br/>
+                Settlers work against both each other and the Natives and win the game by being the first to 10 Victory points. Each Settlement is worth 1 VP, each City is worth 2 VP, each Victory Point card is worth 1 VP, and the Largest Army and Longest Road special cards are each worth 2 VP<br/><br/>
                 
+                Natives work together to try to get the Settlers off Katan, and can win in one of two ways. If there are ever at least twice as many non-destroyed Tribes as there are non-destroyed Settlements plus non-destroyed Cities, the Natives have enough manpower to force the Settlers off Katan. Alternatively, if any two Settler's Settlements and Cities are all destroyed, then all the remaining Settlers become too scared of the Natives and flee the island.</p><br/>
+                <p>
                 There are 5 types of terrain tiles on Katan. Each tile produces 2 different resources, 1 normal resource and 1 Native resource.<br/><br/>
 
                 Pasture<br/>
@@ -39,9 +43,10 @@ const Rules = () => {
                 Mountain<br/>
                 Normal Resource: Ore<br/>
                 Native Resource: Mana
-                </p><br/>
+                </p> <br/>
                 <p>
-                Keywords<br/><br/>
+                Keywords</p><br/>
+                <p class="rules-paragraph">
                 Location: Settlements, Cities, Camps, and Tribes are locations.<br/><br/>
 
                 Impaired: The next time the location would produce resources, it instead doesn't and it stops being impaired.<br/><br/>
@@ -59,7 +64,8 @@ const Rules = () => {
                 Blighted: Until your next turn, Natives can't perform any actions on the blighted tile or any location or road on the blighted tile.  
                 </p><br/>
                 <p>
-                Game Setup<br/>
+                Game Setup</p>
+                <p class="rules-paragraph">
                 1. Each Native chooses their Tribal Leader. This determines their Tribal Deck and their special ability they can activate if they roll a 7 (see "Tribal Leaders" below).<br/>
                 2. Natives begin with a number of starting Tribes equal to one fewer than twice the number of Settlers. This means that the Natives will start with 5 Tribes in a 4-5 player game, and 7 Tribes in a 6-8 player game. Natives take turns placing starting Tribes until there are no more starting Tribes to place. If possible, a starting Tribe must be placed on a tile type that doesn't already have a Tribe on it.<br/>
                 3. Each Native draws 2 Basic Cards and 1 Tribal card.<br/>
@@ -70,12 +76,16 @@ const Rules = () => {
                 8. Play begins with the Settler who placed the first Settlement in step 5. After each Settler turn is a Native turn and vice versa.
                 </p><br />                
                 <p>
-                Settler Turns<br/><br/>
-                At the start of each Settler's turn they roll 2 six sided dice. If the total of the 2 dice is anything other than 7, then each Settlement on a tile that matches the value rolled produces 1 normal resource matching the tile for the Settler it belongs to. Cities produce 2 resources instead of 1.<br/>
+                Settler Turns</p>
+                <p class = "rules-paragraph">
+                At the start of each Settler's turn they roll 2 six sided dice. If the total of the 2 dice is anything other than 7, then each Settlement on a tile that matches the value rolled produces 1 normal resource matching the tile for the Settler it belongs to. Cities produce 2 resources instead of 1.<br/><br/>
+                
                 If the total of the 2 dice is 7, then each Settler with more than 7 resource cards in their hand discards half their resources (rounded down), then the Settler who rolled the 7 moves the Robber to any tile and steals a random resource from a Settler who has a Settlement or City on the tile. The tile the Robber is on will not produce resources until the Robber is moved.<br/><br/>
-                
+                </p>
+                <p>
                 The Settler then takes any number of the following actions, in any order, as many times as they would like and have resources for (unless stated otherwise).<br/><br/>
-                
+                </p>
+                <p class="rules-paragraph">
                 Offer a Trade: Offer to trade any number and type(s) of resource cards for any other type(s) of resource cards. Each player then refuses or accepts the offer. If more than 1 player accepts the offer, the Settler who made the offer choses who they trade with.<br/><br/>
                 
                 Trade with the Bank: Pay 4 of any one resource to draw 1 of any other resource. If they have a ? port, they may instead pay 3 of any one resource to draw 1 of any other resource. If they have a resource specific port, they may instead pay 2 of that specific resource to draw 1 of any other resource.<br/><br/>
@@ -100,8 +110,9 @@ const Rules = () => {
                 </p><br />
                 <p>
                 Settler Cards<br/><br/>
-                
                 Development Cards<br/>
+                </p>
+                <p class="rules-paragraph">
                 Knight: Move the Robber and steal a random resource from a Settler who has a Settlement or City on the tile the Robber was moved to. If you now have 3 Knights and no one has the Largest Army card, or you now have more Knights that whoever has the Largest Army card, take the Largest Army card.<br/><br/>
                 
                 Victory Point: Is worth 1 Victory Point. Must be played if doing so would give you 10 VP, and can only be played if doing so would give you 10 VP. Multiple VP cards may be played in a single turn, and they may be played the turn they are drawn.<br/><br/>
@@ -111,8 +122,12 @@ const Rules = () => {
                 Year of Plenty: Take any 2 normal resources from the supply stacks (can be two of the same or two different).<br/><br/>
                 
                 Monopoly: Name a resource. All Settlers must give you all of the resource cards of that type that they have.<br/><br/>
-                
+                </p>
+                <p>
                 Destruction Cards<br/>
+                </p>
+
+                <p class = "rules-paragraph">
                 Exploit the Land: Blight a tile that one or more of your Settlements or Cities is on and gain 1 resource from it (of the normal type it produces). May discard a Turquoise or Mana to repeat this on a tile adjacent to the first tile you blighted, which doesn't have to have one of your Settlements or Cities. <br/><br/>
                 
                 Aggressive Negotiations: Steal 2 random resources from the Natives. May discard a Turquoise or Deer to instead choose which resources to steal. <br/><br/>
@@ -122,8 +137,11 @@ const Rules = () => {
                 Eliminate the Savages: Attack 1 Tribe on a tile with one or more of your Settlements or Cities. May discard an Herb or Fiber to repeat this.<br/><br/>
                 
                 Convert the Savages: 1 Native of your choice discards 2 Basic or Tribal cards of their choice. May discard a Fiber or a Mana to instead cause them to discard all of their Basic and Tribal cards.<br/><br/>
-                
+                </p>
+                <p>
                 Defensive Cards<br/>
+                </p>
+                <p class="rules-paragraph">
                 Recover from Unprovoked Aggression: Repair up to 2 Settlements, 2 Cities, or 1 of each. May discard a Fiber or Herb to also prevent both repaired locations from being damaged until your next turn<br/><br/>
                 
                 Knights Visit the Outskirts: Choose up to 2 Settlements. The next time one of them would be damaged, it instead isn't (the protection then goes away for both of them). This protection remains if one or both are upgraded to a City before the protection is used. May discard a Mana or Herb to instead choose up to 3 Settlements and prevent the next 2 times one of them would be damaged.<br/><br/>
@@ -135,9 +153,10 @@ const Rules = () => {
                 Increase Highway Patrol: Choose one of your Settlements or Cities. The next time a road connected to that location would be removed, it instead isn't. You may discard a Deer or Fiber to instead have this apply to all of your roads and for the next 2 removals to be prevented.  
                 </p><br/>
                 <p>
-                Native Turns<br/>    
-                At the start of each Native's turn they roll 2 six sided dice then choose one of the following.<br/><br/>
-               
+                Native Turns<br/>
+                At the start of each Native's turn they roll 2 six sided dice then choose one of the following.
+                </p>
+                <p class="rules-paragraph"> 
                 1. If a 7 was rolled, move the Robber and steal a random resource from a Settler who has a Settlement or City on the tile you moved the Robber to.<br/>
                 2. If a 7 was rolled, draw 2 Basic cards, 2 Tribal cards, or 1 of each.<br/>
                 3. If a 7 was rolled, activate your Tribal Leader's ability (see "Tribal Leaders" below).<br/>
@@ -147,11 +166,13 @@ const Rules = () => {
                 Then the Native may play any cards they have by paying their costs (see "Native Cards" and "Tribal Leaders" below). Natives can also offer trades just like the Settlers, though they can't trade with the bank.
                 </p><br/>
                 <p>
-                Native Cards<br/> 
+                Native Cards
+                </p>
+                <p class="rules-paragraph">
                 There are three types of Native cards. Basic Cards, which can be drawn by any Native, Tribal cards, which are unique to each Tribal Leader, and Patron Spirit cards which are unique to each Tribal Leader and start the game outside of the Tribal Decks.<br/><br/>
-                
-                Basic Cards<br/><br/>
-                
+                </p>
+                Basic Cards
+                <p class="rules-paragraph">
                 Grow our Numbers<br/> 
                 Option 1. Pay 1 Fiber, 1 Wood, and 1 Deer/Sheep/Wheat to create a Camp on a tile with no Camp or Tribe.<br/>
                 Option 2. Pay 2 Bricks, 1 Ore, 1 Turquoise, and 1 Deer/Sheep/Wheat to upgrade a Camp to a Tribe.<br/><br/>
@@ -172,9 +193,14 @@ const Rules = () => {
                 </p><br/>
                 <p>
                 Tribal Leaders<br/>
+                </p>
+                <p class="rules-paragraph">
                 Each Tribal Leader has 5 unique cards, called Tribal cards, which make up their Tribal Deck. 5 copies of a card that counts as 2 different Basic cards, 4 copies of a card that is a cheaper version of one of those Basic cards, 3 copies of a card that is a stronger version of the other Basic card, 2 copies of a unique temporary effect, and a copy of their Patron Spirit which is a permenant effect and starts the game outside of the Tribal Deck.<br/><br/>
-                
-                Leader Name: Proliferating Rabit<br/>
+                </p>
+                <p>
+                Leader Name: Proliferating Rabit
+                </p>
+                <p class="rules-paragraph">
                 Ability on 7: May have each Tribe produce 1 normal resource<br/>
                 Patron Spirit: Invoke Earth with Nurtures All Life<br/>
                 Pay 2 Brick, 2 Mana, 2 Ore, and 2 Turquoise to add a 6 or 8 to a tile that doesn't already have that number on it. A tile produces for both Settlers and Natives if any of its numbers are rolled. Return this card to the box instead of discarding it.<br/><br/>    
@@ -189,8 +215,11 @@ const Rules = () => {
                 
                 Best Gatherers on the Island<br/>
                 Pay 1 Deer, 1 Herb, and 1 Turquoise to roll for resources 3 times (same process as the start of a Native turn).<br/><br/>
-                
-                Leader Name: Resiliant Badger<br/>
+                </p>
+                <p>
+                Leader Name: Resiliant Badger
+                </p>
+                <p class="rules-paragraph">
                 Ability on 7: May repair a Camp or Tribe<br/>
                 Patron Spirit: Invoke Water Seeks Swift Retribution<br/>
                 Pay 1 Herb, 3 Mana, 3 Ore, and 1 Turquoise to make it so from now on whenever a Settler would damage a Camp or Tribe (even if that damage is prevented), damage a random Settlement or City that belongs to that Settler. Return this card to the box instead of discarding it.<br/><br/>
@@ -207,8 +236,11 @@ const Rules = () => {
                 
                 Best Guardians on the Island<br/>
                 Pay 2 Herbs and 1 Ore to choose 3 Camps/Tribes. They cannot be damaged until your next turn.<br/><br/>
-                
-                Leader Name: Paralyzing Viper<br/>
+                </p>
+                <p>
+                Leader Name: Paralyzing Viper
+                </p>
+                <p class="rules-paragraph">
                 Ability on 7: May attack a Settlement or City<br/>
                 Patron Spirit: Invoke Fire Consumes Indiscriminately<br/>
                 Pay 3 Mana and 5 Wood to remove a Settlement or City of each color and a Camp or Tribe from the board. If this would cause any Roads to no longer be connected to a Settlement or City of its color, also remove those Roads. Return this card to the box instead of discarding it.<br/><br/>
@@ -227,7 +259,11 @@ const Rules = () => {
                 Best Raiders on the Island<br/>
                 Pay 1 Mana, 2 Ore, and 1 Wood to Destroy 1 Settlement or City.<br/><br/>
 
-                Leader Name: Crafty Fox<br/>
+                </p>
+                <p>
+                Leader Name: Crafty Fox
+                </p>
+                <p class="rules-paragraph">
                 Ability on 7: May hamper a tile<br/>
                 Patron Spirit: Invoke Wind Enjoys Messing with Mortals<br/>
                 Pay 3 Fiber, 2 Herbs, 3 Mana, and 2 Turquoise to replace a tile's value with a 2 or a 12. If there was a Camp or Tribe on the chosen tile, you may move it to a tile of the same type that doesn't have a Camp or Tribe. Return this card to the box instead of discarding it.<br/><br/> 
@@ -243,8 +279,11 @@ const Rules = () => {
 
                 Best Thieves on the Island<br/>
                 Pay 1 Deer, 1 Mana, and 1 Wood to choose a Settler and steal a random resource from them. Then do that four more times.<br/><br/>
-
-                Leader Name: Radiant Eagle<br/>
+                </p>
+                <p>
+                Leader Name: Radiant Eagle
+                </p>
+                <p class="rules-paragraph">
                 Ability on 7: May put a card from your discard pile or the Basic discard pile into your hand.<br/>
                 Patron Spirit: Invoke Star Summons all Spirits<br/>
                 Pay 2 Herbs, 6 Mana, and 2 Turquoise to put every other Patron Spirit card into its Tribal Leader's hand. Patron Spirit cards of Leaders not in this game are instead put into your hand. Return this card to the box instead of discarding it.<br/><br/>

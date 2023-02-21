@@ -59,6 +59,13 @@ li a {
   font-weight: bold;
 }
 
+.rules-paragraph {
+  text-align:left;
+  padding-left: 300px;
+  padding-right: 300px;
+}
+
+
 #logo {
   float: left;
 }
