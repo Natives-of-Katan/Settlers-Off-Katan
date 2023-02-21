@@ -48,6 +48,18 @@ li a {
   font-weight: bold;
 }
 
+
+.rules-paragraph {
+  text-align:left;
+  padding-left: 300px;
+  padding-right: 300px;
+}
+
+
+#logo {
+  float: left;
+}
+
 li a:hover {
   color: wheat;
 }
@@ -60,6 +72,7 @@ h1 {
   color: #ffb400;
   margin-top: 130px;
   margin-bottom: 30px;
+
 }
 
 button {
