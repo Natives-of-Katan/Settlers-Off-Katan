@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose"); 
 
-//the schema for a user object to be saved in the database - here it just consists of a name
+//the schema for a user object to be saved in the database
 const userAccount = new mongoose.Schema({
         username: {
             type: String,
