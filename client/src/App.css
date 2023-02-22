@@ -128,10 +128,6 @@ svg g {
   color: red;
 }
 
-.error-msg {
-  color: red;
-}
-
 svg g:hover {
   fill-opacity: 1;
 }
