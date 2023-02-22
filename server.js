@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 //var cookieParser = require('cookie-parser');
 const session = require('express-session');
+const path = require('path');
 
 
 var corsOptions = {
@@ -12,7 +13,7 @@ var corsOptions = {
     optionsSuccessStatus: 200
 }
 const port = process.env.PORT || 8080;
-app.use(express.static('./client/build'));
+app.use(express.static(path.join(__dirname,'client', 'build')));
 
 //tells server to use body-parser
 app.use(bodyParser.urlencoded({ limit : '10mb', extended: true}));
@@ -21,8 +22,6 @@ app.use(cors(corsOptions));
 
 //session setup
 const oneDay = 1000 * 60 * 60 * 24;
-//app.use(cookieParser);
-//app.use(cookieParser());
 app.use(session({
     secret:"secret",
     saveUninitialized:true,
