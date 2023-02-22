@@ -10,8 +10,8 @@ const Game = () => {
         <div className="Game">
             <GameBoard />
             <br />
-            <Link to="/Results">Results</Link><br />
-            <Link to="/">Back Home</Link>
+            <Link to={"/Results"}>Results</Link><br />
+            <Link to={"/"}>Back Home</Link>
         </div>
       )     
 }

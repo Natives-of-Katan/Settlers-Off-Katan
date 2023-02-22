@@ -1,5 +1,3 @@
-//ReactJS slider components can be built here for volume controls
-
 import React from "react";
 //import Axios from 'axios';
 //import {useState} from 'react';
@@ -21,8 +19,8 @@ const Options = () => {
                     <p>
                     SFX Volume 
                     </p><br />               
-                    <Link to="/"><button type="submit">Accept</button></Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 
-                    <Link to="/"><button type="submit">Cancel</button></Link>            
+                    <Link to={"/"}><button type="submit">Accept</button></Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 
+                    <Link to={"/"}><button type="submit">Cancel</button></Link>            
                 </form>
             </div><br />   
         </div>
