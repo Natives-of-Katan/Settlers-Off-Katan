@@ -8,9 +8,9 @@ const PassAndPlay = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (!isNaN(numPlayers) && numPlayers >= 4 && numPlayers <= 8) {    //if input is a number and a number between 4 to 8,
-          window.location.href = "/Game";                   //go to Game page
-        } else {                                            //else ask user to enter a number between 4 and 8
+        if (!isNaN(numPlayers) && numPlayers >= 4 && numPlayers <= 8) {     //if input is a number and a number between 4 to 8,
+            window.location.href = "/Game";                                 //go to Game page
+        } else {                                                            //else ask user to enter a number between 4 and 8
           alert("Please enter a number between 4 and 8");  
         }
     };
@@ -29,7 +29,7 @@ const PassAndPlay = () => {
                     <button type="submit">Start Game</button>
                 </form>
             </div><br />
-            <Link to="/Play">Back to modes</Link>
+            <Link to={"/Play"}>Back to modes</Link>
         </div>
     )    
  }

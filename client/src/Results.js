@@ -11,8 +11,8 @@ const Results = () => {
             <div className ="content">
                 <h1>*Results go here*</h1>
             </div><br /><br />
-            <Link to="/Lobby">Rematch</Link><br />
-            <Link to="/">Back home</Link>
+            <Link to={"/Lobby"}>Rematch</Link><br />
+            <Link to={"/"}>Back home</Link>
         </div>
     )     
 }

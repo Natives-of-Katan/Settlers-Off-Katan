@@ -9,17 +9,17 @@ const Play = () => {
         <div className="App">
             <div className ="content">
                 <h1>Choose Your Game Mode</h1>
-                <a href="/PassAndPlay">
+                <a href={"/PassAndPlay"}>
                     <button>Pass and Play</button>
                 </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <a href="/JoinMatch">
+                <a href={"/JoinMatch"}>
                     <button>Join Online Match</button>
                 </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <a href="/Lobby">
+                <a href={"/Lobby"}>
                     <button>Create Online Match</button>
                 </a><br />
             </div><br />
-            <Link to="/">Back</Link>
+            <Link to={"/"}>Back</Link>
         </div>
     )    
 }

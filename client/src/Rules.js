@@ -300,7 +300,7 @@ const Rules = () => {
                 Best Oracles on the Island<br/>
                 Pay 2 Herbs and 2 Mana to look at the top 6 cards of any deck. You may put any number of them on the bottom of that deck in a random order, then return the rest to the top in any order.
                 </p><br/>
-                <Link to="/">Back</Link>           
+                <Link to={"/"}>Back</Link>           
             </div><br />   
         </div>
       )    
