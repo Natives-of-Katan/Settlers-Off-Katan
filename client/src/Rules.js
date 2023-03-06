@@ -201,7 +201,7 @@ const Rules = () => {
                 </p>
                 <p class="rules-paragraph">
                 Ability on 7: May have each Tribe produce 1 normal resource<br/>
-                Patron Spirit: Invoke Earth with Nurtures All Life<br/>
+                Patron Spirit: Invoke Earth which Nurtures All Life<br/>
                 Pay 2 Brick, 2 Mana, 2 Ore, and 2 Turquoise to add a 6 or 8 to a tile that doesn't already have that number on it. A tile produces for both Settlers and Natives if any of its numbers are rolled. Return this card to the box instead of discarding it.<br/><br/>    
                 
                 Grow our Numbers / Regrow after Assault<br/>
