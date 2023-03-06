@@ -159,8 +159,8 @@ const Rules = () => {
                 1. If a 7 was rolled, move the Robber and steal a random resource from a Settler who has a Settlement or City on the tile you moved the Robber to.<br/>
                 2. If a 7 was rolled, draw 2 Basic cards, 2 Tribal cards, or 1 of each.<br/>
                 3. If a 7 was rolled, activate your Tribal Leader's ability (see "Tribal Leaders" below).<br/>
-                4. Each Tribe produces 2 resources (2 normal, 2 Native, or 1 of each), and each Camp produces 1 resource (a normal or a Native).<br/>
-                5. Draw a Basic or Tribal card, then each Tribe produces 1 resource (a normal or a Native).<br/><br/>
+                4. Each Tribe whose hex matches the number rolled produces 2 resources (2 normal, 2 Native, or 1 of each), and each Camp whose hex matches the number rolled produces 1 resource (a normal or a Native).<br/>
+                5. Draw a Basic or Tribal card, then each Tribe whose hex matches the number rolled produces 1 resource (a normal or a Native).<br/><br/>
                 
                 Then the Native may play any cards they have by paying their costs (see "Native Cards" and "Tribal Leaders" below). Natives can also offer trades just like the Settlers, though they can't trade with the bank.
                 </p><br/>
