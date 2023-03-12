@@ -149,3 +149,19 @@ svg g text {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
   z-index: 9999;
 }
+
+circle.none-none {
+  fill-opacity: 0.6;
+}
+
+circle:hover {
+  fill-opacity: 1;
+}
+
+line.edge-none {
+  opacity: 0;
+}
+
+line:hover {
+  opacity: 1;
+}
