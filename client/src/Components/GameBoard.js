@@ -41,7 +41,7 @@ const GameBoard = (/*context, gamestate, moves*/) => {
     const addVertex = (int, type, user) => {
       // render grid first, or points don't exist
       if (pointCoords[0] != undefined) {
-        return new Vertex(type,  user, pointCoords[0][int].x, pointCoords[0][int].y);
+        return new Vertex(type,  user, pointCoords[0][int].x, pointCoords[0][int].y, onClick(int));
       }
     }
 
@@ -49,8 +49,8 @@ const GameBoard = (/*context, gamestate, moves*/) => {
     const addEdge = (int, user) => {
       if (pointCoords[0] != undefined) {
         return (
-          int < 5 ? new Edge(pointCoords[0][int], pointCoords[0][int + 1], user) : 
-          new Edge(pointCoords[0][int], pointCoords[0][0], user)
+          int < 5 ? new Edge(pointCoords[0][int], pointCoords[0][int + 1], user, onClick(int)) : 
+          new Edge(pointCoords[0][int], pointCoords[0][0], user,  onClick(int))
         )
       }
     }
