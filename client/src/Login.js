@@ -42,10 +42,10 @@ const Login = () => {
                         {loginError && <div>username or password incorrect, did you mean to <Link to='/CreateAccount'>create an account?</Link></div>}
                         <input type="text" name="username" placeHolder="Enter Username" required /><br /><br />                
                         <input type="password" name="password" placeHolder="Enter Password" required /><br /><br />                                                                      
-                        <button type="submit">Submit</button>
+                        <button class="login-button btn-default-style"type="submit">Submit</button>
                     </form>
                     </div><br />               
-                <Link to={"/"}><button>Cancel</button></Link>
+                <Link to={"/"}><button class="login-button btn-default-style">Cancel</button></Link>
             </div>
         </div>    
     );

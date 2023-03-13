@@ -19,8 +19,8 @@ const Options = () => {
                     <p>
                     SFX Volume 
                     </p><br />               
-                    <Link to={"/"}><button type="submit">Accept</button></Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 
-                    <Link to={"/"}><button type="submit">Cancel</button></Link>            
+                    <Link to={"/"}><button class="options-button btn-default-style" type="submit">Accept</button></Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 
+                    <Link to={"/"}><button class="options-button btn-default-style" type="submit">Cancel</button></Link>            
                 </form>
             </div><br />   
         </div>

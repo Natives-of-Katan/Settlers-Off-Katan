@@ -29,10 +29,10 @@ function Navbar() {
 };
 
   return (
-    <ul> 
-    <li id="logo"><Link to="/">Settlers Off Katan</Link></li>
-    <li><Link to="/Options">Options</Link></li>
-    <li><Link to="/">Home</Link></li>
+    <ul id="navbar"> 
+    <li id="logo" class="nav-button"><Link to="/">Settlers Off Katan</Link></li>
+    <li class="nav-button"><Link to="/Options">Options</Link></li>
+    <li class="nav-button"><Link to="/">Home</Link></li>
     {auth && <li><Link to='/Account'>{profile.username}</Link></li>}
     {auth && <button onClick={handleSubmit}>Logout</button>}
   </ul> 

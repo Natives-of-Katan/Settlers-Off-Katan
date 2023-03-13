@@ -119,10 +119,10 @@ const CreateAccount = () => {
                             /><br /><span className='error-msg'>{pwError}</span><br />
                         <input type="password" name="passwordCheck" placeHolder="Re-enter Password" onChange={handlePwCheck}
                             /><br /><span className='error-msg'>{pwCheckError}</span><br />                                                                       
-                        <button type="submit" disabled={disabled}>Submit</button>
+                        <button class="create-acct-button btn-default-style" type="submit" disabled={disabled}>Submit</button>
                     </form>
                 </div><br />               
-                <Link to={"/"}><button type="submit">Cancel</button></Link>
+                <Link to={"/"}><button class="create-acct-button btn-default-style" type="submit">Cancel</button></Link>
             </div>
         </div>    
     );

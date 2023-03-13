@@ -22,7 +22,7 @@ html, body, .App {
   text-align: center;
 }
 
-/*ul {
+#navbar {
   list-style-type: none;
   position:absolute;
   padding: 0px;
@@ -34,11 +34,11 @@ html, body, .App {
   background-color: #0000004f;
 }
 
-li {
+.nav-button {
   float: right;
 }
 
-li a {
+.nav-button a {
   display: block;
   color: var(--primary-text);
   text-align: center;
@@ -46,8 +46,11 @@ li a {
   text-decoration: none;
   font-size: 1.5em;
   font-weight: bold;
-}*/
+}
 
+.nav-button a:hover {
+  color: wheat;
+}
 
 .rules-paragraph {
   text-align:left;
@@ -55,14 +58,9 @@ li a {
   padding-right: 300px;
 }
 
-
 #logo {
   float: left;
 }
-
-/*li a:hover {
-  color: wheat;
-}*/
 
 a {
   color: #060541;
@@ -75,14 +73,18 @@ h1 {
 
 }
 
-/*button {
+.btn-default-style {
   height: 70px;
   width: 250px;
   background-color: white;
   border-radius: 40px;
   border: 1px solid var(--primary-text);
   font-size: 1.2em;
-}*/
+}
+
+.options-button, .lobby-button {
+  width: 250px;
+}
 
 button:hover {
   background-color: #00000052;
@@ -111,8 +113,6 @@ button:hover {
 #logo {
   float: left;
 }
-
- Game board styles 
 
 svg g polygon {
   stroke: #ffffff;

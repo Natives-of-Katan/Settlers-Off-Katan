@@ -11,7 +11,7 @@ const JoinMatch = () => {
                 <form>
                     <p>Invite Code:</p>
                     <input type ="text" name="joinMatchCode" placeHolder="Enter code here" /><br /><br />
-                    <Link to={"/Lobby"}><button type="submit">Join Public</button></Link>
+                    <Link to={"/Lobby"}><button class="btn-default-style" type="submit">Join Public</button></Link>
                 </form>
             </div><br />
             <Link to={"/Play"}>Back</Link>

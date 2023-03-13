@@ -26,7 +26,7 @@ const PassAndPlay = () => {
                 <form onSubmit={handleSubmit}>
                     <p>Number of players (4-8):</p>
                     <input type ="text" name="numPlayers" placeHolder="Enter a number" value={numPlayers} onChange={handleInputChange}/><br /><br />
-                    <button type="submit">Start Game</button>
+                    <button class="start-game-button btn-default-style" type="submit">Start Game</button>
                 </form>
             </div><br />
             <Link to={"/Play"}>Back to modes</Link>

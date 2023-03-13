@@ -12,15 +12,15 @@ const Home = () => {
             <div className ="content">
                 <h1>Welcome to Settlers Off Katan</h1>
                 <Link to={"/Play"}>
-                    <button>Play</button>
+                    <button class="home-button btn-default-style">Play</button>
                 </Link>
                 <br /><br />
                 <Link to={"/Rules"}>
-                    <button>Rules</button>
+                    <button class="home-button btn-default-style">Rules</button>
                     </Link>
                 <br/><br />
                 <Link to={"/Options"}>
-                    <button>Options</button>
+                    <button class="home-button btn-default-style">Options</button>
                 </Link>
                 <br />
             </div><br />

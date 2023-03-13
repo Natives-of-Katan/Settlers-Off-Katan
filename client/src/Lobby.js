@@ -13,8 +13,8 @@ const Lobby = () => {
                     <p>Invite Code:</p>
                         <input disabled="disabled" name="inviteCode" type ="text" placeHolder="Invite Code #" /><br /><br />
                     <p>Looking for players~</p><br />
-                    <Link to={"/Game"}><button type="submit">Start Game</button></Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 
-                    <Link to={"/Lobby"}><button type="submit">Make Private/Make Public</button></Link>
+                    <Link to={"/Game"}><button class="lobby-button btn-default-style" type="submit">Start Game</button></Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 
+                    <Link to={"/Lobby"}><button class="lobby-button btn-default-style" type="submit">Make Private/Make Public</button></Link>
                 </form>
             </div><br />
             <Link to={"/"}>To Home</Link>
