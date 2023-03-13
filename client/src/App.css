@@ -1,4 +1,4 @@
-:root {
+ :root {
   --primary-text: #ffaa3c;
 }
 
@@ -16,13 +16,13 @@ html, body, .App {
 
   display: inline-block;
   width: 100%;
-  /* Creative Commons: https://www.deviantart.com/areckt/art/Safe-Haven-896065891 */
+  /*Creative Commons: https://www.deviantart.com/areckt/art/Safe-Haven-896065891 */
   background-repeat: no-repeat;
   background-attachment: fixed;
   text-align: center;
 }
 
-ul {
+/*ul {
   list-style-type: none;
   position:absolute;
   padding: 0px;
@@ -46,7 +46,7 @@ li a {
   text-decoration: none;
   font-size: 1.5em;
   font-weight: bold;
-}
+}*/
 
 
 .rules-paragraph {
@@ -60,9 +60,9 @@ li a {
   float: left;
 }
 
-li a:hover {
+/*li a:hover {
   color: wheat;
-}
+}*/
 
 a {
   color: #060541;
@@ -75,14 +75,14 @@ h1 {
 
 }
 
-button {
+/*button {
   height: 70px;
   width: 250px;
   background-color: white;
   border-radius: 40px;
   border: 1px solid var(--primary-text);
   font-size: 1.2em;
-}
+}*/
 
 button:hover {
   background-color: #00000052;
@@ -112,7 +112,7 @@ button:hover {
   float: left;
 }
 
-/* Game board styles */
+ Game board styles 
 
 svg g polygon {
   stroke: #ffffff;
@@ -164,4 +164,4 @@ line.edge-none {
 
 line:hover {
   opacity: 1;
-}
+} 

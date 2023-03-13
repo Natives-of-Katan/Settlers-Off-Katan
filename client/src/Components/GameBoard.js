@@ -6,7 +6,7 @@ import Vertex from '../Models/Vertex';
 import Edge from '../Models/Edge';
 import CustomHex from '../Models/CustomHex';
 
-const GameBoard = (/*context, gamestate, moves*/) => {
+const GameBoard = ({ctx, G, moves, events}) => {
   
     // map settings
     const config = configs['hexagon'];
@@ -17,6 +17,7 @@ const GameBoard = (/*context, gamestate, moves*/) => {
   
     // initialize map
     const [pointCoords, setPoints] = useState([]);
+    const [diceRolled, setdiceRolled] = useState(false);
 
     // map numbers
     const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
@@ -55,7 +56,20 @@ const GameBoard = (/*context, gamestate, moves*/) => {
       }
     }
 
+    const handleRoll = id => {
+      moves.rollDice();
+      setdiceRolled(true);
+    }
+
+    function handleEndTurn() {
+      events.endTurn();
+      console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, JSON.stringify(G.players[ctx.currentPlayer]));
+      setdiceRolled(false);
+  }
+  
+
     return (
+      <div className="Game">
       <div className="GameBoard">
         <HexGrid width={config.width} height={config.height}>
 
@@ -92,6 +106,16 @@ const GameBoard = (/*context, gamestate, moves*/) => {
             }
           </Layout>
         </HexGrid>
+        <div>
+           {!diceRolled &&  <button onClick={handleRoll}>Click to Roll!</button> }
+           
+           {diceRolled && 
+           <div><button onClick={handleEndTurn}>End Turn</button>
+           </div>
+           }
+          
+        </div>
+      </div>
       </div>
     );
   }
