@@ -1,19 +1,11 @@
-//Board model goes here
+import { Client } from 'boardgame.io/react';
+import {settlersOffKatan} from './Components/gameLogic';
+import GameBoard from './Components/GameBoard';
 
-import React from "react";
-//import {useState} from 'react';
-import {Link} from 'react-router-dom';
-import GameBoard from "./Components/GameBoard"
-
-const Game = () => {
-    return(
-        <div className="Game">
-            <GameBoard />
-            <br />
-            <Link to={"/Results"}>Results</Link><br />
-            <Link to={"/"}>Back Home</Link>
-        </div>
-      )     
-}
+const Game = Client({
+  numPlayers: 4,
+  game: settlersOffKatan,
+  board: GameBoard,
+});
 
 export default Game;
