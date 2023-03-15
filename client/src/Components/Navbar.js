@@ -30,9 +30,9 @@ function Navbar() {
 
   return (
     <ul id="navbar"> 
-    <li id="logo" class="nav-button"><Link to="/">Settlers Off Katan</Link></li>
-    <li class="nav-button"><Link to="/Options">Options</Link></li>
-    <li class="nav-button"><Link to="/">Home</Link></li>
+    <li id="logo" className="nav-button"><Link to="/">Settlers Off Katan</Link></li>
+    <li className="nav-button"><Link to="/Options">Options</Link></li>
+    <li className="nav-button"><Link to="/">Home</Link></li>
     {auth && <li><Link to='/Account'>{profile.username}</Link></li>}
     {auth && <button onClick={handleSubmit}>Logout</button>}
   </ul> 

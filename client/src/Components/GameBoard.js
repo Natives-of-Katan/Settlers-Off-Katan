@@ -34,6 +34,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     // When an element is clicked, it's passed to the appropriate function                    
     const onClick = (id) => {
       // moves.callFunction(id);
+      console.log(id);
     }
 
     // on initial render, get coordinates for vertices
@@ -48,7 +49,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const addVertex = (int, type, user) => {
       // render grid first, or points don't exist
       if (pointCoords[0] != undefined) {
-        return new Vertex(type,  user, pointCoords[0][int].x, pointCoords[0][int].y, onClick(int));
+        return new Vertex(type,  user, pointCoords[0][int].x, pointCoords[0][int].y, onClick);
       }
     }
 
