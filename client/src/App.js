@@ -16,15 +16,18 @@ import Home from './Home';
 import Navbar from "./Components/Navbar"
 import {AuthContext} from "./Contexts/AuthContext"
 import {ProfileContext} from './Contexts/ProfileContext'
+import {NumPlayersContext} from './Contexts/NumPlayersContext'
 import {useState} from 'react'
 
 function App() {
   const [auth, setAuth] = useState(false);
   const [profile, setProfile] = useState({});
+  const [numPlayers, setNumPlayers] = useState({});
   return (
         <BrowserRouter>
           <AuthContext.Provider value={{auth, setAuth}}>
           <ProfileContext.Provider value={{profile, setProfile}}>
+            <NumPlayersContext.Provider value={{numPlayers, setNumPlayers}}>
             <Navbar />
             <Routes>
             <Route exact path="/Results" element={<Results/>} />
@@ -40,6 +43,7 @@ function App() {
             <Route exact path="/CreateAccount" element={<CreateAccount/>} />
             <Route exact path="/" element={<Home/>} />
             </Routes>
+            </NumPlayersContext.Provider>
           </ProfileContext.Provider>
           </AuthContext.Provider>
         </BrowserRouter>
