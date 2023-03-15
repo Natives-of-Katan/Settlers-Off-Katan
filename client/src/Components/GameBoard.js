@@ -79,7 +79,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
   
   const renderScoreBoard = () => {
     setScoreboard(G.players.map((player, index) => (
-      <tr key={index} className={index === Number(ctx.currentPlayer) ? 'currentPlayer' : ''}>
+      <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
         {console.log(index)}
         <td>Player{index + 1}</td>
         <td>{player.score}</td>
@@ -125,7 +125,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
           </div>
 
           <div className='board-text'>
-            Player {Number(ctx.currentPlayer) + 1}
+            <div className='current-player'>Player {Number(ctx.currentPlayer) + 1}</div>
                 <div>
                   {!diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
                   {diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }

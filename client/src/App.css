@@ -22,7 +22,7 @@ html, body, .App {
   text-align: center;
 }
 
-.currentPlayer {
+.current-player {
   color: white;
 }
 
@@ -100,6 +100,10 @@ button:hover {
   padding-top: 80px;
   background-image: url("./Components/gameBackground.png");
   background-size: cover;
+}
+
+.GameBoard {
+  margin-top: 30px;
 }
 
 .Link a {
