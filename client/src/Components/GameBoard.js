@@ -65,8 +65,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const addEdge = (int, user) => {
       if (pointCoords[0] != undefined) {
         return (
-          int < 5 ? new Edge(pointCoords[0][int], pointCoords[0][int + 1], user, onClick(int)) : 
-          new Edge(pointCoords[0][int], pointCoords[0][0], user,  onClick(int))
+          int < 5 ? new Edge(pointCoords[0][int], pointCoords[0][int + 1], user, onClick) : 
+          new Edge(pointCoords[0][int], pointCoords[0][0], user,  onClick)
         )
       }
     }
