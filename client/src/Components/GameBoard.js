@@ -75,10 +75,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
       moves.drawDevelopmentCard();
     }
 
-    const handleFreeDraw = id => {
-      moves.drawDevelopmentCardFree();
-    }
-
     function handleEndTurn() {
       events.endTurn();
       console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, JSON.stringify(G.players[ctx.currentPlayer]));
@@ -139,7 +135,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
           
         </div>
         <div>
-        <button onClick={handleDraw}>Draw Development Card</button><button onClick={handleFreeDraw}>Draw Development Card (free)</button><button onClick={handleAddResources}>Add 1 Pasture, Grain, and Mountain</button>
+        <button onClick={handleDraw}>Draw Development Card (Costs 1 Pasture, Grain, and Mountain)</button><button onClick={handleAddResources}>Add 1 Pasture, Grain, and Mountain (this button is for dev purposes)</button>
         </div>
       </div>
       </div>
