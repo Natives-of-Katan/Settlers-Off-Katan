@@ -97,58 +97,54 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
-      <div className="Game">
+    <div className="Game">
       <div className="GameBoard">
-        <div className='board-text info-panel'>
-          <table>
-            <tbody>
-            <tr>
-              <td>Grain</td>
-              <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.grain)}</td>
-            </tr>
-            <tr>
-              <td>Pasture</td>
-              <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.pasture)}</td>
-            </tr>
-            <tr>
-              <td>Hill</td>
-              <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.hill)}</td>
-            </tr>
-            <tr>
-              <td>Mountain</td>
-              <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.mountain)}</td>
-            </tr>
-            <tr>
-              <td>Forest</td>
-              <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.forest)}</td>
-            </tr>
-            </tbody>
-          </table>
-          <div className='turn-actions'>
-            {G.players[ctx.currentPlayer].canBuildSettlement && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
-            {G.players[ctx.currentPlayer].canBuildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
-            {G.players[ctx.currentPlayer].canBuyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
-          </div>
-
-          <div className='board-text'>
-            <div className='current-player'>Player {Number(ctx.currentPlayer) + 1}</div>
-                <div>
-                  {!diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
-                  {diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+            <div className='board-text board-header'>
+              <div className='board-header-center'>
+                <div className='current-player'>Player {Number(ctx.currentPlayer) + 1}
                 </div>
-                {diceRolled && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
-                {!diceRolled && <text>Roll The Dice!</text>}
+                <div>
+                    {!diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                </div>
+                  {diceRolled && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
+                  {!diceRolled && <text>Roll The Dice!</text>}
+              </div>
             </div>
-            <div>
-              <table className='scoreboard'>
-                <tbody>
-              {scoreBoard}
+              
+          <div className= 'grid-container'>
+            <div className='turn-actions board-text'>
+              <table>
+               <tbody>
+                  <tr>
+                    <td>Grain</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.grain)}</td>
+                  </tr>
+                  <tr>
+                    <td>Pasture</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.pasture)}</td>
+                  </tr>
+                  <tr>
+                    <td>Hill</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.hill)}</td>
+                  </tr>
+                  <tr>
+                    <td>Mountain</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.mountain)}</td>
+                  </tr>
+                  <tr>
+                    <td>Forest</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.forest)}</td>
+                  </tr>
                 </tbody>
-              </table>
+             </table>
+          
+              <div className='action-btns'>
+                {G.players[ctx.currentPlayer].canBuildSettlement && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
+                {G.players[ctx.currentPlayer].canBuildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
+                {G.players[ctx.currentPlayer].canBuyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
+              </div>
             </div>
-
-        </div>
-
         <HexGrid width={config.width} height={config.height}>
 
           <Pattern size={size} id="grain" link="https://static.vecteezy.com/system/resources/thumbnails/005/565/283/small/rural-autumn-landscape-with-windmill-blue-sky-and-yellow-wheat-field-with-spikelet-of-rye-free-vector.jpg" ></Pattern>
@@ -183,16 +179,24 @@ const GameBoard = ({ctx, G, moves, events}) => {
             }
             { 
               portHexagons.map((hex, i) => (
-               <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">
+               <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">
                 <Pattern id="port" link="https://www.metalearth.com/content/images/thumbs/0004703_uss-constitution_1200.png" size={{x:3, y:8.5}} />
                 </CustomHex>
               ))
             }
           </Layout>
         </HexGrid>
+        <div>
+          <table className='scoreboard board-text'>
+            <tbody>
+              {scoreBoard}
+            </tbody>
+          </table>
         </div>
       </div>
-    );
-  }
+    </div>
+   </div>
+  );
+}
 
   export default GameBoard;

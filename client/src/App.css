@@ -77,6 +77,18 @@ h1 {
 
 }
 
+.grid-container {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top:30px;
+}
+
+.grid {
+  display: block;
+  height: 60%;
+  width: 50%;
+}
+
 .btn-default-style {
   height: 70px;
   width: 250px;
@@ -123,8 +135,9 @@ button:hover {
 }
 
 svg g polygon {
-  stroke: #ffffff;
+  /*stroke: #ffffff;
   stroke-width: 0.2;
+  */
   transition: fill-opacity .3s;
 }
 
@@ -166,22 +179,29 @@ circle:hover {
   fill-opacity: 1;
 }
 
+.action-btns {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 30%;
+  z-index: 1;
+}
+
 .board-text {
   color: #ffb400;
   font-weight: 500;
+  font-size: 16px;
+  text-align: center;
+}
+
+.board-header {
+  display: flex;
   font-size: 1.5em;
 }
 
-.info-panel > .board-text {
-  display: inline-grid;
-  text-align: center;
-  align-items: center;
-}
-
-.info-panel {
-  display: flex;
-  justify-content: space-evenly;
-  text-align: justify
+.board-header-center {
+  margin-left: 44%;
+  margin-right: auto;
 }
 
 line.edge-none {
@@ -192,13 +212,27 @@ line:hover {
   opacity: 1;
 } 
 
+
+
 .scoreboard td {
   padding-right: 15px;
+
+}
+
+.font-size-1 {
+  font-size: 16px;
 }
 
 .turn-actions {
   display: flex;
   flex-direction: column;
-  margin-top: auto;
-  margin-bottom: auto;
+  position: relative;
+  text-align: left;
+
+}
+
+table {
+  border: 2px solid #ffaa3c;
+  border-radius: 10px;
+  background-color: forestgreen;
 }
