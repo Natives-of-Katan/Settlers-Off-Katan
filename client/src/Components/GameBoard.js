@@ -34,6 +34,12 @@ const GameBoard = ({ctx, G, moves, events}) => {
                           "forest", "pasture", "forest", "desert", "forest", "forest", 
                           "hill", "hill", "hill", "mountain", "mountain", "mountain", "pasture"];
 
+    //Ports
+    const portHexagons = [
+      { q: 3, r: -3, s: 0 }, { q: 3, r: -1, s: 1 }, { q: 2, r: 1, s: 1 }, { q: 0, r: 3, s: -3 }, { q: -2, r: 3, s: -2 }, 
+      { q: -3, r: 2, s: 2 }, { q: -3, r: 0, s: 2 }, { q: -1, r: -2, s: 3 }, { q: 1, r: -3, s: 2 },
+    ];
+
     // When an element is clicked, it's passed to the appropriate function                    
     const onClick = (id) => {
       // moves.callFunction(id);
@@ -154,7 +160,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
           <Pattern size={{x:1, y:2}} id="settlement" link="http://atlas-content-cdn.pixelsquid.com/stock-images/simple-house-NxE5a78-600.jpg"></Pattern>
           <Pattern size={{x:1, y:2}} id="city" link="https://img.lovepik.com/free-png/20210918/lovepik-city-png-image_400225367_wh1200.png"></Pattern>
 
-
           <Layout size={size} flat={layout.flat} spacing={layout.spacing} origin={config.origin}>
             { 
               hexagons.map((hex, i) => (
@@ -174,7 +179,14 @@ const GameBoard = ({ctx, G, moves, events}) => {
                   {/* <Text>{HexUtils.getID(hex)}</Text> */}
                   <Text>{tileNums[i]}</Text>
                 </CustomHex>
-              ))    
+              ))
+            }
+            { 
+              portHexagons.map((hex, i) => (
+               <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">
+                <Pattern id="port" link="https://www.metalearth.com/content/images/thumbs/0004703_uss-constitution_1200.png" size={{x:3, y:8.5}} />
+                </CustomHex>
+              ))
             }
           </Layout>
         </HexGrid>
