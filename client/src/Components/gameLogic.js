@@ -22,43 +22,37 @@ const addDevelopmentResources = ({G, playerID}) => {
 }
 
 const drawDevelopmentCard = ({G, playerID}) => {
-    const drawnCard = 1+Math.floor(Math.random() * (G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty+G.deck.road));
-
-    if (G.players[playerID].resources.pasture > 0 && G.players[playerID].resources.grain > 0 && G.players[playerID].resources.mountain > 0) {
+    //Checks if the player has the required resources and that the deck has at least 1 card in it
+    if (G.players[playerID].resources.pasture > 0 && G.players[playerID].resources.grain > 0 && G.players[playerID].resources.mountain > 0 && G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty+G.deck.road > 0) {
+        
+        //Determines what card will be drawn
+        const drawnCard = 1+Math.floor(Math.random() * (G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty+G.deck.road));
+        
+        //Subtracts the resources from the player
+        G.players[playerID].resources.pasture -= 1;
+        G.players[playerID].resources.grain -= 1;
+        G.players[playerID].resources.mountain -= 1;
+        
+        //Adds card to player's hand and removes it from the deck
         if (drawnCard <= G.deck.knight) {
             G.players[playerID].developmentCards.knight += 1;
             G.deck.knight -= 1;
-            G.players[playerID].resources.pasture -= 1;
-            G.players[playerID].resources.grain -= 1;
-            G.players[playerID].resources.mountain -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory)) {
             G.players[playerID].developmentCards.victory += 1;
             G.deck.victory -= 1;
-            G.players[playerID].resources.pasture -= 1;
-            G.players[playerID].resources.grain -= 1;
-            G.players[playerID].resources.mountain -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly)) {
             G.players[playerID].developmentCards.monopoly += 1;
             G.deck.monopoly -= 1;
-            G.players[playerID].resources.pasture -= 1;
-            G.players[playerID].resources.grain -= 1;
-            G.players[playerID].resources.mountain -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty)) {
             G.players[playerID].developmentCards.plenty += 1;
             G.deck.plenty -= 1;
-            G.players[playerID].resources.pasture -= 1;
-            G.players[playerID].resources.grain -= 1;
-            G.players[playerID].resources.mountain -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty+G.deck.road)) {
             G.players[playerID].developmentCards.road += 1;
             G.deck.road -= 1;
-            G.players[playerID].resources.pasture -= 1;
-            G.players[playerID].resources.grain -= 1;
-            G.players[playerID].resources.mountain -= 1;
         }
     }
 }
