@@ -15,6 +15,54 @@ const rollDice = ({G, playerID}) => {
     console.log(d1+d2);
 }
 
+const addDevelopmentResources = ({G, playerID}) => {
+    G.players[playerID].resources.pasture += 1;
+    G.players[playerID].resources.grain += 1;
+    G.players[playerID].resources.mountain += 1;
+}
+
+const drawDevelopmentCard = ({G, playerID}) => {
+    const die = 1+Math.floor(Math.random() * (G.deck[0]+G.deck[1]+G.deck[2]+G.deck[3]+G.deck[4]));
+
+    if (G.players[playerID].resources.pasture > 0 && G.players[playerID].resources.grain > 0 && G.players[playerID].resources.mountain > 0) {
+        if (die <= G.deck[0]) {
+            G.players[playerID].developmentCards.knight += 1;
+            G.deck[0] -= 1;
+            G.players[playerID].resources.pasture -= 1;
+            G.players[playerID].resources.grain -= 1;
+            G.players[playerID].resources.mountain -= 1;
+        }
+        else if (die <= (G.deck[0]+G.deck[1])) {
+            G.players[playerID].developmentCards.victory += 1;
+            G.deck[1] -= 1;
+            G.players[playerID].resources.pasture -= 1;
+            G.players[playerID].resources.grain -= 1;
+            G.players[playerID].resources.mountain -= 1;
+        }
+        else if (die <= (G.deck[0]+G.deck[1]+G.deck[2])) {
+            G.players[playerID].developmentCards.monopoly += 1;
+            G.deck[2] -= 1;
+            G.players[playerID].resources.pasture -= 1;
+            G.players[playerID].resources.grain -= 1;
+            G.players[playerID].resources.mountain -= 1;
+        }
+        else if (die <= (G.deck[0]+G.deck[1]+G.deck[2]+G.deck[3])) {
+            G.players[playerID].developmentCards.plenty += 1;
+            G.deck[3] -= 1;
+            G.players[playerID].resources.pasture -= 1;
+            G.players[playerID].resources.grain -= 1;
+            G.players[playerID].resources.mountain -= 1;
+        }
+        else if (die <= (G.deck[0]+G.deck[1]+G.deck[2]+G.deck[3]+G.deck[4])) {
+            G.players[playerID].developmentCards.road += 1;
+            G.deck[4] -= 1;
+            G.players[playerID].resources.pasture -= 1;
+            G.players[playerID].resources.grain -= 1;
+            G.players[playerID].resources.mountain -= 1;
+        }
+    }
+}
+
 const drawDevelopmentCardFree = ({G, playerID}) => {
     const die = 1+Math.floor(Math.random() * (G.deck[0]+G.deck[1]+G.deck[2]+G.deck[3]+G.deck[4]));
     if (die <= G.deck[0]) {
@@ -66,6 +114,8 @@ export const settlersOffKatan = {
 
     moves: {
         rollDice,
+        addDevelopmentResources,
+        drawDevelopmentCard,
         drawDevelopmentCardFree
     }
 };

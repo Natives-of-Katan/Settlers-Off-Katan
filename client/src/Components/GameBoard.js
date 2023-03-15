@@ -67,6 +67,14 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setdiceRolled(true);
     }
 
+    const handleAddResources = id => {
+      moves.addDevelopmentResources();
+    }
+
+    const handleDraw = id => {
+      moves.drawDevelopmentCard();
+    }
+
     const handleFreeDraw = id => {
       moves.drawDevelopmentCardFree();
     }
@@ -131,7 +139,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
           
         </div>
         <div>
-          <button onClick={handleFreeDraw}>Draw Development Card (free)</button>
+        <button onClick={handleDraw}>Draw Development Card</button><button onClick={handleFreeDraw}>Draw Development Card (free)</button><button onClick={handleAddResources}>Add 1 Pasture, Grain, and Mountain</button>
         </div>
       </div>
       </div>
