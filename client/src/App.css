@@ -158,6 +158,24 @@ circle:hover {
   fill-opacity: 1;
 }
 
+.board-text {
+  color: #ffb400;
+  font-weight: 500;
+  font-size: 1.5em;
+}
+
+.info-panel > .board-text {
+  display: inline-grid;
+  text-align: center;
+  align-items: center;
+}
+
+.info-panel {
+  display: flex;
+  justify-content: space-evenly;
+  text-align: justify
+}
+
 line.edge-none {
   opacity: 0;
 }
@@ -165,3 +183,14 @@ line.edge-none {
 line:hover {
   opacity: 1;
 } 
+
+.scoreboard td {
+  padding-right: 15px;
+}
+
+.turn-actions {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  margin-bottom: auto;
+}
