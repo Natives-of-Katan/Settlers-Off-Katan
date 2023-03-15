@@ -1,12 +1,13 @@
+
 const tileResource = ["grain", "grain", "grain", "grain", "pasture", "pasture", 
                           "forest", "pasture", "forest", "desert", "forest", "forest", 
                           "hill", "hill", "hill", "mountain", "mountain", "mountain", "pasture"];
 const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 
-const rollDice = ({G, playerID}) => {
+const rollDice = ({G, playerID, ctx}) => {
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
-    G.players[playerID].diceRoll = d1+d2;
+    G.players[playerID].diceRoll = d1+d2;  
 
     tileNums.forEach((num, index) => {
         if(d1+d2 === num && d1+d2!==7) {
@@ -29,9 +30,10 @@ const checkBuildActions = ({G, ctx}) => {
         currentPlayer.canBuyCard = true;
   }
 
-export const settlersOffKatan = {
+
+export const settlersOffKatan = numPlayers => ({
     setup: () => ({
-        players: Array(4).fill().map( () => ({
+        players: Array(numPlayers).fill().map( () => ({
             score: 0,
             resources: {
                 grain: 0,
@@ -44,6 +46,7 @@ export const settlersOffKatan = {
             canBuildSettlement: false,
             canBuildRoad: false,
             canBuyCard: false,
+            startOfTurn: false,
             settlements: [],
             cards: []
         })),
@@ -56,5 +59,5 @@ export const settlersOffKatan = {
     moves: {
         rollDice
     }
-};
+});
 

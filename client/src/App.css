@@ -22,6 +22,10 @@ html, body, .App {
   text-align: center;
 }
 
+.currentPlayer {
+  color: white;
+}
+
 #navbar {
   list-style-type: none;
   position:absolute;

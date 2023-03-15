@@ -10,7 +10,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
   useEffect(() => {
     renderScoreBoard();
-  }, []);
+  }, [ctx.currentPlayer]);
   
   
     // map settings
@@ -79,7 +79,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
   
   const renderScoreBoard = () => {
     setScoreboard(G.players.map((player, index) => (
-      <tr key={index}>
+      <tr key={index} className={index === Number(ctx.currentPlayer) ? 'currentPlayer' : ''}>
+        {console.log(index)}
         <td>Player{index + 1}</td>
         <td>{player.score}</td>
         </tr>
