@@ -67,6 +67,10 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setdiceRolled(true);
     }
 
+    const handleFreeDraw = id => {
+      moves.drawDevelopmentCardFree();
+    }
+
     function handleEndTurn() {
       events.endTurn();
       console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, JSON.stringify(G.players[ctx.currentPlayer]));
@@ -125,6 +129,9 @@ const GameBoard = ({ctx, G, moves, events}) => {
            </div>
            }
           
+        </div>
+        <div>
+          <button onClick={handleFreeDraw}>Draw Development Card (free)</button>
         </div>
       </div>
       </div>
