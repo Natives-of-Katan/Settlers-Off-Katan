@@ -214,6 +214,10 @@ line {
   stroke-linecap:round;
 }
 
+line.active {
+  opacity: 1;
+}
+
 .scoreboard td {
   padding-right: 15px;
 }

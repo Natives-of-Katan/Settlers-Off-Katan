@@ -20,8 +20,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const size = { x: 10, y: 10 };
 
     // initialize map
-    const vertices = initVertices(hexagons, size);
-    const edges = initEdges(hexagons, size);
+    const [vertices, updateVertice] = useState(initVertices(hexagons, size));
+    const [edges, updateEdge] = useState(initEdges(hexagons, size));
 
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
@@ -42,9 +42,17 @@ const GameBoard = ({ctx, G, moves, events}) => {
     ];
 
     // When an element is clicked, it's passed to the appropriate function                    
-    const onClick = (id) => {
-      // moves.callFunction(id);
-      console.log(id);
+    const onClick = (i, e) => {
+      // call whatever function you need, return changed object
+      let updatedObj = moves.callFunction(e)
+
+      // do something like this inside the call function and return changed object
+      //e.stroke = "red"; 
+      //e.classes = "active";
+
+      let myArr = [...edges];
+      myArr[i][myArr[i].indexOf(e)] = updatedObj;
+      updateEdge(updatedObj);
     }
 
     const playTurn = () => {
@@ -138,21 +146,22 @@ const GameBoard = ({ctx, G, moves, events}) => {
                 <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} vertices="" edges="">
                   {
                     edges[i].map((e) => (
-                      <line id={e.id} x1={e.x1} x2={e.x2} y1={e.y1} y2={e.y2} stroke="gold" onClick={onClick}/>
+                      <line id={e.id} className={e.classes} x1={e.x1} x2={e.x2} y1={e.y1} y2={e.y2} 
+                      stroke={e.stroke} onClick={() => onClick(i, e)}/>
                     ))
                   }
                   {
                     vertices[i].map((v) => (
                       <circle 
                         id={v.id}
-                        className={v.type + '-' + v.user} 
+                        className={[v.type + '-' + v.user, v.classes].join(' ')} 
                         cx={v.cx} 
                         cy={v.cy} 
                         r="2" 
                         fill={
                           v.type === 'city' ? "url(#city)" : (v.type === 'none' ? "white": "url(#settlement)")
                         }
-                        onClick={onClick}/>
+                        onClick={() => onClick(i, v)}/>
                     ))
                   }
                   <Text>{HexUtils.getID(hex)}</Text>

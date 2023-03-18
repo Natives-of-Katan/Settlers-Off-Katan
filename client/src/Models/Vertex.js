@@ -1,6 +1,15 @@
-const Vertex = (id, number, type, user, cx, cy, hexes) => {
+const Vertex = (
+  id,
+  classes, 
+  number, 
+  type, 
+  user, 
+  cx, 
+  cy, 
+  hexes) => {
     return ({
       id: id,
+      classes: classes,
       vertexNumber: number,
       type: type,
       user: user,
