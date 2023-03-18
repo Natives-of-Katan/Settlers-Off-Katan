@@ -1,10 +1,9 @@
-import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
+import { HexGrid, Layout, Text, GridGenerator, HexUtils, Hex } from 'react-hexgrid';
 import {React, useEffect, useState} from 'react';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
-import Vertex from '../Models/Vertex';
-import Edge from '../Models/Edge';
 import CustomHex from '../Models/CustomHex';
+import { initEdges, initVertices } from './boardSetup';
 
 const GameBoard = ({ctx, G, moves, events}) => {
 
@@ -19,9 +18,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const hexagons = generator.apply(this, config.mapProps);
     const layout = config.layout;
     const size = { x: 10, y: 10 };
-  
+
     // initialize map
-    const [pointCoords, setPoints] = useState([]);
+    const vertices = initVertices(hexagons, size);
+    const edges = initEdges(hexagons, size);
+
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
     const [buildSettlement, setBuildSettlement] = useState(false);
@@ -44,32 +45,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const onClick = (id) => {
       // moves.callFunction(id);
       console.log(id);
-    }
-
-    // on initial render, get coordinates for vertices
-    useEffect(() => {
-      const polygons = Array.from(
-        document.getElementsByTagName('polygon')
-      );
-      setPoints(polygons.map( (obj) => obj.points));
-    }, []);
-
-    // add button to specified vertex
-    const addVertex = (int, type, user) => {
-      // render grid first, or points don't exist
-      if (pointCoords[0] != undefined) {
-        return new Vertex(type,  user, pointCoords[0][int].x, pointCoords[0][int].y, onClick);
-      }
-    }
-
-    // add edge to specified vertex
-    const addEdge = (int, user) => {
-      if (pointCoords[0] != undefined) {
-        return (
-          int < 5 ? new Edge(pointCoords[0][int], pointCoords[0][int + 1], user, onClick) : 
-          new Edge(pointCoords[0][int], pointCoords[0][0], user,  onClick)
-        )
-      }
     }
 
     const playTurn = () => {
@@ -161,26 +136,33 @@ const GameBoard = ({ctx, G, moves, events}) => {
             { 
               hexagons.map((hex, i) => (
                 <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} vertices="" edges="">
-                  {addEdge(0, 'none')}
-                  {addEdge(1, 'none')}
-                  {addEdge(2, 'none')}
-                  {addEdge(3, 'none')}
-                  {addEdge(4, 'none')}
-                  {addEdge(5, 'none')}
-                  {addVertex(0, 'none', 'none')} 
-                  {addVertex(1, 'settlement', 'none')}
-                  {addVertex(2, 'none', 'none')}
-                  {addVertex(3, 'city', 'none')}
-                  {addVertex(4, 'none', 'none')}
-                  {addVertex(5, 'free', 'none')}
-                  {/* <Text>{HexUtils.getID(hex)}</Text> */}
-                  <Text>{tileNums[i]}</Text>
+                  {
+                    edges[i].map((e) => (
+                      <line id={e.id} x1={e.x1} x2={e.x2} y1={e.y1} y2={e.y2} stroke="gold" onClick={onClick}/>
+                    ))
+                  }
+                  {
+                    vertices[i].map((v) => (
+                      <circle 
+                        id={v.id}
+                        className={v.type + '-' + v.user} 
+                        cx={v.cx} 
+                        cy={v.cy} 
+                        r="2" 
+                        fill={
+                          v.type === 'city' ? "url(#city)" : (v.type === 'none' ? "white": "url(#settlement)")
+                        }
+                        onClick={onClick}/>
+                    ))
+                  }
+                  <Text>{HexUtils.getID(hex)}</Text>
                 </CustomHex>
               ))
             }
             { 
               portHexagons.map((hex, i) => (
-               <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">
+               <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} 
+               vertices="" edges="" onClick={onClick}>
                 <Pattern id="port" link="https://www.metalearth.com/content/images/thumbs/0004703_uss-constitution_1200.png" size={{x:3, y:8.5}} />
                 </CustomHex>
               ))

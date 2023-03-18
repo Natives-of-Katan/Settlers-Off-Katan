@@ -172,7 +172,7 @@ svg g text {
 }
 
 circle.none-none {
-  fill-opacity: 0.6;
+  fill-opacity: 0.2;
 }
 
 circle:hover {
@@ -204,19 +204,18 @@ circle:hover {
   margin-right: auto;
 }
 
-line.edge-none {
-  opacity: 0;
-}
-
 line:hover {
   opacity: 1;
 } 
 
-
+line {
+  opacity: 0;
+  stroke-width: 2; 
+  stroke-linecap:round;
+}
 
 .scoreboard td {
   padding-right: 15px;
-
 }
 
 .font-size-1 {
