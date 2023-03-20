@@ -187,7 +187,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     }
 
 
-    function handleEndTurn() {
+    //function handleEndTurn() {
     const handleEndTurn = () => {
       events.endTurn();
       console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, JSON.stringify(G.players[ctx.currentPlayer]));
@@ -229,6 +229,9 @@ const GameBoard = ({ctx, G, moves, events}) => {
               <table>
                <tbody>
                   <tr>
+                    Resources
+                  </tr>
+                  <tr>
                     <td>Grain</td>
                     <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.grain)}</td>
                   </tr>
@@ -248,6 +251,32 @@ const GameBoard = ({ctx, G, moves, events}) => {
                     <td>Forest</td>
                     <td>{JSON.stringify(G.players[ctx.currentPlayer].resources.forest)}</td>
                   </tr>
+                  {/*}
+                  Need to make changes for this to display without going behind the action buttons, will do that later ~Jacob
+                  <tr>
+                    <br/>
+                    Development Cards
+                  </tr>
+                  <tr>
+                    <td>Knight</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].developmentCards.knight)}</td>
+                  </tr>
+                  <tr>
+                    <td>Victory</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].developmentCards.victory)}</td>
+                  </tr>
+                  <tr>
+                    <td>Monoploly</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].developmentCards.monopoly)}</td>
+                  </tr>
+                  <tr>
+                    <td>Road Building</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].developmentCards.road)}</td>
+                  </tr>
+                  <tr>
+                    <td>Year of Plenty</td>
+                    <td>{JSON.stringify(G.players[ctx.currentPlayer].developmentCards.plenty)}</td>
+                  </tr> */}
                 </tbody>
              </table>
           
@@ -255,7 +284,26 @@ const GameBoard = ({ctx, G, moves, events}) => {
                 {G.players[ctx.currentPlayer].canBuildSettlement && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
                 {G.players[ctx.currentPlayer].canBuildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
                 {G.players[ctx.currentPlayer].canBuyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
-              </div>
+                
+                {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Pasture, Grain, and Mountain) </button>}
+                {!monopolyPlayed && !plentyPlayed && <button onClick={handleAddResources}>Add 1 of each resource and development card (this button is for dev purposes)</button>}
+        
+                {!monopolyPlayed && !plentyPlayed && <button onClick={handleVictoryCard}>Play Victory Card (gain 1 Victory point)</button>}
+        
+                {!monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade && <button onClick={revealMonopoly}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
+                {monopolyPlayed && <button onClick={handleMonopolyGrain}>Grain</button>}
+                {monopolyPlayed && <button onClick={handleMonopolyPasture}>Pasture</button>}
+                {monopolyPlayed && <button onClick={handleMonopolyForest}>Forest</button>}
+                {monopolyPlayed && <button onClick={handleMonopolyHill}>Hill</button>}
+                {monopolyPlayed && <button onClick={handleMonopolyMountain}>Mountain</button>}
+        
+                {!plentyPlayed && !monopolyPlayed && <button onClick={revealPlenty}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
+                {plentyPlayed && <button onClick={handlePlentyGrain}>Grain</button>}
+                {plentyPlayed && <button onClick={handlePlentyPasture}>Pasture</button>}
+                {plentyPlayed && <button onClick={handlePlentyForest}>Forest</button>}
+                {plentyPlayed && <button onClick={handlePlentyHill}>Hill</button>}
+                {plentyPlayed && <button onClick={handlePlentyMountain}>Mountain</button>}
+                </div>
             </div>
         <HexGrid width={config.width} height={config.height}>
 
@@ -299,41 +347,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
           </Layout>
         </HexGrid>
         <div>
-           {!diceRolled && !monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade && <button onClick={handleRoll}>Click to Roll!</button> }
-           
-           {diceRolled && !monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade &&
-           <div><button onClick={handleEndTurn}>End Turn</button>
-           </div>
-           }
-		   
           <table className='scoreboard board-text'>
             <tbody>
               {scoreBoard}
             </tbody>
           </table>
-        </div>
-        <div>
-        {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Pasture, Grain, and Mountain) </button>}
-        {!monopolyPlayed && !plentyPlayed && <button onClick={handleAddResources}>Add 1 of each resource and development card (this button is for dev purposes)</button>}
-        </div>
-        <div>
-        {!monopolyPlayed && !plentyPlayed && <button onClick={handleVictoryCard}>Play Victory Card (gain 1 Victory point)</button>}
-        </div>
-        <div>
-        {!monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade && <button onClick={revealMonopoly}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
-        {monopolyPlayed && <button onClick={handleMonopolyGrain}>Grain</button>}
-        {monopolyPlayed && <button onClick={handleMonopolyPasture}>Pasture</button>}
-        {monopolyPlayed && <button onClick={handleMonopolyForest}>Forest</button>}
-        {monopolyPlayed && <button onClick={handleMonopolyHill}>Hill</button>}
-        {monopolyPlayed && <button onClick={handleMonopolyMountain}>Mountain</button>}
-        </div>
-        <div>
-        {!plentyPlayed && !monopolyPlayed && <button onClick={revealPlenty}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
-        {plentyPlayed && <button onClick={handlePlentyGrain}>Grain</button>}
-        {plentyPlayed && <button onClick={handlePlentyPasture}>Pasture</button>}
-        {plentyPlayed && <button onClick={handlePlentyForest}>Forest</button>}
-        {plentyPlayed && <button onClick={handlePlentyHill}>Hill</button>}
-        {plentyPlayed && <button onClick={handlePlentyMountain}>Mountain</button>}
         </div>
       </div>
     </div>

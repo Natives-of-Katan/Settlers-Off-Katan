@@ -202,17 +202,7 @@ const playMonopolyMountain = ({G, playerID}) => {
     }
 }
 
-export const settlersOffKatan = {
-    setup: () => ({
-        deck: {
-            knight: 14,
-            victory: 5,
-            monopoly: 2,
-            road: 2,
-            plenty: 2
-        },
-        players: Array(4).fill().map( () => ({
-            points: 0,
+
 const checkBuildActions = ({G, ctx}) => {
     const currentPlayer = G.players[ctx.currentPlayer]
     let resources = currentPlayer.resources;
@@ -231,6 +221,13 @@ export const settlersOffKatan = numPlayers => ({
     setup: () => ({
         players: Array(numPlayers).fill().map( () => ({
             score: 0,
+            deck: {
+                knight: 14,
+                victory: 5,
+                monopoly: 2,
+                road: 2,
+                plenty: 2
+            },
             resources: {
                 grain: 0,
                 pasture: 0,
