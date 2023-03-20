@@ -19,6 +19,67 @@ const addDevelopmentResources = ({G, playerID}) => {
     G.players[playerID].resources.pasture += 1;
     G.players[playerID].resources.grain += 1;
     G.players[playerID].resources.mountain += 1;
+    G.players[playerID].resources.hill += 1;
+    G.players[playerID].resources.forest += 1;
+    G.players[playerID].developmentCards.knight += 1;
+    G.players[playerID].developmentCards.victory += 1;
+    G.players[playerID].developmentCards.monopoly += 1;
+    G.players[playerID].developmentCards.road += 1;
+    G.players[playerID].developmentCards.plenty += 1;
+}
+
+const plentyChoiceOneGrain = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0)
+        G.players[playerID].resources.grain += 1;
+}
+
+const plentyChoiceOnePasture = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0)
+        G.players[playerID].resources.pasture += 1;
+}
+
+const plentyChoiceOneForest = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0)
+        G.players[playerID].resources.forest += 1;
+}
+const plentyChoiceOneHill = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0)
+        G.players[playerID].resources.hill += 1;
+}
+const plentyChoiceOneMountain = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0)
+        G.players[playerID].resources.mountain += 1;
+}
+
+const plentyChoiceTwoGrain = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0) {
+        G.players[playerID].resources.grain += 1;
+        G.players[playerID].developmentCards.plenty -= 1;
+    }
+}
+const plentyChoiceTwoPasture = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0) {
+        G.players[playerID].resources.pasture += 1;
+        G.players[playerID].developmentCards.plenty -= 1;
+    }
+}
+const plentyChoiceTwoForest = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0) {
+        G.players[playerID].resources.forest += 1;
+        G.players[playerID].developmentCards.plenty -= 1;
+    }
+}
+const plentyChoiceTwoHill = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0) {
+        G.players[playerID].resources.hill += 1;
+        G.players[playerID].developmentCards.plenty -= 1;
+    }
+}
+const plentyChoiceTwoMountain = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.plenty > 0) {
+        G.players[playerID].resources.mountain += 1;
+        G.players[playerID].developmentCards.plenty -= 1;
+    }
 }
 
 const drawDevelopmentCard = ({G, playerID}) => {
@@ -57,6 +118,88 @@ const drawDevelopmentCard = ({G, playerID}) => {
     }
 }
 
+const playVictoryCard = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.victory > 0) {
+        G.players[playerID].developmentCards.victory -= 1;
+        G.players[playerID].points += 1;
+    }
+}
+
+const playMonopolyGrain = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.monopoly > 0) {
+        G.players[playerID].developmentCards.monopoly -= 1;
+
+        let numGrain = 0;
+
+        for (let i = 0; i < G.players.length; i++) {
+            numGrain += G.players[i].resources.grain;
+            G.players[i].resources.grain = 0;
+        }
+
+        G.players[playerID].resources.grain = numGrain;
+    }
+}
+
+const playMonopolyPasture = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.monopoly > 0) {
+        G.players[playerID].developmentCards.monopoly -= 1;
+
+        let numPastures = 0;
+
+        for (let i = 0; i < G.players.length; i++) {
+            numPastures += G.players[i].resources.pasture;
+            G.players[i].resources.pasture = 0;
+        }
+
+        G.players[playerID].resources.pasture = numPastures;
+    }
+}
+
+const playMonopolyForest = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.monopoly > 0) {
+        G.players[playerID].developmentCards.monopoly -= 1;
+
+        let numForests = 0;
+
+        for (let i = 0; i < G.players.length; i++) {
+            numForests += G.players[i].resources.forest;
+            G.players[i].resources.forest = 0;
+        }
+
+        G.players[playerID].resources.forest = numForests;
+    }
+}
+
+const playMonopolyHill = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.monopoly > 0) {
+        G.players[playerID].developmentCards.monopoly -= 1;
+
+        let numHills = 0;
+
+        for (let i = 0; i < G.players.length; i++) {
+            numHills += G.players[i].resources.hill;
+            G.players[i].resources.hill = 0;
+        }
+
+        G.players[playerID].resources.hill = numHills;
+    }
+}
+
+const playMonopolyMountain = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.monopoly > 0) {
+        G.players[playerID].developmentCards.monopoly -= 1;
+
+        let numMountains = 0;
+
+        for (let i = 0; i < G.players.length; i++) {
+            numMountains += G.players[i].resources.mountain;
+            G.players[i].resources.mountain = 0;
+        }
+
+        G.players[playerID].resources.mountain = numMountains;
+    }
+}
+
 export const settlersOffKatan = {
     setup: () => ({
         deck: {
@@ -91,7 +234,23 @@ export const settlersOffKatan = {
     moves: {
         rollDice,
         addDevelopmentResources,
-        drawDevelopmentCard
+        drawDevelopmentCard,
+        playVictoryCard,
+        playMonopolyGrain,
+        playMonopolyPasture,
+        playMonopolyForest,
+        playMonopolyHill,
+        playMonopolyMountain,
+        plentyChoiceOneGrain,
+        plentyChoiceOnePasture,
+        plentyChoiceOneForest,
+        plentyChoiceOneHill,
+        plentyChoiceOneMountain,
+        plentyChoiceTwoGrain,
+        plentyChoiceTwoPasture,
+        plentyChoiceTwoForest,
+        plentyChoiceTwoHill,
+        plentyChoiceTwoMountain
     }
 };
 

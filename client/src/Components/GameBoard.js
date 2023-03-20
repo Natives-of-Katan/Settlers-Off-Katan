@@ -19,6 +19,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const [pointCoords, setPoints] = useState([]);
     const [diceRolled, setdiceRolled] = useState(false);
 
+    //button settings
+    const [monopolyPlayed, setMonopolyPlayed] = useState(false);
+    const [plentyPlayed, setPlentyPlayed] = useState(false);
+    const [plentyFirstChoiceMade, setFirstChoiceMade] = useState(false);
+
     // map numbers
     const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
     const tileResource = ["grain", "grain", "grain", "grain", "pasture", "pasture", 
@@ -75,6 +80,104 @@ const GameBoard = ({ctx, G, moves, events}) => {
       moves.drawDevelopmentCard();
     }
 
+    const handleVictoryCard = id => {
+      moves.playVictoryCard();
+    }
+
+    const revealMonopoly = id => {
+      setMonopolyPlayed(true);
+    }
+
+    const handleMonopolyGrain = id => {
+      moves.playMonopolyGrain();
+      setMonopolyPlayed(false);
+    }
+
+    const handleMonopolyPasture = id => {
+      moves.playMonopolyPasture();
+      setMonopolyPlayed(false);
+    }
+
+    const handleMonopolyForest = id => {
+      moves.playMonopolyForest();
+      setMonopolyPlayed(false);
+    }
+
+    const handleMonopolyHill = id => {
+      moves.playMonopolyHill();
+      setMonopolyPlayed(false);
+    }
+
+    const handleMonopolyMountain = id => {
+      moves.playMonopolyMountain();
+      setMonopolyPlayed(false);
+    }
+
+    const revealPlenty = id => {
+        setPlentyPlayed(true);
+  }
+
+    const handlePlentyGrain = id => {
+      if (!plentyFirstChoiceMade) {
+        setFirstChoiceMade(true);
+        moves.plentyChoiceOneGrain();
+      }
+      else if (plentyFirstChoiceMade) {
+        setFirstChoiceMade(false);
+        setPlentyPlayed(false);
+        moves.plentyChoiceTwoGrain()
+      }
+    }
+
+    const handlePlentyPasture = id => {
+      if (!plentyFirstChoiceMade) {
+        setFirstChoiceMade(true);
+        moves.plentyChoiceOnePasture();
+      }
+      else if (plentyFirstChoiceMade) {
+        setFirstChoiceMade(false);
+        setPlentyPlayed(false);
+        moves.plentyChoiceTwoPasture()
+      }
+    }
+
+    const handlePlentyForest = id => {
+      if (!plentyFirstChoiceMade) {
+        setFirstChoiceMade(true);
+        moves.plentyChoiceOneForest();
+      }
+      else if (plentyFirstChoiceMade) {
+        setFirstChoiceMade(false);
+        setPlentyPlayed(false);
+        moves.plentyChoiceTwoForest()
+      }
+    }
+
+    const handlePlentyHill = id => {
+      if (!plentyFirstChoiceMade) {
+        setFirstChoiceMade(true);
+        moves.plentyChoiceOneHill();
+      }
+      else if (plentyFirstChoiceMade) {
+        setFirstChoiceMade(false);
+        setPlentyPlayed(false);
+        moves.plentyChoiceTwoHill()
+      }
+    }
+
+    const handlePlentyMountain = id => {
+      if (!plentyFirstChoiceMade) {
+        setFirstChoiceMade(true);
+        moves.plentyChoiceOneMountain();
+      }
+      else if (plentyFirstChoiceMade) {
+        setFirstChoiceMade(false);
+        setPlentyPlayed(false);
+        moves.plentyChoiceTwoMountain()
+      }
+    }
+
+
     function handleEndTurn() {
       events.endTurn();
       console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, JSON.stringify(G.players[ctx.currentPlayer]));
@@ -126,16 +229,36 @@ const GameBoard = ({ctx, G, moves, events}) => {
           </Layout>
         </HexGrid>
         <div>
-           {!diceRolled &&  <button onClick={handleRoll}>Click to Roll!</button> }
+           {!diceRolled && !monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade && <button onClick={handleRoll}>Click to Roll!</button> }
            
-           {diceRolled && 
+           {diceRolled && !monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade &&
            <div><button onClick={handleEndTurn}>End Turn</button>
            </div>
            }
           
         </div>
         <div>
-        <button onClick={handleDraw}>Draw Development Card (Costs 1 Pasture, Grain, and Mountain)</button><button onClick={handleAddResources}>Add 1 Pasture, Grain, and Mountain (this button is for dev purposes)</button>
+        {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Pasture, Grain, and Mountain) </button>}
+        {!monopolyPlayed && !plentyPlayed && <button onClick={handleAddResources}>Add 1 of each resource and development card (this button is for dev purposes)</button>}
+        </div>
+        <div>
+        {!monopolyPlayed && !plentyPlayed && <button onClick={handleVictoryCard}>Play Victory Card (gain 1 Victory point)</button>}
+        </div>
+        <div>
+        {!monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade && <button onClick={revealMonopoly}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
+        {monopolyPlayed && <button onClick={handleMonopolyGrain}>Grain</button>}
+        {monopolyPlayed && <button onClick={handleMonopolyPasture}>Pasture</button>}
+        {monopolyPlayed && <button onClick={handleMonopolyForest}>Forest</button>}
+        {monopolyPlayed && <button onClick={handleMonopolyHill}>Hill</button>}
+        {monopolyPlayed && <button onClick={handleMonopolyMountain}>Mountain</button>}
+        </div>
+        <div>
+        {!plentyPlayed && !monopolyPlayed && <button onClick={revealPlenty}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
+        {plentyPlayed && <button onClick={handlePlentyGrain}>Grain</button>}
+        {plentyPlayed && <button onClick={handlePlentyPasture}>Pasture</button>}
+        {plentyPlayed && <button onClick={handlePlentyForest}>Forest</button>}
+        {plentyPlayed && <button onClick={handlePlentyHill}>Hill</button>}
+        {plentyPlayed && <button onClick={handlePlentyMountain}>Mountain</button>}
         </div>
       </div>
       </div>
