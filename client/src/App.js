@@ -17,17 +17,27 @@ import Navbar from "./Components/Navbar"
 import {AuthContext} from "./Contexts/AuthContext"
 import {ProfileContext} from './Contexts/ProfileContext'
 import {NumPlayersContext} from './Contexts/NumPlayersContext'
+import {OnlineContext} from './Contexts/OnlineContext'
+import { GameCodeContext } from './Contexts/gameCodeContext'
+import { SockContext } from './Contexts/SocketContext';
 import {useState} from 'react'
+import io from 'socket.io-client'
 
 function App() {
   const [auth, setAuth] = useState(false);
   const [profile, setProfile] = useState({});
   const [numPlayers, setNumPlayers] = useState({});
+  const [online, setOnline] = useState(false);
+  const [gameCode, setGameCode] = useState(0);
+  const [socket] = useState(io('http://localhost:8080'));
   return (
         <BrowserRouter>
           <AuthContext.Provider value={{auth, setAuth}}>
           <ProfileContext.Provider value={{profile, setProfile}}>
             <NumPlayersContext.Provider value={{numPlayers, setNumPlayers}}>
+            <OnlineContext.Provider value={{online, setOnline}}>
+            <GameCodeContext.Provider value={{gameCode, setGameCode}}>
+            <SockContext.Provider value={{socket}}>
             <Navbar />
             <Routes>
             <Route exact path="/Results" element={<Results/>} />
@@ -43,6 +53,9 @@ function App() {
             <Route exact path="/CreateAccount" element={<CreateAccount/>} />
             <Route exact path="/" element={<Home/>} />
             </Routes>
+            </SockContext.Provider>
+            </GameCodeContext.Provider>
+            </OnlineContext.Provider>
             </NumPlayersContext.Provider>
           </ProfileContext.Provider>
           </AuthContext.Provider>

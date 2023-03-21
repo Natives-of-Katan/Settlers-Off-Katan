@@ -1,18 +1,27 @@
 const express = require('express');
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const socketio = require('socket.io');
+const socketServer = require('socket.io')(server, {
+    cors: {
+      origin: '*',
+    }
+});
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
-//var cookieParser = require('cookie-parser');
 const session = require('express-session');
 const path = require('path');
-
-
 var corsOptions = {
     origin: '*', 
     optionsSuccessStatus: 200
 }
+
+let gamesList = [];
+
 const port = process.env.PORT || 8080;
+
 app.use(express.static(path.join(__dirname,'client', 'build')));
 
 //tells server to use body-parser
@@ -39,9 +48,58 @@ mongoose.connect(db).then(con => {
 const routes = require('./routes/routes');
 app.use('/', routes);
 
-//spin up the server
-app.listen(port, () => {
-    console.log('Server listening on ' + port);
+//start server
+server.listen(port, () => {
+    console.log('Settlers Off Katan Server listening on port %s \n',port);
 })
+
+//socket handlers for lobby creation/game state management  ------------------------------------------------------------------------------------------------------
+socketServer.on('connect', (socket) => {
+    console.log('A user connected');
+
+    socket.on('create-lobby', (lobbyObject) => {
+        console.log('match ID is %s and player name is %s', lobbyObject.matchID, lobbyObject.name)
+        let players = [];
+        players.push(lobbyObject.name);
+        const game = {
+            code: lobbyObject.matchID,
+            players: players
+        }
+
+        let playerSockets = [];
+        playerSockets.push(socket.id);
+        const storeGame = {
+            matchID: lobbyObject.matchID,
+            socketIDs: playerSockets,
+            players: players
+        }
+
+        gamesList.push(storeGame);
+        console.log(gamesList);
+        socket.emit('lobby-created', (game));
+    })
+
+    socket.on('join', (requestObj) => {
+        socketsToEmit = [];
+        playersToEmit = [];
+        for(var i = 0; i < gamesList.length; i++) {
+            if(gamesList[i].matchID == requestObj.matchID) {
+                gamesList[i].socketIDs.push(socket.id);
+                socketsToEmit = gamesList[i].socketIDs;
+                gamesList[i].players.push(requestObj.name)
+                playersToEmit = gamesList[i].players;
+                break;
+            }
+        }
+
+        socketsToEmit.forEach(socketID => {
+            socketServer.to(socketID).emit('player-joined',{
+                matchID: requestObj.matchID,
+                players: playersToEmit
+            });
+        })
+        console.log('player joined lobby for match %s', requestObj.matchID);
+    })
+  });
 
 module.exports = {port, session};
