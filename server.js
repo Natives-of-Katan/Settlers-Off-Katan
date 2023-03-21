@@ -18,6 +18,9 @@ var corsOptions = {
     optionsSuccessStatus: 200
 }
 
+//const game = require('./client/src/Components/gameLogic.js')
+//const board = require('./client/src/Components/GameBoard.js');
+
 let gamesList = [];
 
 const port = process.env.PORT || 8080;
@@ -57,6 +60,7 @@ server.listen(port, () => {
 socketServer.on('connect', (socket) => {
     console.log('A user connected');
 
+    //user creates lobby, emit back the matchID and the player name
     socket.on('create-lobby', (lobbyObject) => {
         console.log('match ID is %s and player name is %s', lobbyObject.matchID, lobbyObject.name)
         let players = [];
@@ -79,17 +83,25 @@ socketServer.on('connect', (socket) => {
         socket.emit('lobby-created', (game));
     })
 
+    //player requests to join lobby using match ID, their socketID and player name is added to the arrays of the matching game object in gamesList array
     socket.on('join', (requestObj) => {
         socketsToEmit = [];
         playersToEmit = [];
+        let validated = false;
         for(var i = 0; i < gamesList.length; i++) {
             if(gamesList[i].matchID == requestObj.matchID) {
                 gamesList[i].socketIDs.push(socket.id);
                 socketsToEmit = gamesList[i].socketIDs;
                 gamesList[i].players.push(requestObj.name)
                 playersToEmit = gamesList[i].players;
+                validated = true;
+                socket.emit('code-validated');
                 break;
             }
+        }
+        if(!validated) {
+            socket.emit('invalid-code');
+            return;
         }
 
         socketsToEmit.forEach(socketID => {
@@ -100,6 +112,19 @@ socketServer.on('connect', (socket) => {
         })
         console.log('player joined lobby for match %s', requestObj.matchID);
     })
+
+    //once at least four players joined, players can start game, emit back a confirmation to start game
+    socket.on('start-game', (matchID) => {
+        console.log("start game for match %s", matchID);
+            for(var i = 0; i < gamesList.length; i++) {
+                if(gamesList[i].matchID == matchID) {
+                    gamesList[i].socketIDs.forEach(socketID => {
+                        socketServer.to(socketID).emit('confirm-start');
+                        console.log('game started for match %s', matchID);
+                    });
+                }
+            }
+        })
   });
 
 module.exports = {port, session};

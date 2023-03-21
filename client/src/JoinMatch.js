@@ -15,6 +15,7 @@ const JoinMatch = () => {
     const [matchID, setMatchID] = useState('');
     const [name, setName] = useState('');
     const [requested, setRequested] = useState(false);
+    const [invalidCode, setInvalidCode] = useState('');
 
     //used to navigate to /Lobby after successful join request
     const navigate = useNavigate();
@@ -24,6 +25,17 @@ const JoinMatch = () => {
         socket.on('player-joined', (response) => {
             console.log(response);
         })
+
+        socket.on('code-validated', () => {
+            setOnline(true);
+            navigate('/Lobby');
+        });
+
+        socket.on('invalid-code', () => {
+            setInvalidCode('invalid code, try again');
+            setRequested(false);
+        });
+
     })
 
     //handle state changes for match ID input
@@ -44,8 +56,6 @@ const JoinMatch = () => {
             name: name
         })
         setRequested(true);
-        setOnline(true);
-        navigate('/Lobby');
     }
 
     return(
@@ -55,6 +65,7 @@ const JoinMatch = () => {
                 {!requested && 
                 <form>
                     <p>Invite Code:</p>
+                    <div>{invalidCode}</div>
                     <input type ="text" name="joinMatchCode" placeHolder="Enter code here" onChange={handleMatchIdChange} /><br /><br />
                     <input type='text' name='username' placeholder='enter username' onChange={handleNameChange}/> 
                     <button class="btn-default-style" type="submit" onClick={handleSubmit}>Enter Lobby</button>

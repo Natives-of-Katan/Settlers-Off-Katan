@@ -1,14 +1,19 @@
 import React from "react";
 import {useEffect, useContext, useState } from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { OnlineContext } from './Contexts/OnlineContext';
+import { MultiplayerContext } from "./Contexts/MultiplayerContext";
 import { SockContext } from "./Contexts/SocketContext";
 
 const Lobby = () => {
 
+    //navigate to game component
+    const navigate = useNavigate();
+
     //contexts 
     const { socket } = useContext(SockContext);
     const { online } = useContext(OnlineContext);
+    const {setMultiplayer} = useContext(MultiplayerContext);
 
     //local vars
     const [gameCode, setGameCode] = useState(0);
@@ -26,6 +31,42 @@ const Lobby = () => {
         }
     }, []);
 
+    //useEffect hooks for socket events/when players array is updated
+    useEffect(() => {
+        
+        checkMinPlayers();
+
+        //when we receive a confirmation the lobby was created, we update the lobby data and set lobby started to true
+        socket.on('lobby-created', (lobbyData) => {
+            setPlayers(lobbyData.players);
+            setLobbyStarted(true);
+        });
+
+        //playrs array updated if player joins the lobby
+        socket.on('player-joined', (response) => {
+            setPlayers(response.players);
+            setGameCode(response.matchID);
+        });
+
+        socket.on('confirm-start', () => {
+            console.log('starting!');
+            setMultiplayer([true, players.length]);
+            navigate('/Game');
+        });
+
+    }, [socket, players]);
+
+    //update state of name field
+    const handleNameChange = event => {
+        setName(event.target.value);
+    }
+
+    //runs every time the players array is updated, once it is 4 or longer then the start button is enabled (game requires at least 4 players)
+    const checkMinPlayers = () => {
+        //players.length < 4 ? setDisableStart(true) : setDisableStart(false);
+        setDisableStart(false);
+    }
+
     //emit to the server that we are creating a lobby with our username and the generated game code 
     const createLobby = () => {
         socket.emit('create-lobby', {
@@ -34,42 +75,16 @@ const Lobby = () => {
         });
     }
 
-    //when the lobby is created, we receive a confirmation respones with your player name
-    useEffect( () => {
-        socket.on('lobby-created', (lobbyData) => {
-            setPlayers(lobbyData.players);
-            setLobbyStarted(true);
-        });
-    })
-
-    //whenever a player joins the match, the players array is updated
-    useEffect( () => {
-        socket.on('player-joined', (response) => {
-            setPlayers(response.players);
-            setGameCode(response.matchID);
-        })
-    })
-
-    //whenever players array changes, startGame() is called to see if the start game button should be enabled
-    useEffect(() => {
-        startGame();
-    }, [players]);
-
-    //update state of name field
-    const handleNameChange = event => {
-        setName(event.target.value);
-    }
-
-    //runs every time the players array is updated, once it is 4 or longer then the start button is enabled (game requires at least 4 players)
+    //any player can start teh game once there are at least four in the lobby
     const startGame = () => {
-        players.length < 4 ? setDisableStart(true) : setDisableStart(false);
+        console.log('starting game');
+        socket.emit('start-game', gameCode);
     }
-
 
     return(
         <div className="App">
             <div className ="content">
-            <h1>*Lobby content goes here*</h1>
+            <h1>Welcome To The Lobby!</h1>
             {!lobbyStarted && !online &&
                 <form>
                     <p>Invite Code:</p>
@@ -86,7 +101,7 @@ const Lobby = () => {
                     <div key={index}>{player}</div>
                      ))}
                  </div>
-            <button type='button' disabled={disableStart}>Start Game</button>
+            <button type='button' disabled={disableStart} onClick={startGame}>Start Game</button>
             </div>}
 
             </div><br />
