@@ -28,7 +28,7 @@ function App() {
   const [profile, setProfile] = useState({});
   const [numPlayers, setNumPlayers] = useState({});
   const [online, setOnline] = useState(false);
-  const [multiplayer, setMultiplayer] = useState(false);
+  const [multiplayer, setMultiplayer] = useState([false, 0]);
   const [socket] = useState(io('http://localhost:8080'));
   return (
         <BrowserRouter>
