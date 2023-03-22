@@ -290,16 +290,16 @@ const GameBoard = ({ctx, G, moves, events}) => {
                 {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Pasture, Grain, and Mountain) </button>}
                 {!monopolyPlayed && !plentyPlayed && <button onClick={handleAddResources}>Add 1 of each resource and development card (this button is for dev purposes)</button>}
         
-                {!monopolyPlayed && !plentyPlayed && <button onClick={handleVictoryCard}>Play Victory Card (gain 1 Victory point)</button>}
+                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.victory > 0 && !monopolyPlayed && !plentyPlayed && <button onClick={handleVictoryCard}>Play Victory Card (gain 1 Victory point)</button>}
         
-                {!monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade && <button onClick={revealMonopoly}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
+                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.monopoly > 0 && !monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade && <button onClick={revealMonopoly}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
                 {monopolyPlayed && <button onClick={handleMonopolyGrain}>Grain</button>}
                 {monopolyPlayed && <button onClick={handleMonopolyPasture}>Pasture</button>}
                 {monopolyPlayed && <button onClick={handleMonopolyForest}>Forest</button>}
                 {monopolyPlayed && <button onClick={handleMonopolyHill}>Hill</button>}
                 {monopolyPlayed && <button onClick={handleMonopolyMountain}>Mountain</button>}
         
-                {!plentyPlayed && !monopolyPlayed && <button onClick={revealPlenty}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
+                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.plenty > 0 && !plentyPlayed && !monopolyPlayed && <button onClick={revealPlenty}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
                 {plentyPlayed && <button onClick={handlePlentyGrain}>Grain</button>}
                 {plentyPlayed && <button onClick={handlePlentyPasture}>Pasture</button>}
                 {plentyPlayed && <button onClick={handlePlentyForest}>Forest</button>}

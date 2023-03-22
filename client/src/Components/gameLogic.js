@@ -57,30 +57,35 @@ const plentyChoiceTwoGrain = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.plenty > 0) {
         G.players[playerID].resources.grain += 1;
         G.players[playerID].developmentCards.plenty -= 1;
+        G.players[playerID].canPlayCard = false;
     }
 }
 const plentyChoiceTwoPasture = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.plenty > 0) {
         G.players[playerID].resources.pasture += 1;
         G.players[playerID].developmentCards.plenty -= 1;
+        G.players[playerID].canPlayCard = false;
     }
 }
 const plentyChoiceTwoForest = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.plenty > 0) {
         G.players[playerID].resources.forest += 1;
         G.players[playerID].developmentCards.plenty -= 1;
+        G.players[playerID].canPlayCard = false;
     }
 }
 const plentyChoiceTwoHill = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.plenty > 0) {
         G.players[playerID].resources.hill += 1;
         G.players[playerID].developmentCards.plenty -= 1;
+        G.players[playerID].canPlayCard = false;
     }
 }
 const plentyChoiceTwoMountain = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.plenty > 0) {
         G.players[playerID].resources.mountain += 1;
         G.players[playerID].developmentCards.plenty -= 1;
+        G.players[playerID].canPlayCard = false;
     }
 }
 
@@ -123,7 +128,8 @@ const drawDevelopmentCard = ({G, playerID}) => {
 const playVictoryCard = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.victory > 0) {
         G.players[playerID].developmentCards.victory -= 1;
-        G.players[playerID].points += 1;
+        G.players[playerID].score += 1;
+        G.players[playerID].canPlayCard = false;
     }
 }
 
@@ -139,6 +145,7 @@ const playMonopolyGrain = ({G, playerID}) => {
         }
 
         G.players[playerID].resources.grain = numGrain;
+        G.players[playerID].canPlayCard = false;
     }
 }
 
@@ -154,6 +161,7 @@ const playMonopolyPasture = ({G, playerID}) => {
         }
 
         G.players[playerID].resources.pasture = numPastures;
+        G.players[playerID].canPlayCard = false;
     }
 }
 
@@ -169,6 +177,7 @@ const playMonopolyForest = ({G, playerID}) => {
         }
 
         G.players[playerID].resources.forest = numForests;
+        G.players[playerID].canPlayCard = false;
     }
 }
 
@@ -184,6 +193,7 @@ const playMonopolyHill = ({G, playerID}) => {
         }
 
         G.players[playerID].resources.hill = numHills;
+        G.players[playerID].canPlayCard = false;
     }
 }
 
@@ -199,6 +209,7 @@ const playMonopolyMountain = ({G, playerID}) => {
         }
 
         G.players[playerID].resources.mountain = numMountains;
+        G.players[playerID].canPlayCard = false;
     }
 }
 
@@ -216,18 +227,22 @@ const checkBuildActions = ({G, ctx}) => {
         currentPlayer.canBuyCard = true;
   }
 
+const resetDevPlays = ({G, ctx}) => {
+    G.players[ctx.currentPlayer].canPlayCard = true;
+}
+
 
 export const settlersOffKatan = numPlayers => ({
     setup: () => ({
+        deck: {
+            knight: 14,
+            victory: 5,
+            monopoly: 2,
+            road: 2,
+            plenty: 2
+        },
         players: Array(numPlayers).fill().map( () => ({
             score: 0,
-            deck: {
-                knight: 14,
-                victory: 5,
-                monopoly: 2,
-                road: 2,
-                plenty: 2
-            },
             resources: {
                 grain: 0,
                 pasture: 0,
@@ -246,6 +261,7 @@ export const settlersOffKatan = numPlayers => ({
             canBuildSettlement: false,
             canBuildRoad: false,
             canBuyCard: false,
+            canPlayCard: true,
             startOfTurn: false,
             settlements: [],
             cards: []
@@ -253,7 +269,8 @@ export const settlersOffKatan = numPlayers => ({
     }),
 
     turn: {
-        onBegin: checkBuildActions
+        onBegin: checkBuildActions,
+        onBegin: resetDevPlays
     },
 
     moves: {
