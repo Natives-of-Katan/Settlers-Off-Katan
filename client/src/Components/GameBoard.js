@@ -339,7 +339,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
                         onClick={() => onVertexClick(i, v)}/>
                     ))
                   }
-                  <Text>{HexUtils.getID(hex)}</Text>
+                  <Text>{tileNums[i]}</Text>
                 </CustomHex>
               ))
             }
