@@ -143,6 +143,7 @@ svg g polygon {
 
 svg g {
   fill-opacity: 0.6;
+  stroke-width: 0.2;
 }
 
 .error-msg {
@@ -216,6 +217,10 @@ line {
 
 line.active {
   opacity: 1;
+}
+
+circle.active {
+  fill-opacity: 1;
 }
 
 .scoreboard td {

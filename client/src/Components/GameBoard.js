@@ -42,17 +42,29 @@ const GameBoard = ({ctx, G, moves, events}) => {
     ];
 
     // When an element is clicked, it's passed to the appropriate function                    
-    const onClick = (i, e) => {
+    const onEdgeClick = (i, e) => {
       // call whatever function you need, return changed object
-      let updatedObj = moves.callFunction(e)
+      // let updatedObj = moves.callFunction(e)
 
       // do something like this inside the call function and return changed object
-      //e.stroke = "red"; 
-      //e.classes = "active";
+      e.stroke = "blue"; 
+      e.classes = "active";
 
       let myArr = [...edges];
-      myArr[i][myArr[i].indexOf(e)] = updatedObj;
-      updateEdge(updatedObj);
+      myArr[i][myArr[i].indexOf(e)] = e;
+      updateEdge(myArr);
+    }
+
+        // When an element is clicked, it's passed to the appropriate function                    
+    const onVertexClick = (i, e) => {
+
+      // do something like this inside the call function and return changed object
+      e.type = 'city';
+      e.user = 'blue';
+      e.classes = 'active';
+      let myArr = [...vertices];
+      myArr[i][myArr[i].indexOf(e)] = e;
+      updateVertice(myArr);
     }
 
     const playTurn = () => {
@@ -147,7 +159,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
                   {
                     edges[i].map((e) => (
                       <line id={e.id} className={e.classes} x1={e.x1} x2={e.x2} y1={e.y1} y2={e.y2} 
-                      stroke={e.stroke} onClick={() => onClick(i, e)}/>
+                      stroke={e.stroke} onClick={() => onEdgeClick(i, e)}/>
                     ))
                   }
                   {
@@ -158,10 +170,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
                         cx={v.cx} 
                         cy={v.cy} 
                         r="2" 
+                        stroke={v.user}
                         fill={
                           v.type === 'city' ? "url(#city)" : (v.type === 'none' ? "white": "url(#settlement)")
                         }
-                        onClick={() => onClick(i, v)}/>
+                        onClick={() => onVertexClick(i, v)}/>
                     ))
                   }
                   <Text>{HexUtils.getID(hex)}</Text>
@@ -171,7 +184,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
             { 
               portHexagons.map((hex, i) => (
                <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} 
-               vertices="" edges="" onClick={onClick}>
+               vertices="" edges="">
                 <Pattern id="port" link="https://www.metalearth.com/content/images/thumbs/0004703_uss-constitution_1200.png" size={{x:3, y:8.5}} />
                 </CustomHex>
               ))
