@@ -30,65 +30,6 @@ const addDevelopmentResources = ({G, playerID}) => {
     G.players[playerID].developmentCards.plenty += 1;
 }
 
-const plentyChoiceOneGrain = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0)
-        G.players[playerID].resources.grain += 1;
-}
-
-const plentyChoiceOnePasture = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0)
-        G.players[playerID].resources.pasture += 1;
-}
-
-const plentyChoiceOneForest = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0)
-        G.players[playerID].resources.forest += 1;
-}
-const plentyChoiceOneHill = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0)
-        G.players[playerID].resources.hill += 1;
-}
-const plentyChoiceOneMountain = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0)
-        G.players[playerID].resources.mountain += 1;
-}
-
-const plentyChoiceTwoGrain = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0) {
-        G.players[playerID].resources.grain += 1;
-        G.players[playerID].developmentCards.plenty -= 1;
-        G.players[playerID].canPlayCard = false;
-    }
-}
-const plentyChoiceTwoPasture = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0) {
-        G.players[playerID].resources.pasture += 1;
-        G.players[playerID].developmentCards.plenty -= 1;
-        G.players[playerID].canPlayCard = false;
-    }
-}
-const plentyChoiceTwoForest = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0) {
-        G.players[playerID].resources.forest += 1;
-        G.players[playerID].developmentCards.plenty -= 1;
-        G.players[playerID].canPlayCard = false;
-    }
-}
-const plentyChoiceTwoHill = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0) {
-        G.players[playerID].resources.hill += 1;
-        G.players[playerID].developmentCards.plenty -= 1;
-        G.players[playerID].canPlayCard = false;
-    }
-}
-const plentyChoiceTwoMountain = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.plenty > 0) {
-        G.players[playerID].resources.mountain += 1;
-        G.players[playerID].developmentCards.plenty -= 1;
-        G.players[playerID].canPlayCard = false;
-    }
-}
-
 const drawDevelopmentCard = ({G, playerID}) => {
     //Checks if the player has the required resources and that the deck has at least 1 card in it
     if (G.players[playerID].resources.pasture > 0 && G.players[playerID].resources.grain > 0 && G.players[playerID].resources.mountain > 0 && G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty+G.deck.road > 0) {
@@ -133,86 +74,87 @@ const playVictoryCard = ({G, playerID}) => {
     }
 }
 
-const playMonopolyGrain = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.monopoly > 0) {
-        G.players[playerID].developmentCards.monopoly -= 1;
+const playYearOfPlenty = ({G , playerID}, choice1, choice2) => {
+    if (G.players[playerID].developmentCards.plenty > 0) {
 
-        let numGrain = 0;
-
-        for (let i = 0; i < G.players.length; i++) {
-            numGrain += G.players[i].resources.grain;
-            G.players[i].resources.grain = 0;
-        }
-
-        G.players[playerID].resources.grain = numGrain;
+        G.players[playerID].developmentCards.plenty -=1;
         G.players[playerID].canPlayCard = false;
+
+        if (choice1 === 'grain') 
+            G.players[playerID].resources.grain += 1;
+        else if (choice1 === 'pasture') 
+            G.players[playerID].resources.pasture += 1;
+        else if (choice1 === 'forest') 
+            G.players[playerID].resources.forest += 1;
+        else if (choice1 === 'hill') 
+            G.players[playerID].resources.hill += 1;
+        else if (choice1 === 'mountain') 
+            G.players[playerID].resources.mountain += 1;
+
+        if (choice2 === 'grain') 
+            G.players[playerID].resources.grain += 1;
+        else if (choice2 === 'pasture') 
+            G.players[playerID].resources.pasture += 1;
+        else if (choice2 === 'forest') 
+            G.players[playerID].resources.forest += 1;
+        else if (choice2 === 'hill') 
+            G.players[playerID].resources.hill += 1;
+        else if (choice2 === 'mountain') 
+            G.players[playerID].resources.mountain += 1; 
     }
 }
 
-const playMonopolyPasture = ({G, playerID}) => {
+const playMonopoly = ({G, playerID}, choice) => {
     if (G.players[playerID].developmentCards.monopoly > 0) {
+
         G.players[playerID].developmentCards.monopoly -= 1;
-
-        let numPastures = 0;
-
-        for (let i = 0; i < G.players.length; i++) {
-            numPastures += G.players[i].resources.pasture;
-            G.players[i].resources.pasture = 0;
-        }
-
-        G.players[playerID].resources.pasture = numPastures;
         G.players[playerID].canPlayCard = false;
+        
+        let numResource = 0;
+        
+
+        if (choice === 'grain') {
+            for (let i = 0; i < G.players.length; i++) {
+                numResource += G.players[i].resources.grain;
+                G.players[i].resources.grain = 0;
+            }
+
+            G.players[playerID].resources.grain = numResource;
+        }
+        else if (choice === 'pasture') {
+            for (let i = 0; i < G.players.length; i++) {
+                numResource += G.players[i].resources.pasture;
+                G.players[i].resources.pasture = 0;
+            }
+
+            G.players[playerID].resources.pasture = numResource;
+        }
+        else if (choice === 'forest') {
+            for (let i = 0; i < G.players.length; i++) {
+                numResource += G.players[i].resources.forest;
+                G.players[i].resources.forest = 0;
+            }
+
+            G.players[playerID].resources.forest = numResource;
+        }
+        else if (choice === 'hill') {
+            for (let i = 0; i < G.players.length; i++) {
+                numResource += G.players[i].resources.hill;
+                G.players[i].resources.hill = 0;
+            }
+
+            G.players[playerID].resources.hill = numResource;
+        }
+        else if (choice === 'mountain') {
+            for (let i = 0; i < G.players.length; i++) {
+                numResource += G.players[i].resources.mountain;
+                G.players[i].resources.mountain = 0;
+            }
+
+            G.players[playerID].resources.mountain = numResource;
+        }
     }
 }
-
-const playMonopolyForest = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.monopoly > 0) {
-        G.players[playerID].developmentCards.monopoly -= 1;
-
-        let numForests = 0;
-
-        for (let i = 0; i < G.players.length; i++) {
-            numForests += G.players[i].resources.forest;
-            G.players[i].resources.forest = 0;
-        }
-
-        G.players[playerID].resources.forest = numForests;
-        G.players[playerID].canPlayCard = false;
-    }
-}
-
-const playMonopolyHill = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.monopoly > 0) {
-        G.players[playerID].developmentCards.monopoly -= 1;
-
-        let numHills = 0;
-
-        for (let i = 0; i < G.players.length; i++) {
-            numHills += G.players[i].resources.hill;
-            G.players[i].resources.hill = 0;
-        }
-
-        G.players[playerID].resources.hill = numHills;
-        G.players[playerID].canPlayCard = false;
-    }
-}
-
-const playMonopolyMountain = ({G, playerID}) => {
-    if (G.players[playerID].developmentCards.monopoly > 0) {
-        G.players[playerID].developmentCards.monopoly -= 1;
-
-        let numMountains = 0;
-
-        for (let i = 0; i < G.players.length; i++) {
-            numMountains += G.players[i].resources.mountain;
-            G.players[i].resources.mountain = 0;
-        }
-
-        G.players[playerID].resources.mountain = numMountains;
-        G.players[playerID].canPlayCard = false;
-    }
-}
-
 
 const checkBuildActions = ({G, ctx}) => {
     const currentPlayer = G.players[ctx.currentPlayer]
@@ -278,21 +220,8 @@ export const settlersOffKatan = numPlayers => ({
         addDevelopmentResources,
         drawDevelopmentCard,
         playVictoryCard,
-        playMonopolyGrain,
-        playMonopolyPasture,
-        playMonopolyForest,
-        playMonopolyHill,
-        playMonopolyMountain,
-        plentyChoiceOneGrain,
-        plentyChoiceOnePasture,
-        plentyChoiceOneForest,
-        plentyChoiceOneHill,
-        plentyChoiceOneMountain,
-        plentyChoiceTwoGrain,
-        plentyChoiceTwoPasture,
-        plentyChoiceTwoForest,
-        plentyChoiceTwoHill,
-        plentyChoiceTwoMountain
+        playMonopoly,
+        playYearOfPlenty
     }
 });
 

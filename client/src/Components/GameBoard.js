@@ -31,7 +31,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     //button settings
     const [monopolyPlayed, setMonopolyPlayed] = useState(false);
     const [plentyPlayed, setPlentyPlayed] = useState(false);
-    const [plentyFirstChoiceMade, setFirstChoiceMade] = useState(false);
+    const [plentyFirstChoice, setFirstChoice] = useState('');
 
     // map numbers
     const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
@@ -95,99 +95,36 @@ const GameBoard = ({ctx, G, moves, events}) => {
       moves.playVictoryCard();
     }
 
-    const revealMonopoly = id => {
-      setMonopolyPlayed(true);
-    }
-
-    const handleMonopolyGrain = id => {
-      moves.playMonopolyGrain();
-      setMonopolyPlayed(false);
-    }
-
-    const handleMonopolyPasture = id => {
-      moves.playMonopolyPasture();
-      setMonopolyPlayed(false);
-    }
-
-    const handleMonopolyForest = id => {
-      moves.playMonopolyForest();
-      setMonopolyPlayed(false);
-    }
-
-    const handleMonopolyHill = id => {
-      moves.playMonopolyHill();
-      setMonopolyPlayed(false);
-    }
-
-    const handleMonopolyMountain = id => {
-      moves.playMonopolyMountain();
-      setMonopolyPlayed(false);
-    }
-
-    const revealPlenty = id => {
-        setPlentyPlayed(true);
-  }
-
-    const handlePlentyGrain = id => {
-      if (!plentyFirstChoiceMade) {
-        setFirstChoiceMade(true);
-        moves.plentyChoiceOneGrain();
-      }
-      else if (plentyFirstChoiceMade) {
-        setFirstChoiceMade(false);
-        setPlentyPlayed(false);
-        moves.plentyChoiceTwoGrain()
+    const handleMonopoly = (choice) => {
+      if (!monopolyPlayed)
+        setMonopolyPlayed(true);
+      else {
+        moves.playMonopoly(choice);
+        setMonopolyPlayed(false);
       }
     }
 
-    const handlePlentyPasture = id => {
-      if (!plentyFirstChoiceMade) {
-        setFirstChoiceMade(true);
-        moves.plentyChoiceOnePasture();
-      }
-      else if (plentyFirstChoiceMade) {
-        setFirstChoiceMade(false);
-        setPlentyPlayed(false);
-        moves.plentyChoiceTwoPasture()
-      }
+    const handlePlenty = (choice1, choice2) => {
+        if (!plentyPlayed)
+          setPlentyPlayed(true);
+        else if (choice2 === 'none') {
+          if (choice1 === 'grain')
+            setFirstChoice('grain');
+          else if (choice1 === 'pasture')
+            setFirstChoice('pasture');
+          else if (choice1 === 'forest')
+            setFirstChoice('forest');
+          else if (choice1 === 'hill')
+            setFirstChoice('hill');
+          else if (choice1 === 'mountain')
+            setFirstChoice('mountain');
+        }
+        else {
+          moves.playYearOfPlenty(plentyFirstChoice, choice2);
+          setFirstChoice('');
+          setPlentyPlayed(false);
+        }
     }
-
-    const handlePlentyForest = id => {
-      if (!plentyFirstChoiceMade) {
-        setFirstChoiceMade(true);
-        moves.plentyChoiceOneForest();
-      }
-      else if (plentyFirstChoiceMade) {
-        setFirstChoiceMade(false);
-        setPlentyPlayed(false);
-        moves.plentyChoiceTwoForest()
-      }
-    }
-
-    const handlePlentyHill = id => {
-      if (!plentyFirstChoiceMade) {
-        setFirstChoiceMade(true);
-        moves.plentyChoiceOneHill();
-      }
-      else if (plentyFirstChoiceMade) {
-        setFirstChoiceMade(false);
-        setPlentyPlayed(false);
-        moves.plentyChoiceTwoHill()
-      }
-    }
-
-    const handlePlentyMountain = id => {
-      if (!plentyFirstChoiceMade) {
-        setFirstChoiceMade(true);
-        moves.plentyChoiceOneMountain();
-      }
-      else if (plentyFirstChoiceMade) {
-        setFirstChoiceMade(false);
-        setPlentyPlayed(false);
-        moves.plentyChoiceTwoMountain()
-      }
-    }
-
 
     //function handleEndTurn() {
     const handleEndTurn = () => {
@@ -292,19 +229,26 @@ const GameBoard = ({ctx, G, moves, events}) => {
         
                 {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.victory > 0 && !monopolyPlayed && !plentyPlayed && <button onClick={handleVictoryCard}>Play Victory Card (gain 1 Victory point)</button>}
         
-                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.monopoly > 0 && !monopolyPlayed && !plentyPlayed && !plentyFirstChoiceMade && <button onClick={revealMonopoly}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
-                {monopolyPlayed && <button onClick={handleMonopolyGrain}>Grain</button>}
-                {monopolyPlayed && <button onClick={handleMonopolyPasture}>Pasture</button>}
-                {monopolyPlayed && <button onClick={handleMonopolyForest}>Forest</button>}
-                {monopolyPlayed && <button onClick={handleMonopolyHill}>Hill</button>}
-                {monopolyPlayed && <button onClick={handleMonopolyMountain}>Mountain</button>}
+                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.monopoly > 0 && !monopolyPlayed && !plentyPlayed && plentyFirstChoice === '' && <button onClick={() => handleMonopoly('')}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
+                {monopolyPlayed && <button onClick={() => handleMonopoly('grain')}>Grain</button>}
+                {monopolyPlayed && <button onClick={() => handleMonopoly('pasture')}>Pasture</button>}
+                {monopolyPlayed && <button onClick={() => handleMonopoly('forest')}>Forest</button>}
+                {monopolyPlayed && <button onClick={() => handleMonopoly('hill')}>Hill</button>}
+                {monopolyPlayed && <button onClick={() => handleMonopoly('mountain')}>Mountain</button>}
         
-                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.plenty > 0 && !plentyPlayed && !monopolyPlayed && <button onClick={revealPlenty}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
-                {plentyPlayed && <button onClick={handlePlentyGrain}>Grain</button>}
-                {plentyPlayed && <button onClick={handlePlentyPasture}>Pasture</button>}
-                {plentyPlayed && <button onClick={handlePlentyForest}>Forest</button>}
-                {plentyPlayed && <button onClick={handlePlentyHill}>Hill</button>}
-                {plentyPlayed && <button onClick={handlePlentyMountain}>Mountain</button>}
+                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.plenty > 0 && !plentyPlayed && !monopolyPlayed && <button onClick={() => handlePlenty('')}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
+                {plentyPlayed && plentyFirstChoice === '' && <>Choice One</>}
+                {plentyPlayed && plentyFirstChoice === '' && <button onClick={() => handlePlenty('grain', 'none')}>Grain</button>}
+                {plentyPlayed && plentyFirstChoice === '' && <button onClick={() => handlePlenty('pasture', 'none')}>Pasture</button>}
+                {plentyPlayed && plentyFirstChoice === '' && <button onClick={() => handlePlenty('forest', 'none')}>Forest</button>}
+                {plentyPlayed && plentyFirstChoice === '' && <button onClick={() => handlePlenty('hill', 'none')}>Hill</button>}
+                {plentyPlayed && plentyFirstChoice === '' && <button onClick={() => handlePlenty('mountain', 'none')}>Mountain</button>}
+                {plentyPlayed && plentyFirstChoice !== '' && <>Choice Two</>}
+                {plentyPlayed && plentyFirstChoice !== '' && <button onClick={() => handlePlenty(plentyFirstChoice, 'grain')}>Grain</button>}
+                {plentyPlayed && plentyFirstChoice !== '' && <button onClick={() => handlePlenty(plentyFirstChoice, 'pasture')}>Pasture</button>}
+                {plentyPlayed && plentyFirstChoice !== '' && <button onClick={() => handlePlenty(plentyFirstChoice, 'forest')}>Forest</button>}
+                {plentyPlayed && plentyFirstChoice !== '' && <button onClick={() => handlePlenty(plentyFirstChoice, 'hill')}>Hill</button>}
+                {plentyPlayed && plentyFirstChoice !== '' && <button onClick={() => handlePlenty(plentyFirstChoice, 'mountain')}>Mountain</button>}
                 </div>
             </div>
         <HexGrid width={config.width} height={config.height}>
