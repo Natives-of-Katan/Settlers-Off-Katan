@@ -10,7 +10,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
   useEffect(() => {
     renderScoreBoard();
-  }, [ctx.currentPlayer]);
+    checkBuildActions();
+  }, [ctx.currentPlayer, G.players[ctx.currentPlayer].resources]);
   
   
     // map settings
@@ -27,6 +28,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
+    const [buildRoad, setBuildRoad] = useState(false);
+
 
     //button settings
     const [monopolyPlayed, setMonopolyPlayed] = useState(false);
@@ -146,6 +149,26 @@ const GameBoard = ({ctx, G, moves, events}) => {
     )
   }
 
+  const checkBuildActions = () => {
+    const currentPlayer = G.players[ctx.currentPlayer]
+    let resources = currentPlayer.resources;
+    const enoughResources = Object.values(resources).every(value => value >= 1);
+    if(enoughResources)
+      setBuildSettlement(true);
+    else
+      setBuildSettlement(false);
+
+    if(currentPlayer.resources.wood >= 1 && currentPlayer.resources.brick >= 1)
+      setBuildRoad(true);
+    else
+      setBuildRoad(false);
+
+    if(currentPlayer.resources.sheep >= 1 && currentPlayer.resources.ore >= 1 && currentPlayer.resources.wheat > 1)
+      setBuyCard(true);
+    else
+      setBuyCard(false);
+  }
+
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
     <div className="Game">
@@ -195,9 +218,9 @@ const GameBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
-                {G.players[ctx.currentPlayer].canBuildSettlement && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
-                {G.players[ctx.currentPlayer].canBuildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
-                {G.players[ctx.currentPlayer].canBuyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
+                {buildSettlement && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
+                {buildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
+                {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
                 
                 {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}
                 {!monopolyPlayed && !plentyPlayed && <button onClick={handleAddResources}>Add 1 of each resource and development card (this button is for dev purposes)</button>}
