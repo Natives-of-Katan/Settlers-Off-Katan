@@ -156,19 +156,6 @@ const playMonopoly = ({G, playerID}, choice) => {
     }
 }
 
-const checkBuildActions = ({G, ctx}) => {
-    const currentPlayer = G.players[ctx.currentPlayer]
-    let resources = currentPlayer.resources;
-    const enoughResources = Object.values(resources).every(value => value >= 1);
-    enoughResources ? currentPlayer.canBuildSettlement = true : currentPlayer.canBuildSettlement = false;
-
-    if(currentPlayer.resources.wood >= 1 && currentPlayer.resources.brick >= 1)
-        currentPlayer.canBuildRoad = true;
-
-    if(currentPlayer.resources.sheep >= 1 && currentPlayer.resources.ore >= 1 && currentPlayer.resources.wheat > 1)
-        currentPlayer.canBuyCard = true;
-  }
-
 const resetDevPlays = ({G, ctx}) => {
     G.players[ctx.currentPlayer].canPlayCard = true;
 }
@@ -211,7 +198,6 @@ export const settlersOffKatan = numPlayers => ({
     }),
 
     turn: {
-        onBegin: checkBuildActions,
         onBegin: resetDevPlays
     },
 
