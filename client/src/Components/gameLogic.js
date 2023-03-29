@@ -3,6 +3,11 @@ const tileResource = ["grain", "grain", "grain", "grain", "pasture", "pasture",
                           "forest", "pasture", "forest", "desert", "forest", "forest", 
                           "hill", "hill", "hill", "mountain", "mountain", "mountain", "pasture"];
 const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
+let hexes = new Map();
+
+const setBoardElements = (vertices, edges) => {
+
+}
 
 const rollDice = ({G, playerID, ctx}) => {
     const d1 = 1+Math.floor(Math.random() *6);
@@ -15,6 +20,56 @@ const rollDice = ({G, playerID, ctx}) => {
             G.players[playerID].resources[resource] +=1;
         }
     });
+}
+
+const setPlayerColors = ({G}) => {
+    const colors = ["gold", "blue", "orange", "red"];
+    for (let i = 0; i < G.players.length; i++) {
+        G.players[i].color = colors[i];
+    }
+}
+
+const addSettlement = ({G, playerID, ctx}, vertex) => {
+    // check if the vertex is taken
+    // if (vertexPlacementIsLegal(vertex)) {
+        vertex.type = 'city';
+        vertex.user = G.players[playerID].color;
+        vertex.classes = vertex.classes + 'active';
+        G.players[playerID].settlements.push(vertex.id);
+    // }
+}
+
+const vertexPlacementIsLegal = (vertex) => {
+    // vertex can't be placed if any of the 3 adjacent vertices
+    // have a property
+
+    // If it's not the first turn, can only place vertex 
+    // if user has a road touching it.
+    // console.log(vertex.hexes);
+    // if (ctx.turn <= G.players.length) {
+    //     G.players[playerID].settlements.push(vertex.id);
+    // }
+
+    // if (vertex.classes.includes('active'))
+    //     return false;
+}
+
+const addRoad = ({G, playerID}, edge, i, edges) => {
+
+    const newEdge = {...edge}
+    const newProps = {...newEdge.props}
+
+    newProps.stroke =  G.players[playerID].color;
+    newProps.classes = newProps.classes + "active";
+    newEdge.props = newProps;
+
+    const newEdges = [...edges];
+    edges = newEdges[i][newEdges[i].indexOf(edge)] = newEdge;
+
+    // if (!edgeProps.classes.includes('active')) {
+
+    //     G.players[playerID].roads.push(edgeProps.id);
+    // }
 }
 
 const addDevelopmentResources = ({G, playerID}) => {
@@ -243,6 +298,7 @@ export const settlersOffKatan = numPlayers => ({
         },
         players: Array(numPlayers).fill().map( () => ({
             score: 0,
+            color: "black",
             resources: {
                 grain: 0,
                 pasture: 0,
@@ -264,6 +320,7 @@ export const settlersOffKatan = numPlayers => ({
             canPlayCard: true,
             startOfTurn: false,
             settlements: [],
+            roads: [],
             cards: []
         })),
     }),
@@ -292,7 +349,10 @@ export const settlersOffKatan = numPlayers => ({
         plentyChoiceTwoPasture,
         plentyChoiceTwoForest,
         plentyChoiceTwoHill,
-        plentyChoiceTwoMountain
+        plentyChoiceTwoMountain,
+        addRoad,
+        addSettlement,
+        setPlayerColors
     }
 });
 

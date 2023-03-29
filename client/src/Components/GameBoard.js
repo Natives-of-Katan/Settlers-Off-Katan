@@ -3,15 +3,19 @@ import {React, useEffect, useState} from 'react';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
 import CustomHex from '../Models/CustomHex';
+import Edge from '../Models/Edge';
 import { initEdges, initVertices } from './boardSetup';
 
 const GameBoard = ({ctx, G, moves, events}) => {
 
-  useEffect(() => {
-    renderScoreBoard();
-  }, [ctx.currentPlayer]);
-  
-  
+    useEffect(() => {
+      renderScoreBoard();
+    }, [ctx.currentPlayer]);
+    
+    useEffect(() => {
+      moves.setPlayerColors();
+    }, []);
+
     // map settings
     const config = configs['hexagon'];
     const generator = GridGenerator.getGenerator(config.map);
@@ -22,6 +26,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     // initialize map
     const [vertices, updateVertice] = useState(initVertices(hexagons, size));
     const [edges, updateEdge] = useState(initEdges(hexagons, size));
+    const [gameTiles, updateGameTiles] = useState([]);
 
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
@@ -47,32 +52,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
     ];
     const portNums = [ "3:1 ?", "2:1 Wheat", "2:1 Ore", "3:1 ?", "2:1 Sheep", "3:1 ?", "3:1 ?", "2:1 Brick", "2:1 Wood"
     ];
-
-    // When an element is clicked, it's passed to the appropriate function                    
-    const onEdgeClick = (i, e) => {
-      // call whatever function you need, return changed object
-      // let updatedObj = moves.callFunction(e)
-
-      // do something like this inside the call function and return changed object
-      e.stroke = "blue"; 
-      e.classes = "active";
-
-      let myArr = [...edges];
-      myArr[i][myArr[i].indexOf(e)] = e;
-      updateEdge(myArr);
-    }
-
-        // When an element is clicked, it's passed to the appropriate function                    
-    const onVertexClick = (i, e) => {
-
-      // do something like this inside the call function and return changed object
-      e.type = 'city';
-      e.user = 'blue';
-      e.classes = 'active';
-      let myArr = [...vertices];
-      myArr[i][myArr[i].indexOf(e)] = e;
-      updateVertice(myArr);
-    }
 
     const playTurn = () => {
       moves.rollDice();
@@ -205,6 +184,31 @@ const GameBoard = ({ctx, G, moves, events}) => {
     )
   }
 
+      // When an element is clicked, it's passed to the appropriate function                    
+      const onEdgeClick = (e, i) => {
+        const newE = moves.addRoad(e, i, edges);
+        const newEdges = [...edges];
+        newEdges[i][edges[i].includes(e)] = newE;
+        updateEdge(newEdges);
+      }
+  
+          // When an element is clicked, it's passed to the appropriate function                    
+      const onVertexClick = (e) => {
+        moves.addSettlement(e);
+      }
+
+  const renderHexes = (hex, i) => {
+    return <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
+    vertices={vertices[i]} edges={edges[i]}>
+    { edges[i].map((e) => (
+      <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
+      )) 
+      }
+    { vertices[i].map((v) => (v)) }
+    <Text>{tileNums[i]}</Text>
+    </CustomHex>
+  }
+
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
     <div className="Game">
@@ -317,32 +321,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
           <Layout size={size} flat={layout.flat} spacing={layout.spacing} origin={config.origin}>
             { 
               hexagons.map((hex, i) => (
-                <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} vertices="" edges="">
-                  {
-                    edges[i].map((e) => (
-                      <line id={e.id} className={e.classes} x1={e.x1} x2={e.x2} y1={e.y1} y2={e.y2} 
-                      stroke={e.stroke} onClick={() => onEdgeClick(i, e)}/>
-                    ))
-                  }
-                  {
-                    vertices[i].map((v) => (
-                      <circle 
-                        id={v.id}
-                        className={[v.type + '-' + v.user, v.classes].join(' ')} 
-                        cx={v.cx} 
-                        cy={v.cy} 
-                        r="2" 
-                        stroke={v.user}
-                        fill={
-                          v.type === 'city' ? "url(#city)" : (v.type === 'none' ? "white": "url(#settlement)")
-                        }
-                        onClick={() => onVertexClick(i, v)}/>
-                    ))
-                  }
-                  <Text>{tileNums[i]}</Text>
-                </CustomHex>
+                renderHexes(hex, i)
               ))
             }
+            {console.log("Edges2")}
+            {console.log(edges)}
             { 
               portHexagons.map((hex, i) => (
                <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">
