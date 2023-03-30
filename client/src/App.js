@@ -20,7 +20,9 @@ import {NumPlayersContext} from './Contexts/NumPlayersContext'
 import {OnlineContext} from './Contexts/OnlineContext'
 import { MultiplayerContext } from './Contexts/MultiplayerContext';
 import { SockContext } from './Contexts/SocketContext';
+import { MatchIDContext } from './Contexts/MatchIDContext';
 import {useState} from 'react'
+
 import io from 'socket.io-client'
 
 function App() {
@@ -30,6 +32,7 @@ function App() {
   const [online, setOnline] = useState(false);
   const [multiplayer, setMultiplayer] = useState([false, 0]);
   const [socket] = useState(io('http://localhost:8080'));
+  const [matchID, setMatchID] = useState();
   return (
         <BrowserRouter>
           <AuthContext.Provider value={{auth, setAuth}}>
@@ -38,6 +41,7 @@ function App() {
             <OnlineContext.Provider value={{online, setOnline}}>
             <MultiplayerContext.Provider value={{multiplayer, setMultiplayer}}>
             <SockContext.Provider value={{socket}}>
+            <MatchIDContext.Provider value={{matchID, setMatchID}}>
             <Navbar />
             <Routes>
             <Route exact path="/Results" element={<Results/>} />
@@ -53,6 +57,7 @@ function App() {
             <Route exact path="/CreateAccount" element={<CreateAccount/>} />
             <Route exact path="/" element={<Home/>} />
             </Routes>
+            </MatchIDContext.Provider>
             </SockContext.Provider>
             </MultiplayerContext.Provider>
             </OnlineContext.Provider>

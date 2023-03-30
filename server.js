@@ -125,6 +125,45 @@ socketServer.on('connect', (socket) => {
                 }
             }
         })
+
+    socket.on('initial-state-send', (initialState) => {
+        const matchID = initialState.matchID;
+        gamesList.forEach(game => {
+        if(game.matchID == matchID)
+            game.socketIDs.forEach(socketID => {
+                socketServer.to(socketID).emit('initial-state-receive', {initialState});
+                console.log('initial state sent for match %d', matchID);
+            })
+        })
+    })
+
+    socket.on('updated-state', (gameState) => {
+        console.log(gameState);
+        console.log(gameState.ctx);
+       const matchID = gameState.matchID;
+       gamesList.forEach(game => {
+        if(game.matchID == matchID)
+            game.socketIDs.forEach(socketID => {
+                socketServer.to(socketID).emit('board-update', gameState);
+                console.log('game state updated for match %d', matchID);
+            })
+       })
+    })
+
+    socket.on('turn-end', (gameState) => {
+        console.log(gameState);
+        console.log(gameState.ctx);
+       const matchID = gameState.matchID;
+       gamesList.forEach(game => {
+        if(game.matchID == matchID)
+            game.socketIDs.forEach(socketID => {
+                socketServer.to(socketID).emit('ctx-update', gameState);
+                console.log('next turn on match %d', matchID);
+            })
+       })
+    })
   });
+
+ 
 
 module.exports = {port, session};

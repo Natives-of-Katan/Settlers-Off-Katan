@@ -4,6 +4,7 @@ import {Link, useNavigate} from 'react-router-dom';
 import { OnlineContext } from './Contexts/OnlineContext';
 import { MultiplayerContext } from "./Contexts/MultiplayerContext";
 import { SockContext } from "./Contexts/SocketContext";
+import { MatchIDContext } from "./Contexts/MatchIDContext";
 
 const Lobby = () => {
 
@@ -16,7 +17,7 @@ const Lobby = () => {
     const {setMultiplayer} = useContext(MultiplayerContext);
 
     //local vars
-    const [gameCode, setGameCode] = useState(0);
+    const {matchID, setMatchID} = useContext(MatchIDContext);
     const [lobbyStarted, setLobbyStarted] = useState(false);
     const [name, setName] = useState('');
     const [players, setPlayers] = useState([]);
@@ -27,7 +28,7 @@ const Lobby = () => {
       if online is true, then you were redirected here after joining the lobby*/
     useEffect(() => {
         if(!online) {
-        setGameCode(Math.floor(Math.random() * (9999 - 1000 + 1) + 1000));
+        setMatchID(Math.floor(Math.random() * (9999 - 1000 + 1) + 1000));
         }
     }, []);
 
@@ -45,12 +46,13 @@ const Lobby = () => {
         //playrs array updated if player joins the lobby
         socket.on('player-joined', (response) => {
             setPlayers(response.players);
-            setGameCode(response.matchID);
+            setMatchID(response.matchID);
         });
 
         socket.on('confirm-start', () => {
             console.log('starting!');
             setMultiplayer([true, players.length]);
+            console.log(matchID);
             navigate('/Game');
         });
 
@@ -70,7 +72,7 @@ const Lobby = () => {
     //emit to the server that we are creating a lobby with our username and the generated game code 
     const createLobby = () => {
         socket.emit('create-lobby', {
-            matchID: gameCode,
+            matchID: matchID,
             name: name
         });
     }
@@ -78,7 +80,7 @@ const Lobby = () => {
     //any player can start teh game once there are at least four in the lobby
     const startGame = () => {
         console.log('starting game');
-        socket.emit('start-game', gameCode);
+        socket.emit('start-game', matchID);
     }
 
     return(
@@ -88,14 +90,14 @@ const Lobby = () => {
             {!lobbyStarted && !online &&
                 <form>
                     <p>Invite Code:</p>
-                        <input disabled="disabled" name="inviteCode" type ="text" value={ gameCode } /><br /><br />   
+                        <input disabled="disabled" name="inviteCode" type ="text" value={ matchID } /><br /><br />   
                         <input type='text' name='username' placeholder='enter username' onChange={handleNameChange}/>          
                     <Link to={"/Lobby"}><button class="lobby-button btn-default-style" type="submit" onClick= {createLobby}>Create Lobby</button></Link>
                 </form>}
 
             {lobbyStarted | online && 
             <div>
-                Players in Lobby....MatchID {gameCode}
+                Players in Lobby....MatchID {matchID}
                 <div>
                 {players.map((player, index) => (
                     <div key={index}>{player}</div>
