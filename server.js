@@ -18,9 +18,6 @@ var corsOptions = {
     optionsSuccessStatus: 200
 }
 
-//const game = require('./client/src/Components/gameLogic.js')
-//const board = require('./client/src/Components/GameBoard.js');
-
 let gamesList = [];
 
 const port = process.env.PORT || 8080;
@@ -95,7 +92,7 @@ socketServer.on('connect', (socket) => {
                 gamesList[i].players.push(requestObj.name)
                 playersToEmit = gamesList[i].players;
                 validated = true;
-                socket.emit('code-validated');
+                socket.emit('code-validated', (playersToEmit.length));
                 break;
             }
         }
@@ -126,42 +123,37 @@ socketServer.on('connect', (socket) => {
             }
         })
 
-    socket.on('initial-state-send', (initialState) => {
-        const matchID = initialState.matchID;
-        gamesList.forEach(game => {
-        if(game.matchID == matchID)
-            game.socketIDs.forEach(socketID => {
-                socketServer.to(socketID).emit('initial-state-receive', {initialState});
-                console.log('initial state sent for match %d', matchID);
-            })
-        })
-    })
-
-    socket.on('updated-state', (gameState) => {
-        console.log(gameState);
-        console.log(gameState.ctx);
+    socket.on('send-state', (gameState) => {
        const matchID = gameState.matchID;
+       let newState = gameState;
        gamesList.forEach(game => {
         if(game.matchID == matchID)
             game.socketIDs.forEach(socketID => {
-                socketServer.to(socketID).emit('board-update', gameState);
+                if(socketID!==socket.id) {
+                socketServer.to(socketID).emit('board-update', newState);
                 console.log('game state updated for match %d', matchID);
+                    console.log(newState);
+                }
             })
        })
     })
 
-    socket.on('turn-end', (gameState) => {
-        console.log(gameState);
-        console.log(gameState.ctx);
-       const matchID = gameState.matchID;
-       gamesList.forEach(game => {
-        if(game.matchID == matchID)
-            game.socketIDs.forEach(socketID => {
-                socketServer.to(socketID).emit('ctx-update', gameState);
-                console.log('next turn on match %d', matchID);
-            })
-       })
-    })
+    socket.on('end-turn', (gameState) => {
+        const matchID = gameState.matchID;
+        let newState = gameState;
+       newState.gameState.currentPlayer = (gameState.gameState.currentPlayer +1) % gameState.gameState.players.length;
+       newState.gameState.turn +=1;
+        gamesList.forEach(game => {
+         if(game.matchID == matchID) {
+             game.socketIDs.forEach(socketID => {
+               
+                 socketServer.to(socketID).emit('new-turn-update', newState);
+                 console.log('next turn updated for match %d', matchID);
+                     console.log(newState);
+                 
+             })}
+        })
+     })
   });
 
  

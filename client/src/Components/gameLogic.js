@@ -4,21 +4,26 @@ const tileResource = ["grain", "grain", "grain", "grain", "pasture", "pasture",
                           "hill", "hill", "hill", "mountain", "mountain", "mountain", "pasture"];
 const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 
-const rollDice = ({G, playerID, ctx}) => {
+const rollDice = ({G, ctx},gameState, seatNum) => {
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
-    G.players[playerID].diceRoll = d1+d2;  
+    G.players[seatNum].diceRoll = d1+d2; 
 
     tileNums.forEach((num, index) => {
         if(d1+d2 === num && d1+d2!==7) {
             const resource = tileResource[index];
-            G.players[playerID].resources[resource] +=1;
+            G.players[seatNum].resources[resource] +=1;
         }
     });
 }
 
+const updateG = ({G}, gameState) => {
+    G = gameState;
+    console.log(G);
+}
+
 const checkBuildActions = ({G, ctx}) => {
-    const currentPlayer = G.players[ctx.currentPlayer]
+    const currentPlayer = G.players[ctx.currentPlayer];
     let resources = currentPlayer.resources;
     const enoughResources = Object.values(resources).every(value => value >= 1);
     enoughResources ? currentPlayer.canBuildSettlement = true : currentPlayer.canBuildSettlement = false;
@@ -48,8 +53,10 @@ export const settlersOffKatan = numPlayers => ({
             canBuyCard: false,
             startOfTurn: false,
             settlements: [],
-            cards: []
+            cards: [],
         })),
+        currentPlayer: 0,
+        turn: 0
     }),
 
     turn: {
@@ -57,7 +64,7 @@ export const settlersOffKatan = numPlayers => ({
     },
 
     moves: {
-        rollDice
+        rollDice, updateG
     }
 });
 

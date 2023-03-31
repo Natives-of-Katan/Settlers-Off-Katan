@@ -2,6 +2,7 @@ import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
 import {React, useEffect, useState, useContext} from 'react';
 import { SockContext } from "../Contexts/SocketContext";
 import { MatchIDContext } from '../Contexts/MatchIDContext';
+import { SeatNumberContext } from '../Contexts/SeatNumberContext';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
 import Vertex from '../Models/Vertex';
@@ -9,29 +10,6 @@ import Edge from '../Models/Edge';
 import CustomHex from '../Models/CustomHex';
 
 const GameBoard = ({ctx, G, moves, events}) => {
-
-  useEffect(() => {
-    renderScoreBoard();
-    socket.emit('turn-end', ({G, matchID, ctx}));
-  }, [ctx.turn]);
-
-
-  useEffect(() => {
-    socket.emit('updated-state', ({G, matchID}));
-  }, [G])
-
-  useEffect(() => {
-    socket.on('ctx-update', (newGameState) => {
-      setGameState(newGameState.G);
-      setGameCtx(newGameState.ctx);
-    })
-  })
-
-  useEffect(()=> {
-    socket.on('board-update', (newGameState) => {
-      setGameState(newGameState.G);
-    })
-  },[]);
 
     // map settings
     const config = configs['hexagon'];
@@ -42,18 +20,55 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
     //socket
     const { socket } = useContext(SockContext);
-    const {matchID} = useContext(MatchIDContext);
-  
+    const { matchID } = useContext(MatchIDContext);
+    const {seatNum } = useContext(SeatNumberContext);
+
     // initialize map
     const [pointCoords, setPoints] = useState([]);
     const [diceRolled, setdiceRolled] = useState(false);
-    const [scoreBoard, setScoreboard] = useState([]);
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
-    const [gameState, setGameState] = useState([]);
-    const [gameCtx, setGameCtx] = useState({});
+    const [gameState, setGameState] = useState({});
+    const [isMounted, setIsMounted] = useState(false);
+    const [turnEnabled, setTurnEnabled] = useState(false);
+    const [turnNum, setTurnNum] = useState(0);
 
+
+  //initiallys gameState to G, and setIsMounted to true so we can render the component using gameState instead of G
+    useEffect(() => {
+      setGameState(G);
+      setIsMounted(true);
+    }, []);
+    
+    
+    //send updated state, only if component is mounted and if it is your turn
+    useEffect(() => {
+      checkIfCurrentPlayer();
+      if(isMounted && turnEnabled) {
+        console.log('hi');
+      socket.emit('send-state', ({gameState, matchID}));
+      console.log(diceRolled);
+      console.log(turnEnabled);
+      }
+      moves.updateG(gameState);
+      
+    }, [gameState]);
+
+
+  useEffect(()=> {
+    //set gameState on receiving new state
+    socket.on('board-update', (newState) => {
+      setGameState(newState.gameState);
+    })
+
+    //check if you're the current player when new turn state is received
+    socket.on('new-turn-update', (newState) => {
+      setGameState(newState.gameState);
+    }
+    )
+
+  },[socket]);
 
     // map numbers
     const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
@@ -99,43 +114,41 @@ const GameBoard = ({ctx, G, moves, events}) => {
     }
 
     const playTurn = () => {
-      moves.rollDice();
+      moves.rollDice(gameState, seatNum);
       setdiceRolled(true);
   }
 
     const handleEndTurn = () => {
-      events.endTurn();
-      console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, gameState.players[ctx.currentPlayer]);
       setdiceRolled(false);
       setBuildSettlement(false);
+      setTurnEnabled(false);
+      socket.emit('end-turn', ({gameState, matchID}));
   }
+
   
-  const renderScoreBoard = () => {
-    setScoreboard(G.players.map((player, index) => (
-      <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
-        {console.log(index)}
-        <td>Player{index + 1}</td>
-        <td>{player.score}</td>
-        </tr>
-    )
-    )
-    )
+  const checkIfCurrentPlayer = () => {
+    if(seatNum === gameState.currentPlayer)
+      setTurnEnabled(true);
   }
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
     <div className="Game">
-      {gameState.players && <div className="GameBoard">
-            <div className='board-text board-header'>
+      {isMounted && <div className="GameBoard">
+          <div className='board-text board-header'>
               <div className='board-header-center'>
-                <div className='current-player'>Player {gameCtx ? Number(gameCtx.currentPlayer) + 1 : Number(ctx.currentPlayer)+1}
+                <div className='current-player'>Player {gameState.currentPlayer + 1}'s Turn!</div>
+                
+                <div>
+                    {!diceRolled && turnEnabled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {diceRolled && turnEnabled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                
                 </div>
                 <div>
-                    {!diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
-                    {diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
-                </div>
-                  {diceRolled && <text>You rolled: {gameState.players[Number(ctx.currentPlayer)].diceRoll}</text>}
-                  {!diceRolled && <text>Roll The Dice!</text>}
+                  {diceRolled && <text>You rolled: {gameState.players[gameState.currentPlayer].diceRoll}</text>}
+                  {!turnEnabled && <text>Player {gameState.currentPlayer +1} Rolled: {gameState.players[gameState.currentPlayer].diceRoll}</text>}
+                  {turnEnabled && !diceRolled && <text>Roll The Dice!</text>}
+                  </div>
               </div>
             </div>
               
@@ -145,32 +158,32 @@ const GameBoard = ({ctx, G, moves, events}) => {
                <tbody>
                   <tr>
                     <td>Grain</td>
-                    <td>{gameState.players[ctx.currentPlayer].resources.grain}</td>
+                    <td>{G.players[seatNum].resources.grain}</td>
                   </tr>
                   <tr>
                     <td>Pasture</td>
-                    <td>{gameState.players[ctx.currentPlayer].resources.pasture}</td>
+                    <td>{G.players[seatNum].resources.pasture}</td>
                   </tr>
                   <tr>
                     <td>Hill</td>
-                    <td>{gameState.players[ctx.currentPlayer].resources.hill}</td>
+                    <td>{G.players[seatNum].resources.hill}</td>
                   </tr>
                   <tr>
                     <td>Mountain</td>
-                    <td>{gameState.players[ctx.currentPlayer].resources.mountain}</td>
+                    <td>{G.players[seatNum].resources.mountain}</td>
                   </tr>
                   <tr>
                     <td>Forest</td>
-                    <td>{gameState.players[ctx.currentPlayer].resources.forest}</td>
+                    <td>{G.players[seatNum].resources.forest}</td>
                   </tr>
                 </tbody>
              </table>
           
               <div className='action-btns'>
-                {gameState.players[ctx.currentPlayer].canBuildSettlemen && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
+                {gameState.players[gameState.currentPlayer].canBuildSettlement && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
 
-                {gameState.players[ctx.currentPlayer].canBuildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
-                {gameState.players[ctx.currentPlayer].canBuyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
+                {gameState.players[gameState.currentPlayer].canBuildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
+                {gameState.players[gameState.currentPlayer].canBuyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
               </div>
             </div>
         <HexGrid width={config.width} height={config.height}>
@@ -217,7 +230,12 @@ const GameBoard = ({ctx, G, moves, events}) => {
         <div>
           <table className='scoreboard board-text'>
             <tbody>
-              {scoreBoard}
+              {gameState.players.map((player, index) => (
+                <tr key={index} className={index == gameState.currentPlayer ? 'current-player' : ''}>
+                  <td>Player{index + 1}</td><td>{player.score}</td>
+               </tr>
+                  ))
+              }
             </tbody>
           </table>
         </div>

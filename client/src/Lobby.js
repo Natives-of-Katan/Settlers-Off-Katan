@@ -5,6 +5,7 @@ import { OnlineContext } from './Contexts/OnlineContext';
 import { MultiplayerContext } from "./Contexts/MultiplayerContext";
 import { SockContext } from "./Contexts/SocketContext";
 import { MatchIDContext } from "./Contexts/MatchIDContext";
+import {SeatNumberContext} from "./Contexts/SeatNumberContext";
 
 const Lobby = () => {
 
@@ -15,6 +16,7 @@ const Lobby = () => {
     const { socket } = useContext(SockContext);
     const { online } = useContext(OnlineContext);
     const {setMultiplayer} = useContext(MultiplayerContext);
+    const {setSeatNum} = useContext(SeatNumberContext);
 
     //local vars
     const {matchID, setMatchID} = useContext(MatchIDContext);
@@ -40,6 +42,7 @@ const Lobby = () => {
         //when we receive a confirmation the lobby was created, we update the lobby data and set lobby started to true
         socket.on('lobby-created', (lobbyData) => {
             setPlayers(lobbyData.players);
+            setSeatNum(0);
             setLobbyStarted(true);
         });
 
@@ -52,7 +55,6 @@ const Lobby = () => {
         socket.on('confirm-start', () => {
             console.log('starting!');
             setMultiplayer([true, players.length]);
-            console.log(matchID);
             navigate('/Game');
         });
 

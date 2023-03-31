@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import { useContext, useState, useEffect } from 'react'
 import { OnlineContext } from "./Contexts/OnlineContext";
 import { SockContext } from "./Contexts/SocketContext";
+import { SeatNumberContext } from "./Contexts/SeatNumberContext";
 import { useNavigate } from 'react-router-dom';
 
 const JoinMatch = () => {
@@ -10,6 +11,7 @@ const JoinMatch = () => {
     //context vars
     const {setOnline} = useContext(OnlineContext);
     const {socket} = useContext(SockContext);
+    const {setSeatNum} = useContext(SeatNumberContext);
 
     //local vars
     const [matchID, setMatchID] = useState('');
@@ -26,7 +28,9 @@ const JoinMatch = () => {
             console.log(response);
         })
 
-        socket.on('code-validated', () => {
+        socket.on('code-validated', (playerNumber) => {
+            console.log(playerNumber);
+            setSeatNum(playerNumber-1);
             setOnline(true);
             navigate('/Lobby');
         });
