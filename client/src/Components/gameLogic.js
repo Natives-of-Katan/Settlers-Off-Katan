@@ -1,13 +1,13 @@
 
+import { isActive, adjacentVerticesActive } from "./boardSetup";
+
 const tileResource = ["grain", "grain", "grain", "grain", "pasture", "pasture", 
                           "forest", "pasture", "forest", "desert", "forest", "forest", 
                           "hill", "hill", "hill", "mountain", "mountain", "mountain", "pasture"];
 const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
+
+// hexes are populated once when game is rendered
 let hexes = new Map();
-
-const setBoardElements = (vertices, edges) => {
-
-}
 
 const rollDice = ({G, playerID, ctx}) => {
     const d1 = 1+Math.floor(Math.random() *6);
@@ -23,25 +23,33 @@ const rollDice = ({G, playerID, ctx}) => {
 }
 
 const setPlayerColors = ({G}) => {
-    const colors = ["gold", "blue", "orange", "red"];
+    const colors = ["gold", "blue", "violet", "brown"];
     for (let i = 0; i < G.players.length; i++) {
         G.players[i].color = colors[i];
     }
 }
 
-const addSettlement = ({G, playerID, ctx}, vertex) => {
+const addSettlement = ({G, playerID}, vertex, i, vertices) => {
+    const newVertex = {...vertex}
+    const newProps = {...newVertex.props}
+
     // check if the vertex is taken
-    // if (vertexPlacementIsLegal(vertex)) {
-        vertex.type = 'city';
-        vertex.user = G.players[playerID].color;
-        vertex.classes = vertex.classes + 'active';
+    if (vertexPlacementIsLegal(vertex)) {
+        newProps.type = 'city';
+        newProps.user = G.players[playerID].color;
+        newProps.classes = 'active';
+        newVertex.props = newProps
+        vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+
         G.players[playerID].settlements.push(vertex.id);
-    // }
+    }
 }
 
 const vertexPlacementIsLegal = (vertex) => {
-    // vertex can't be placed if any of the 3 adjacent vertices
-    // have a property
+    // vertex can't be placed if any of the 3 adjacent vertices are active
+    if (isActive(vertex) || adjacentVerticesActive(vertex, hexes))
+        return false;
+    return true;
 
     // If it's not the first turn, can only place vertex 
     // if user has a road touching it.
@@ -49,9 +57,6 @@ const vertexPlacementIsLegal = (vertex) => {
     // if (ctx.turn <= G.players.length) {
     //     G.players[playerID].settlements.push(vertex.id);
     // }
-
-    // if (vertex.classes.includes('active'))
-    //     return false;
 }
 
 const addRoad = ({G, playerID}, edge, i, edges) => {
@@ -63,13 +68,8 @@ const addRoad = ({G, playerID}, edge, i, edges) => {
     newProps.classes = newProps.classes + "active";
     newEdge.props = newProps;
 
-    const newEdges = [...edges];
-    edges = newEdges[i][newEdges[i].indexOf(edge)] = newEdge;
+    edges = edges[i][edges[i].indexOf(edge)] = newEdge;
 
-    // if (!edgeProps.classes.includes('active')) {
-
-    //     G.players[playerID].roads.push(edgeProps.id);
-    // }
 }
 
 const addDevelopmentResources = ({G, playerID}) => {
@@ -286,6 +286,12 @@ const resetDevPlays = ({G, ctx}) => {
     G.players[ctx.currentPlayer].canPlayCard = true;
 }
 
+const setHexes = ({G, ctx}, h) => {
+    h.map((hex) => (
+        hexes.set("q: " + hex.props.q + ", r: " + hex.props.r + ", s: " + hex.props.s, hex)
+    ))
+}
+
 
 export const settlersOffKatan = numPlayers => ({
     setup: () => ({
@@ -352,7 +358,8 @@ export const settlersOffKatan = numPlayers => ({
         plentyChoiceTwoMountain,
         addRoad,
         addSettlement,
-        setPlayerColors
+        setPlayerColors,
+        setHexes
     }
 });
 

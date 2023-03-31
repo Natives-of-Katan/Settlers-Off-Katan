@@ -152,6 +152,8 @@ svg g {
 
 svg g:hover {
   fill-opacity: 1;
+  position: relative;
+  display: inline-block;
 }
 
 svg g text {
@@ -160,6 +162,19 @@ svg g text {
   fill-opacity: 0.9;
   transition: fill-opacity .2s;
 }
+/* 
+svg g:hover > .resourceText {
+  opacity: 1;
+  transition: opacity 0.5s;
+  stroke: blue;
+  fill: white;
+}
+
+.resourceText {
+  opacity: 0;
+  width: 10%;
+  height: 5%;
+} */
 
 .port-info {
   font-size: 0.15em;
@@ -181,7 +196,7 @@ svg g text {
 }
 
 circle.none-none {
-  fill-opacity: 0.2;
+  fill-opacity: 0.4;
 }
 
 circle:hover {
@@ -229,6 +244,7 @@ line.active {
 
 circle.active {
   fill-opacity: 1;
+  stroke-width: 0.4;
 }
 
 .scoreboard td {

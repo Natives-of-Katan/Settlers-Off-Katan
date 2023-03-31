@@ -4,6 +4,7 @@ import configs from './configurations';
 import Pattern from '../Models/Pattern'
 import CustomHex from '../Models/CustomHex';
 import Edge from '../Models/Edge';
+import Vertex from '../Models/Vertex';
 import { initEdges, initVertices } from './boardSetup';
 
 const GameBoard = ({ctx, G, moves, events}) => {
@@ -14,6 +15,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     
     useEffect(() => {
       moves.setPlayerColors();
+      moves.setHexes(renderHexTiles());
     }, []);
 
     // map settings
@@ -26,8 +28,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
     // initialize map
     const [vertices, updateVertice] = useState(initVertices(hexagons, size));
     const [edges, updateEdge] = useState(initEdges(hexagons, size));
-    const [gameTiles, updateGameTiles] = useState([]);
-
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
     const [buildSettlement, setBuildSettlement] = useState(false);
@@ -186,27 +186,32 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
       // When an element is clicked, it's passed to the appropriate function                    
       const onEdgeClick = (e, i) => {
-        const newE = moves.addRoad(e, i, edges);
-        const newEdges = [...edges];
-        newEdges[i][edges[i].includes(e)] = newE;
-        updateEdge(newEdges);
+        moves.addRoad(e, i, edges);
       }
   
           // When an element is clicked, it's passed to the appropriate function                    
-      const onVertexClick = (e) => {
-        moves.addSettlement(e);
+      const onVertexClick = (e, i) => {
+        moves.addSettlement(e, i, vertices);
       }
 
-  const renderHexes = (hex, i) => {
-    return <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
-    vertices={vertices[i]} edges={edges[i]}>
-    { edges[i].map((e) => (
-      <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
-      )) 
-      }
-    { vertices[i].map((v) => (v)) }
-    <Text>{tileNums[i]}</Text>
-    </CustomHex>
+  const renderHexTiles = () => {
+    const h = hexagons.map((hex, i) => (
+      <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} vertices={vertices[i]} edges={edges[i]}>
+      { 
+        // edges[i].map((e) => (
+        // <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
+        // ))
+        }
+      { 
+        vertices[i].map((v) => (
+        v != null ? <Vertex {...v.props} onClick={() => onVertexClick(v, i)}></Vertex> : null
+        ))}
+      {/* <Text>{tileNums[i]}</Text> */}
+      <Text>{HexUtils.getID(hex)}</Text>
+      {/* <rect className="resourceText" y="-8" x="-5" rx="2" /> */}
+      </CustomHex>
+    ))
+    return h;
   }
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
@@ -320,12 +325,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
           <Layout size={size} flat={layout.flat} spacing={layout.spacing} origin={config.origin}>
             { 
-              hexagons.map((hex, i) => (
-                renderHexes(hex, i)
-              ))
+              renderHexTiles()
             }
-            {console.log("Edges2")}
-            {console.log(edges)}
             { 
               portHexagons.map((hex, i) => (
                <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">

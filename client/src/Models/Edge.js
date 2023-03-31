@@ -11,7 +11,6 @@ const Edge = (props) => {
         y2={props.y2} 
         stroke={props.stroke} 
         onClick={props.onClick}
-        // hexes={props.hexes}
         />
     );
 }

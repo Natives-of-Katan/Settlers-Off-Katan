@@ -8,7 +8,8 @@ const Vertex = (props) => {
       r="2" 
       stroke={props.user}
       onClick={props.onClick}
-      // hexes={props.hexes}
+      hexes={props.hexes}
+      title="hello"
       fill={
         props.type === 'city' ? "url(#city)" : (props.type === 'none' ? "white": "url(#settlement)")
       }
