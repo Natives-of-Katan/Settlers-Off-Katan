@@ -9,6 +9,8 @@ import Vertex from '../Models/Vertex';
 import Edge from '../Models/Edge';
 import CustomHex from '../Models/CustomHex';
 
+//need to set gamestate to G with a useEffect to upate things like diceroll, etc.
+
 const GameBoard = ({ctx, G, moves, events}) => {
 
     // map settings
@@ -35,38 +37,28 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const [turnNum, setTurnNum] = useState(0);
 
 
-  //initiallys gameState to G, and setIsMounted to true so we can render the component using gameState instead of G
+  //G is the template for our gameState, will use gameState going forward. page renders (isMounted) when gameState is set
     useEffect(() => {
       setGameState(G);
       setIsMounted(true);
     }, []);
     
-    
-    //send updated state, only if component is mounted and if it is your turn
+    //whenever gameState changes, check if you're the current player to enable turn actions
     useEffect(() => {
       checkIfCurrentPlayer();
-      if(isMounted && turnEnabled) {
-        console.log('hi');
-      socket.emit('send-state', ({gameState, matchID}));
-      console.log(diceRolled);
-      console.log(turnEnabled);
-      }
-      moves.updateG(gameState);
-      
     }, [gameState]);
 
 
   useEffect(()=> {
-    //set gameState on receiving new state
-    socket.on('board-update', (newState) => {
-      setGameState(newState.gameState);
-    })
 
     //check if you're the current player when new turn state is received
     socket.on('new-turn-update', (newState) => {
-      setGameState(newState.gameState);
-    }
-    )
+      setGameState(newState);
+    })
+
+    socket.on('roll-success', (newState) => {
+      setGameState(newState);
+    })
 
   },[socket]);
 
@@ -114,7 +106,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     }
 
     const playTurn = () => {
-      moves.rollDice(gameState, seatNum);
+      socket.emit('dice-roll', ({gameState, matchID, seatNum}));
       setdiceRolled(true);
   }
 
@@ -145,8 +137,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
                 
                 </div>
                 <div>
-                  {diceRolled && <text>You rolled: {gameState.players[gameState.currentPlayer].diceRoll}</text>}
-                  {!turnEnabled && <text>Player {gameState.currentPlayer +1} Rolled: {gameState.players[gameState.currentPlayer].diceRoll}</text>}
+                  {diceRolled && <text>You rolled: {gameState.currentRoll}</text>}
+                  {!turnEnabled && <text>Player {gameState.currentPlayer +1} Rolled: {gameState.currentRoll}</text>}
                   {turnEnabled && !diceRolled && <text>Roll The Dice!</text>}
                   </div>
               </div>
@@ -158,23 +150,23 @@ const GameBoard = ({ctx, G, moves, events}) => {
                <tbody>
                   <tr>
                     <td>Grain</td>
-                    <td>{G.players[seatNum].resources.grain}</td>
+                    <td>{gameState.players[seatNum].resources.grain}</td>
                   </tr>
                   <tr>
                     <td>Pasture</td>
-                    <td>{G.players[seatNum].resources.pasture}</td>
+                    <td>{gameState.players[seatNum].resources.pasture}</td>
                   </tr>
                   <tr>
                     <td>Hill</td>
-                    <td>{G.players[seatNum].resources.hill}</td>
+                    <td>{gameState.players[seatNum].resources.hill}</td>
                   </tr>
                   <tr>
                     <td>Mountain</td>
-                    <td>{G.players[seatNum].resources.mountain}</td>
+                    <td>{gameState.players[seatNum].resources.mountain}</td>
                   </tr>
                   <tr>
                     <td>Forest</td>
-                    <td>{G.players[seatNum].resources.forest}</td>
+                    <td>{gameState.players[seatNum].resources.forest}</td>
                   </tr>
                 </tbody>
              </table>

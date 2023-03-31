@@ -8,6 +8,7 @@ const socketServer = require('socket.io')(server, {
       origin: '*',
     }
 });
+const onlineGame = require('./onlineGame');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -123,38 +124,30 @@ socketServer.on('connect', (socket) => {
             }
         })
 
-    socket.on('send-state', (gameState) => {
-       const matchID = gameState.matchID;
-       let newState = gameState;
-       gamesList.forEach(game => {
-        if(game.matchID == matchID)
-            game.socketIDs.forEach(socketID => {
-                if(socketID!==socket.id) {
-                socketServer.to(socketID).emit('board-update', newState);
-                console.log('game state updated for match %d', matchID);
-                    console.log(newState);
-                }
-            })
-       })
-    })
-
-    socket.on('end-turn', (gameState) => {
-        const matchID = gameState.matchID;
-        let newState = gameState;
-       newState.gameState.currentPlayer = (gameState.gameState.currentPlayer +1) % gameState.gameState.players.length;
-       newState.gameState.turn +=1;
+    socket.on('end-turn', ({gameState, matchID}) => {
+       gameState.currentPlayer = (gameState.currentPlayer +1) % gameState.players.length;
+       gameState.turn +=1;
         gamesList.forEach(game => {
          if(game.matchID == matchID) {
              game.socketIDs.forEach(socketID => {
-               
-                 socketServer.to(socketID).emit('new-turn-update', newState);
+                 socketServer.to(socketID).emit('new-turn-update', gameState);
                  console.log('next turn updated for match %d', matchID);
-                     console.log(newState);
-                 
              })}
         })
      })
-  });
+
+
+     socket.on('dice-roll', ({gameState, matchID, seatNum}) => {
+        gameState= onlineGame.diceRoll(gameState, seatNum);
+        gamesList.forEach(game => {
+            if(game.matchID == matchID) {
+                game.socketIDs.forEach(socketID => {
+                    socketServer.to(socketID).emit('roll-success', gameState);
+                    console.log('roll update for match ', matchID);
+                })}
+        })
+    })
+    });
 
  
 

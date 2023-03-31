@@ -56,7 +56,8 @@ export const settlersOffKatan = numPlayers => ({
             cards: [],
         })),
         currentPlayer: 0,
-        turn: 0
+        turn: 0,
+        currentRoll:0
     }),
 
     turn: {
