@@ -3,6 +3,27 @@ import { HexUtils } from "react-hexgrid";
 import Vertex from "../Models/Vertex";
 import Edge from "../Models/Edge";
 
+export const getAdjacentVertices = (i) => {
+  console.log("i",i)
+    let v1 = (i + 1) % 6
+    let v2 = (((i - 1) % 6) + 6) % 6;
+    let v3 = v1
+    let v4 = v2
+    return [v1, v2, v3, v4]
+}
+
+export const getOverlappingVertices = (i) => {
+    let v1 = (i + 2) % 6;
+    let v2 = (i + 4) % 6;
+    return [v1, v2]
+}
+
+export const isActive = (v) => {
+    if (v == null) return false;
+    console.log("isActive: ",v.props.classes.includes('active'))
+    return v.props.classes.includes('active') ? true : false;
+}
+
 // from library logic
 const calculateCoordinates = (
     circumradius,
@@ -20,8 +41,7 @@ const calculateCoordinates = (
     return corners;
 }
 
-// @param: array of game board hexes
-// @param: array of vertice points
+// @param: array of game board hexes, array of vertice points
 // returns: array of vertice objects with adjacent hexes
 export const initVertices = (hexagons, size) => {
     const points = calculateCoordinates(size.x, Math.PI / 6, new Point(0,0));
@@ -33,10 +53,11 @@ export const initVertices = (hexagons, size) => {
       var hexVertices = [];
       // add 6 vertices
       num.map((j) => {
+        let d1 = (6 - j) % 6
         const hexes = [
           hex, 
-          HexUtils.neighbour(hex, (6 - j) % 6),
-          HexUtils.neighbour(hex, (((6 - j) % 6) - 1) % 6),
+          HexUtils.neighbour(hex, d1),
+          HexUtils.neighbour(hex, (((d1 - 1) % 6) + 6) % 6),
         ];
         const vertex = <Vertex id={JSON.stringify(hex) + "-v-" + j} classes='' vertexNumber={j}
         type='none' user='none' cx={points[j].x} cy={points[j].y} hexes={hexes}></Vertex>
@@ -77,26 +98,7 @@ export const initEdges = (hexagons, size) => {
     return edgeArray;
 }
 
-export const getAdjacentVertices = (i) => {
-    let v1 = (i + 1) % 6
-    let v2 = (i + 3) % 6
-    let v3 = v2
 
-    return [v1, v2, v3]
-}
-
-export const getOverlappingVertices = (i) => {
-    let v1 = (i + 2) % 6;
-    let v2 = (i + 4) % 6;
-
-    return [v1, v2]
-}
-
-export const isActive = (v) => {
-  if (v == null) return false;
-  console.log("isActive: ",v.props.classes.includes('active'))
-  return v.props.classes.includes('active') ? true : false;
-}
 
 const vertexActive = (v, hexes) => {
     if (isActive(v)) return true;
@@ -110,11 +112,9 @@ const vertexActive = (v, hexes) => {
     oArray = oArray.map((o) => (
         "q: " + o.q + ", r: " + o.r + ", s: " + o.s
     ))
-
     for (let j = 0; j < oArray.length; j++) {
-      if (hexes.get(oArray[j]) != null && isActive(hexes.get(oArray[j]).props.vertices[overlap[j]])) {
+      if (hexes.get(oArray[j]) != null && isActive(hexes.get(oArray[j]).props.vertices[overlap[j]]))
         return true;
-      }
     }
     return false;
 }
@@ -129,16 +129,15 @@ export const adjacentVerticesActive = (v, hexes) => {
     const vertexHexes = v.props.hexes.map((h) => (
         "q: " + h.q + ", r: " + h.r + ", s: " + h.s
     ))
-
-    // check if vertices in same hex are active
-    if (isActive(hexes.get(vertexHexes[0]).props.vertices[(vID - 1) % 6]) ||
-        isActive(hexes.get(vertexHexes[0]).props.vertices[(vID + 1) % 6])) {
-          return true
-    }
-
+    
+    console.log("aV",adjacentV)
     // check if vertices in adjacent hexes are active
     for (let n = 0; n < adjacentV.length; n++) {
-        let aHex = (n < 2) ? hexes.get(vertexHexes[1]) : hexes.get(vertexHexes[2]);
+        var aHex = (n < 2) ? hexes.get(vertexHexes[0]) : 
+        (n < 3) ? hexes.get(vertexHexes[1]) : hexes.get(vertexHexes[2]);
+        
+        console.log("aHex " + n, aHex);
+
         if (aHex != null) {
             aHex = aHex.props.vertices[adjacentV[n]];
             if (vertexActive(aHex, hexes))
