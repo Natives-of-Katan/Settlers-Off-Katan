@@ -5,7 +5,7 @@ import Pattern from '../Models/Pattern'
 import CustomHex from '../Models/CustomHex';
 import Edge from '../Models/Edge';
 import Vertex from '../Models/Vertex';
-import { initEdges, initVertices } from './boardSetup';
+import { initEdges, initVertices } from './boardUtils';
 
 const GameBoard = ({ctx, G, moves, events}) => {
 
@@ -56,7 +56,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const playTurn = () => {
       moves.rollDice();
       setdiceRolled(true);
-  }
+    }
 
     const handleAddResources = id => {
       moves.addDevelopmentResources();
@@ -163,52 +163,51 @@ const GameBoard = ({ctx, G, moves, events}) => {
       }
     }
 
-
     //function handleEndTurn() {
     const handleEndTurn = () => {
       events.endTurn();
       console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, JSON.stringify(G.players[ctx.currentPlayer]));
       setdiceRolled(false);
       setBuildSettlement(false);
-  }
-  
-  const renderScoreBoard = () => {
-    setScoreboard(G.players.map((player, index) => (
-      <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
-        {console.log(index)}
-        <td>Player{index + 1}</td>
-        <td>{player.score}</td>
-        </tr>
-    )
-    )
-    )
-  }
+    }
 
-      // When an element is clicked, it's passed to the appropriate function                    
-      const onEdgeClick = (e, i) => {
-        moves.addRoad(e, i, edges);
-      }
+    const handleBuildSettlement = () => {
+      setBuildSettlement(G.players[ctx.currentPlayer].canBuildSettlement())
+    }
   
-          // When an element is clicked, it's passed to the appropriate function                    
-      const onVertexClick = (e, i) => {
-        moves.addSettlement(e, i, vertices);
-      }
+    const renderScoreBoard = () => {
+      setScoreboard(G.players.map((player, index) => (
+        <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
+          {console.log(index)}
+          <td>Player{index + 1}</td>
+          <td>{player.score}</td>
+          </tr>
+      )
+      )
+      )
+    }
+                
+  const onEdgeClick = (e, i) => {
+    moves.addRoad(e, i, edges);
+  }
+                 
+  const onVertexClick = (e, i) => {
+    moves.addSettlement(e, i, vertices);
+  }
 
   const renderHexTiles = () => {
     const h = hexagons.map((hex, i) => (
-      <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} vertices={vertices[i]} edges={edges[i]}>
+      <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
+      vertices={vertices[i]} edges={edges[i]}>
       { 
-        // edges[i].map((e) => (
-        // <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
-        // ))
-        }
+        edges[i].map((e) => (
+        <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
+        ))}
       { 
         vertices[i].map((v) => (
-        v != null ? <Vertex {...v.props} onClick={() => onVertexClick(v, i)}></Vertex> : null
+        <Vertex {...v.props} onClick={() => onVertexClick(v, i)}></Vertex>
         ))}
-      {/* <Text>{tileNums[i]}</Text> */}
-      <Text>{HexUtils.getID(hex)}</Text>
-      {/* <rect className="resourceText" y="-8" x="-5" rx="2" /> */}
+        <Text>{tileNums[i]}</Text>
       </CustomHex>
     ))
     return h;
@@ -325,8 +324,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
           <Layout size={size} flat={layout.flat} spacing={layout.spacing} origin={config.origin}>
             { 
-              renderHexTiles()
-            }
+              renderHexTiles() }
             { 
               portHexagons.map((hex, i) => (
                <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">

@@ -15,4 +15,9 @@ const Edge = (props) => {
     );
 }
 
+Edge.defaultProps = {
+  classes: '',
+  stroke: 'gold'
+}
+
 export default Edge;

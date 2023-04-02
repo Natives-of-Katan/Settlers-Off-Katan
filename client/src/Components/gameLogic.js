@@ -1,5 +1,5 @@
 
-import { isActive, adjacentVerticesActive } from "./boardSetup";
+import { vertexAvailable, edgeAvailable } from "./boardUtils";
 
 const tileResource = ["grain", "grain", "grain", "grain", "pasture", "pasture", 
                           "forest", "pasture", "forest", "desert", "forest", "forest", 
@@ -32,44 +32,30 @@ const setPlayerColors = ({G}) => {
 const addSettlement = ({G, playerID}, vertex, i, vertices) => {
     const newVertex = {...vertex}
     const newProps = {...newVertex.props}
-
     // check if the vertex is taken
-    if (vertexPlacementIsLegal(vertex)) {
+    if (vertexAvailable(vertex, hexes)) {
         newProps.type = 'city';
         newProps.user = G.players[playerID].color;
         newProps.classes = 'active';
         newVertex.props = newProps
         vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
-
         G.players[playerID].settlements.push(vertex.id);
     }
 }
 
-const vertexPlacementIsLegal = (vertex) => {
-    // vertex can't be placed if any of the 3 adjacent vertices are active
-    if (isActive(vertex) || adjacentVerticesActive(vertex, hexes))
-        return false;
-    return true;
 
-    // If it's not the first turn, can only place vertex 
-    // if user has a road touching it.
-    // console.log(vertex.hexes);
-    // if (ctx.turn <= G.players.length) {
-    //     G.players[playerID].settlements.push(vertex.id);
-    // }
-}
 
 const addRoad = ({G, playerID}, edge, i, edges) => {
-
     const newEdge = {...edge}
     const newProps = {...newEdge.props}
-
-    newProps.stroke =  G.players[playerID].color;
-    newProps.classes = newProps.classes + "active";
-    newEdge.props = newProps;
-
-    edges = edges[i][edges[i].indexOf(edge)] = newEdge;
-
+    // if edge is available
+    if (edgeAvailable(edge, hexes)) {
+        newProps.stroke =  G.players[playerID].color;
+        newProps.classes = newProps.classes + "active";
+        newEdge.props = newProps;
+        edges = edges[i][edges[i].indexOf(edge)] = newEdge;
+        G.players[playerID].settlements.push(edge.id);
+    }
 }
 
 const addDevelopmentResources = ({G, playerID}) => {

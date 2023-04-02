@@ -17,4 +17,11 @@ const Vertex = (props) => {
     );
 }
 
+Vertex.defaultProps = {
+  classes: '',
+  vertexNumber: 0, 
+  type: 'none',
+  user: 'none'
+}
+
 export default Vertex;
