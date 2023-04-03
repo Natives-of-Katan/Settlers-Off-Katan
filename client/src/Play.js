@@ -6,15 +6,15 @@ const Play = () => {
         <div className="App">
             <div className ="content">
                 <h1>Choose Your Game Mode</h1>
-                <a href={"/PassAndPlay"}>
+                <Link to={"/PassAndPlay"}>
                     <button class="play-button btn-default-style">Pass and Play</button>
-                </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <a href={"/JoinMatch"}>
+                </Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <Link to={"/JoinMatch"}>
                     <button class="play-button btn-default-style">Join Online Match</button>
-                </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <a href={"/Lobby"}>
+                </Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <Link to={"/Lobby"}>
                     <button class="play-button btn-default-style">Create Online Match</button>
-                </a><br />
+                </Link><br />
             </div><br />
             <Link to={"/"}>Back</Link>
         </div>

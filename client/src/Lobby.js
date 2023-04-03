@@ -7,6 +7,8 @@ import { SockContext } from "./Contexts/SocketContext";
 import { MatchIDContext } from "./Contexts/MatchIDContext";
 import {SeatNumberContext} from "./Contexts/SeatNumberContext";
 import { MatchInfoContext } from "./Contexts/MatchInfoContext";
+import { ProfileContext } from "./Contexts/ProfileContext";
+import { AuthContext } from "./Contexts/AuthContext";
 
 const Lobby = () => {
 
@@ -19,6 +21,8 @@ const Lobby = () => {
     const {setMultiplayer} = useContext(MultiplayerContext);
     const {setSeatNum} = useContext(SeatNumberContext);
     const {setMatchInfo} = useContext(MatchInfoContext);
+    const {profile } = useContext(ProfileContext);
+    const {auth} = useContext(AuthContext);
 
     //local vars
     const {matchID, setMatchID} = useContext(MatchIDContext);
@@ -34,6 +38,8 @@ const Lobby = () => {
         if(!online) {
         setMatchID(Math.floor(Math.random() * (9999 - 1000 + 1) + 1000));
         }
+        if(auth)
+            setName(profile.username);
     }, []);
 
     //useEffect hooks for socket events/when players array is updated
@@ -97,7 +103,7 @@ const Lobby = () => {
                 <form>
                     <p>Invite Code:</p>
                         <input disabled="disabled" name="inviteCode" type ="text" value={ matchID } /><br /><br />   
-                        <input type='text' name='username' placeholder='enter username' onChange={handleNameChange}/>          
+                        <input type='text' name='username' value ={auth ? profile.username : ''} placeholder = {auth ? 'Enter Username' : ''}onChange={handleNameChange}/>          
                     <Link to={"/Lobby"}><button class="lobby-button btn-default-style" type="submit" onClick= {createLobby}>Create Lobby</button></Link>
                 </form>}
 

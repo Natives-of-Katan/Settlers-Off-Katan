@@ -87,7 +87,7 @@ const CreateAccount = () => {
         event.preventDefault();
         //capture the form data
         const data = new FormData(event.target);
-        axios.post("/api/sign_up", data,
+        axios.post("http://localhost:8080/api/sign_up", data,
         {
           headers:  {
             'Content-Type': 'application/json'
