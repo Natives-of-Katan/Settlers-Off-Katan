@@ -17,7 +17,7 @@ const Login = () => {
     const handleSubmit = event => {
         event.preventDefault();
         const data = new FormData(event.target);
-        axios.post("http://localhost:8080/api/sign_in", data,
+        axios.post("/api/sign_in", data,
         {
           headers:  {
             'Content-Type': 'application/json'
