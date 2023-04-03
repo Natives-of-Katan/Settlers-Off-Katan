@@ -160,6 +160,14 @@ svg g text {
   transition: fill-opacity .2s;
 }
 
+.port-info {
+  font-size: 0.15em;
+  font-weight: 700;
+  fill: #FFFF00;
+  fill-opacity: 0.9;
+  transition: fill-opacity .2s;
+}
+
 .modal {
   position: fixed;
   top: 50%;
