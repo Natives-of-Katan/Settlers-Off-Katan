@@ -1,7 +1,7 @@
 const onlineGame = (() => {
-    const tileResource = ["grain", "grain", "grain", "grain", "pasture", "pasture", 
-      "forest", "pasture", "forest", "desert", "forest", "forest", 
-      "hill", "hill", "hill", "mountain", "mountain", "mountain", "pasture"];
+    const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep", 
+      "sheep", "sheep", "wood", "desert", "wood", "wood", 
+      "brick", "brick", "brick", "ore", "ore", "ore", "sheep"];
   
     const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
   

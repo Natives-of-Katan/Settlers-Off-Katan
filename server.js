@@ -117,7 +117,7 @@ socketServer.on('connect', (socket) => {
             for(var i = 0; i < gamesList.length; i++) {
                 if(gamesList[i].matchID == matchID) {
                     gamesList[i].socketIDs.forEach(socketID => {
-                        socketServer.to(socketID).emit('confirm-start');
+                        socketServer.to(socketID).emit('confirm-start', gamesList[i]);
                         console.log('game started for match %s', matchID);
                     });
                 }
