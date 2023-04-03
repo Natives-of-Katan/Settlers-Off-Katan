@@ -103,7 +103,7 @@ const Lobby = () => {
                 <form>
                     <p>Invite Code:</p>
                         <input disabled="disabled" name="inviteCode" type ="text" value={ matchID } /><br /><br />   
-                        <input type='text' name='username' value ={auth ? profile.username : ''} placeholder = {auth ? 'Enter Username' : ''}onChange={handleNameChange}/>          
+                        <input type='text' name='username' defaultValue ={auth ? profile.username : ''} placeholder = {auth ? '' : 'Enter Username'} onChange={handleNameChange}/>          
                     <Link to={"/Lobby"}><button class="lobby-button btn-default-style" type="submit" onClick= {createLobby}>Create Lobby</button></Link>
                 </form>}
 
