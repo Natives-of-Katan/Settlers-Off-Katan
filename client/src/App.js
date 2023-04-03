@@ -22,6 +22,7 @@ import { MultiplayerContext } from './Contexts/MultiplayerContext';
 import { SockContext } from './Contexts/SocketContext';
 import { MatchIDContext } from './Contexts/MatchIDContext';
 import {SeatNumberContext} from './Contexts/SeatNumberContext';
+import { MatchInfoContext } from './Contexts/MatchInfoContext';
 import {useState} from 'react'
 
 import io from 'socket.io-client'
@@ -35,6 +36,7 @@ function App() {
   const [socket] = useState(io('http://localhost:8080'));
   const [matchID, setMatchID] = useState();
   const [seatNum, setSeatNum] = useState();
+  const [matchInfo, setMatchInfo] = useState({});
   return (
         <BrowserRouter>
           <AuthContext.Provider value={{auth, setAuth}}>
@@ -45,6 +47,7 @@ function App() {
             <SockContext.Provider value={{socket}}>
             <MatchIDContext.Provider value={{matchID, setMatchID}}>
             <SeatNumberContext.Provider value={{seatNum, setSeatNum}}>
+            <MatchInfoContext.Provider value={{matchInfo, setMatchInfo}}>
             <Navbar />
             <Routes>
             <Route exact path="/Results" element={<Results/>} />
@@ -60,6 +63,7 @@ function App() {
             <Route exact path="/CreateAccount" element={<CreateAccount/>} />
             <Route exact path="/" element={<Home/>} />
             </Routes>
+            </MatchInfoContext.Provider>
             </SeatNumberContext.Provider>
             </MatchIDContext.Provider>
             </SockContext.Provider>

@@ -6,6 +6,7 @@ import { MultiplayerContext } from "./Contexts/MultiplayerContext";
 import { SockContext } from "./Contexts/SocketContext";
 import { MatchIDContext } from "./Contexts/MatchIDContext";
 import {SeatNumberContext} from "./Contexts/SeatNumberContext";
+import { MatchInfoContext } from "./Contexts/MatchInfoContext";
 
 const Lobby = () => {
 
@@ -17,6 +18,7 @@ const Lobby = () => {
     const { online } = useContext(OnlineContext);
     const {setMultiplayer} = useContext(MultiplayerContext);
     const {setSeatNum} = useContext(SeatNumberContext);
+    const {setMatchInfo} = useContext(MatchInfoContext);
 
     //local vars
     const {matchID, setMatchID} = useContext(MatchIDContext);
@@ -52,9 +54,11 @@ const Lobby = () => {
             setMatchID(response.matchID);
         });
 
-        socket.on('confirm-start', () => {
+        socket.on('confirm-start', (response) => {
             console.log('starting!');
             setMultiplayer([true, players.length]);
+            setMatchInfo(response);
+            console.log(response);
             navigate('/Game');
         });
 

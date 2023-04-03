@@ -2,6 +2,7 @@ import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
 import {React, useEffect, useState, useContext} from 'react';
 import { SockContext } from "../Contexts/SocketContext";
 import { MatchIDContext } from '../Contexts/MatchIDContext';
+import { MatchInfoContext } from '../Contexts/MatchInfoContext';
 import { SeatNumberContext } from '../Contexts/SeatNumberContext';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
@@ -24,6 +25,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const { socket } = useContext(SockContext);
     const { matchID } = useContext(MatchIDContext);
     const {seatNum } = useContext(SeatNumberContext);
+    const {matchInfo} = useContext(MatchInfoContext);
 
     // initialize map
     const [pointCoords, setPoints] = useState([]);
@@ -128,7 +130,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       {isMounted && <div className="GameBoard">
           <div className='board-text board-header'>
               <div className='board-header-center'>
-                <div className='current-player'>Player {gameState.currentPlayer + 1}'s Turn!</div>
+                <div className='current-player'>{turnEnabled ? "Your" : matchInfo.players[gameState.currentPlayer] + "'s"} Turn!</div>
                 
                 <div>
                     {!diceRolled && turnEnabled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
@@ -137,7 +139,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
                 </div>
                 <div>
                   {diceRolled && <text>You rolled: {gameState.currentRoll}</text>}
-                  {!turnEnabled && <text>Player {gameState.currentPlayer +1} Rolled: {gameState.currentRoll}</text>}
+                  {!turnEnabled && <text>{matchInfo.players[gameState.currentPlayer]} Rolled: {gameState.currentRoll}</text>}
                   {turnEnabled && !diceRolled && <text>Roll The Dice!</text>}
                   </div>
               </div>
@@ -149,23 +151,23 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
                <tbody>
                   <tr>
                     <td>Grain</td>
-                    <td>{gameState.players[seatNum].resources.grain}</td>
+                    <td>{gameState.players[seatNum].resources.wheat}</td>
                   </tr>
                   <tr>
                     <td>Pasture</td>
-                    <td>{gameState.players[seatNum].resources.pasture}</td>
+                    <td>{gameState.players[seatNum].resources.sheep}</td>
                   </tr>
                   <tr>
                     <td>Hill</td>
-                    <td>{gameState.players[seatNum].resources.hill}</td>
+                    <td>{gameState.players[seatNum].resources.brick}</td>
                   </tr>
                   <tr>
                     <td>Mountain</td>
-                    <td>{gameState.players[seatNum].resources.mountain}</td>
+                    <td>{gameState.players[seatNum].resources.ore}</td>
                   </tr>
                   <tr>
                     <td>Forest</td>
-                    <td>{gameState.players[seatNum].resources.forest}</td>
+                    <td>{gameState.players[seatNum].resources.wood}</td>
                   </tr>
                 </tbody>
              </table>
@@ -223,7 +225,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
             <tbody>
               {gameState.players.map((player, index) => (
                 <tr key={index} className={index == gameState.currentPlayer ? 'current-player' : ''}>
-                  <td>Player{index + 1}</td><td>{player.score}</td>
+                  <td>{matchInfo.players[index]}</td><td>{player.score}</td>
                </tr>
                   ))
               }
