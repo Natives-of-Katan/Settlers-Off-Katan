@@ -1,4 +1,4 @@
-import { HexGrid, Layout, Text, GridGenerator, HexUtils, Hex } from 'react-hexgrid';
+import { HexGrid, Layout, Text, GridGenerator } from 'react-hexgrid';
 import {React, useEffect, useState} from 'react';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
@@ -26,13 +26,16 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const [edges, updateEdge] = useState(initEdges(hexagons, size));
     const [hexes, updateHexes] = useState([]);
 
+    const [roadButtonPushed, canBuildRoad] = useState(false);
+    const [settlementButtonPushed, canBuildSettlement] = useState(false);
+
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
     const [buildRoad, setBuildRoad] = useState(false);
-
+    const [longestRoad, setLongestRoad] = useState("");
 
     //button settings
     const [monopolyPlayed, setMonopolyPlayed] = useState(false);
@@ -135,17 +138,25 @@ const GameBoard = ({ctx, G, moves, events}) => {
     }
                 
   const onEdgeClick = (e, i) => {
-    moves.addRoad(e, i, edges);
+    if (roadButtonPushed)
+      moves.addRoad(e, i, edges);
+    canBuildRoad(false);
   }
                  
   const onVertexClick = (e, i) => {
-    moves.addSettlement(e, i, vertices);
+    if (settlementButtonPushed)
+      moves.addSettlement(e, i, vertices);
+    canBuildSettlement(false)
+  }
+
+  const getResource = (r) => {
+    console.log(r);
   }
 
   const renderHexTiles = () => {
     const h = hexagons.map((hex, i) => (
       <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
-      vertices={vertices[i]} edges={edges[i]}>
+      vertices={vertices[i]} edges={edges[i]} onClick={() => getResource(tileResource[i])}>
       { 
         edges[i].map((e) => (
         <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
@@ -229,8 +240,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
-                {buildSettlement && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
-                {buildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
+                {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={canBuildSettlement}>Build Settlement</button> }
+                {buildRoad && <button type='button' disabled = {!diceRolled} onClick={canBuildRoad}>Build Road</button> }
                 {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
                 
                 {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}

@@ -29,32 +29,42 @@ const setPlayerColors = ({G}) => {
     }
 }
 
-const addSettlement = ({G, playerID}, vertex, i, vertices) => {
+const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
     const newVertex = {...vertex}
     const newProps = {...newVertex.props}
     // check if the vertex is taken
     if (vertexAvailable(vertex, hexes)) {
-        newProps.type = 'city';
-        newProps.user = G.players[playerID].color;
-        newProps.classes = 'active';
-        newVertex.props = newProps
-        vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
-        G.players[playerID].settlements.push(vertex.id);
+        if (ctx.turn <= G.players.length || ctx.turn > G.players.length && vertexConnectsRoad()) {   
+            newProps.type = 'city';
+            newProps.user = G.players[playerID].color;
+            newProps.classes = 'active';
+            newVertex.props = newProps
+            vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+            G.players[playerID].settlements.push(vertex.id);
+            G.players[playerID].resources.wood =  G.players[playerID].resources.wood - 1;
+            G.players[playerID].resources.brick =  G.players[playerID].resources.brick - 1;
     }
 }
+}
 
+const vertexConnectsRoad = (v) => {
+    // map vertex number to road nums (before and after)
+}
 
-
-const addRoad = ({G, playerID}, edge, i, edges) => {
+const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
     const newEdge = {...edge}
     const newProps = {...newEdge.props}
     // if edge is available
-    if (edgeAvailable(edge, hexes)) {
+    if (ctx.turn <= G.players.length && edgeAvailable(edge, hexes)) {
         newProps.stroke =  G.players[playerID].color;
         newProps.classes = newProps.classes + "active";
         newEdge.props = newProps;
         edges = edges[i][edges[i].indexOf(edge)] = newEdge;
         G.players[playerID].settlements.push(edge.id);
+        G.players[playerID].resources.wood =  G.players[playerID].resources.wood - 1;
+        G.players[playerID].resources.brick =  G.players[playerID].resources.brick - 1;
+        G.players[playerID].resources.lumber =  G.players[playerID].resources.lumber - 1;
+        G.players[playerID].resources.wheat =  G.players[playerID].resources.wheat - 1;
     }
 }
 
