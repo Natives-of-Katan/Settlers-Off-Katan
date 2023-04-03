@@ -14,11 +14,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
       checkBuildActions();
   }, [ctx.currentPlayer, G.players[ctx.currentPlayer].resources]);
     
-    useEffect(() => {
-      moves.setPlayerColors();
-      moves.setHexes(renderHexTiles());
-    }, []);
-
     // map settings
     const config = configs['hexagon'];
     const generator = GridGenerator.getGenerator(config.map);
@@ -29,6 +24,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
     // initialize map
     const [vertices, updateVertice] = useState(initVertices(hexagons, size));
     const [edges, updateEdge] = useState(initEdges(hexagons, size));
+    const [hexes, updateHexes] = useState([]);
+
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
     const [buildSettlement, setBuildSettlement] = useState(false);
@@ -55,6 +52,15 @@ const GameBoard = ({ctx, G, moves, events}) => {
     ];
     const portNums = [ "3:1 ?", "2:1 Wheat", "2:1 Ore", "3:1 ?", "2:1 Sheep", "3:1 ?", "3:1 ?", "2:1 Brick", "2:1 Wood"
     ];
+
+    useEffect(() => {
+      moves.setPlayerColors();
+      updateHexes(renderHexTiles());
+    }, []);
+
+    useEffect(() => {
+      moves.setHexes(hexes);
+    }, [hexes]);
 
     const playTurn = () => {
       moves.rollDice();
