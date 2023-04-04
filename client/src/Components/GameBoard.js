@@ -1,4 +1,4 @@
-import { HexGrid, Layout, Text, GridGenerator } from 'react-hexgrid';
+import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
 import {React, useEffect, useState} from 'react';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
@@ -165,7 +165,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
         vertices[i].map((v) => (
         <Vertex {...v.props} onClick={() => onVertexClick(v, i)}></Vertex>
         ))}
-        <Text>{tileNums[i]}</Text>
+        {/* <Text>{tileNums[i]}</Text> */}
+        <Text>{HexUtils.getID(hex)}</Text>
       </CustomHex>
     ))
     return h;
@@ -177,12 +178,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const enoughResources = Object.values(resources).every(value => value >= 1);
     if(enoughResources)
       setBuildSettlement(true);
-    else {
-      console.log("r: ",resources);
-      console.log("e: ",enoughResources)
+    else
       setBuildSettlement(false);
-    }
-      
 
     if(currentPlayer.resources.wood >= 1 && currentPlayer.resources.brick >= 1)
       setBuildRoad(true);

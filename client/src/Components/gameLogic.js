@@ -1,5 +1,5 @@
 
-import { vertexAvailable, edgeAvailable, vertexConnectsRoad } from "./boardUtils";
+import { vertexAvailable, edgeAvailable, vertexConnectsRoad, edgeConnectsProperty } from "./boardUtils";
 
 const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep", 
                           "wood", "sheep", "wood", "desert", "wood", "wood", 
@@ -34,8 +34,8 @@ const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
     const newProps = {...newVertex.props}
     // check if the vertex is taken
     if (vertexAvailable(vertex, hexes)) {
-        if (ctx.turn <= G.players.length || ctx.turn > G.players.length 
-            && vertexConnectsRoad(vertex, hexes)) {   
+        if (firstSettlement(G, ctx, playerID) || (ctx.turn > G.players.length && 
+            vertexConnectsRoad(vertex, hexes, G.players[playerID].color))) {  
             newProps.type = 'city';
             newProps.user = G.players[playerID].color;
             newProps.classes = 'active';
@@ -44,8 +44,18 @@ const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
             G.players[playerID].settlements.push(vertex.id);
             G.players[playerID].resources.wood =  G.players[playerID].resources.wood - 1;
             G.players[playerID].resources.brick =  G.players[playerID].resources.brick - 1;
-    }
+    }   }   
 }
+
+const firstSettlement = (G, ctx, playerID) => {
+    return (ctx.turn <= G.players.length && 
+    G.players[playerID].settlements.length == 0)
+}
+
+const firstRoad = (G, ctx, playerID) => {
+    return (ctx.turn <= G.players.length && 
+    G.players[playerID].settlements.length == 1
+    && G.players[playerID].roads.length == 0)
 }
 
 const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
@@ -53,15 +63,18 @@ const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
     const newProps = {...newEdge.props}
     // if edge is available
     if (edgeAvailable(edge, hexes)) {
-        newProps.stroke =  G.players[playerID].color;
-        newProps.classes = newProps.classes + "active";
-        newEdge.props = newProps;
-        edges = edges[i][edges[i].indexOf(edge)] = newEdge;
-        G.players[playerID].settlements.push(edge.id);
-        G.players[playerID].resources.wood =  G.players[playerID].resources.wood - 1;
-        G.players[playerID].resources.brick =  G.players[playerID].resources.brick - 1;
-        G.players[playerID].resources.sheep =  G.players[playerID].resources.sheep - 1;
-        G.players[playerID].resources.wheat =  G.players[playerID].resources.wheat - 1;
+        if (firstRoad(G, ctx, playerID) || (ctx.turn > G.players.length 
+        && edgeConnectsProperty(edge, hexes, G.players[playerID].color))) {
+            newProps.stroke =  G.players[playerID].color;
+            newProps.classes = newProps.classes + "active";
+            newEdge.props = newProps;
+            edges = edges[i][edges[i].indexOf(edge)] = newEdge;
+            G.players[playerID].settlements.push(edge.id);
+            G.players[playerID].resources.wood =  G.players[playerID].resources.wood - 1;
+            G.players[playerID].resources.brick =  G.players[playerID].resources.brick - 1;
+            G.players[playerID].resources.sheep =  G.players[playerID].resources.sheep - 1;
+            G.players[playerID].resources.wheat =  G.players[playerID].resources.wheat - 1;
+        }
     }
 }
 
