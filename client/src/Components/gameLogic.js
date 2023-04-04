@@ -1,5 +1,5 @@
 
-import { vertexAvailable, edgeAvailable } from "./boardUtils";
+import { vertexAvailable, edgeAvailable, vertexConnectsRoad } from "./boardUtils";
 
 const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep", 
                           "wood", "sheep", "wood", "desert", "wood", "wood", 
@@ -34,7 +34,8 @@ const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
     const newProps = {...newVertex.props}
     // check if the vertex is taken
     if (vertexAvailable(vertex, hexes)) {
-        if (ctx.turn <= G.players.length || ctx.turn > G.players.length && vertexConnectsRoad()) {   
+        if (ctx.turn <= G.players.length || ctx.turn > G.players.length 
+            && vertexConnectsRoad(vertex, hexes)) {   
             newProps.type = 'city';
             newProps.user = G.players[playerID].color;
             newProps.classes = 'active';
@@ -47,15 +48,11 @@ const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
 }
 }
 
-const vertexConnectsRoad = (v) => {
-    // map vertex number to road nums (before and after)
-}
-
 const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
     const newEdge = {...edge}
     const newProps = {...newEdge.props}
     // if edge is available
-    if (ctx.turn <= G.players.length && edgeAvailable(edge, hexes)) {
+    if (edgeAvailable(edge, hexes)) {
         newProps.stroke =  G.players[playerID].color;
         newProps.classes = newProps.classes + "active";
         newEdge.props = newProps;
@@ -63,7 +60,7 @@ const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
         G.players[playerID].settlements.push(edge.id);
         G.players[playerID].resources.wood =  G.players[playerID].resources.wood - 1;
         G.players[playerID].resources.brick =  G.players[playerID].resources.brick - 1;
-        G.players[playerID].resources.lumber =  G.players[playerID].resources.lumber - 1;
+        G.players[playerID].resources.sheep =  G.players[playerID].resources.sheep - 1;
         G.players[playerID].resources.wheat =  G.players[playerID].resources.wheat - 1;
     }
 }

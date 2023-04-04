@@ -3,6 +3,11 @@ import { HexUtils } from "react-hexgrid";
 import Vertex from "../Models/Vertex";
 import Edge from "../Models/Edge";
 
+
+export const compareUsers = (e, v) => {
+  return e.props.stroke == v.props.stroke;
+}
+
 export const isActive = (v) => {
   if (v == null) return false;
   if(v.props.classes.includes('active'))
@@ -28,9 +33,11 @@ export const getAdjacentVertices = (i) => {
   return [v1, v2, v3, v4]
 }
 
-// export const adjacentRoadsToVertex = (i) {
-//   let r1 = ;
-// }
+export const adjacentRoadsToVertex = (i) => {
+  let r1 = i;
+  let r2 = (((i - 1) % 6) + 6) % 6;
+  return [r1, r2];
+}
 
 // from library logic
 const calculateCoordinates = (
@@ -167,4 +174,37 @@ export const edgeAvailable = (edge, hexes) => {
   return true
   // road has to connect to existing user vertex
   // or edge.
+}
+
+export const vertexConnectsRoad = (v, hexes) => {
+  // get all possible edges
+  let hex1 = v.props.hexes[0];
+  let hex2 = v.props.hexes[0];
+  console.log("hex1", hex1);
+
+  let edge1 = hexes.get(getHexKey[hex1]).props.edges[v.props.vertexNumber];
+  let edge2 = hexes.get(getHexKey[hex2]).props.edges[adjacentRoadsToVertex(v)[1]];
+
+  let hex3 = edge1.props.hexes[1];
+  let hex4 = edge2.props.hexes[1];
+
+  let hexArr = [hex1, hex2, hex3, hex4];
+
+  let o1 = getOverlappingEdge(edge1.props.edgeNumber);  
+  let o2 = getOverlappingEdge(edge2.props.edgeNumber);
+
+  let edge3 = hexes.get(hexArr[2]).props.edges[o1];
+  let edge4 = hexes.get(hexArr[3]).props.edges[o2]
+
+  const edges = [edge1, edge2, edge3, edge4];
+
+  for (let e in edges) {
+    if (isActive(e) && compareUsers(e, v))
+      return true;
+  }
+  return false;
+}
+
+const getHexKey = (h) => {
+  h = "q: " + h.q + ", r: " + h.r + ", s: " + h.s
 }

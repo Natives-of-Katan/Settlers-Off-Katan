@@ -146,11 +146,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
   const onVertexClick = (e, i) => {
     if (settlementButtonPushed)
       moves.addSettlement(e, i, vertices);
-    canBuildSettlement(false)
+    canBuildSettlement(false);
   }
 
   const getResource = (r) => {
-    console.log(r);
+    console.log("Resource", r);
   }
 
   const renderHexTiles = () => {
@@ -177,8 +177,12 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const enoughResources = Object.values(resources).every(value => value >= 1);
     if(enoughResources)
       setBuildSettlement(true);
-    else
+    else {
+      console.log("r: ",resources);
+      console.log("e: ",enoughResources)
       setBuildSettlement(false);
+    }
+      
 
     if(currentPlayer.resources.wood >= 1 && currentPlayer.resources.brick >= 1)
       setBuildRoad(true);
@@ -240,8 +244,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
-                {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={canBuildSettlement}>Build Settlement</button> }
-                {buildRoad && <button type='button' disabled = {!diceRolled} onClick={canBuildRoad}>Build Road</button> }
+                {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
+                {buildRoad && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
                 
                 {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}
