@@ -28,6 +28,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
     const [roadButtonPushed, canBuildRoad] = useState(false);
     const [settlementButtonPushed, canBuildSettlement] = useState(false);
+    const [upgradeButtonPushed, canUpgradeSettlement] = useState(false);
 
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
@@ -144,9 +145,14 @@ const GameBoard = ({ctx, G, moves, events}) => {
   }
                  
   const onVertexClick = (e, i) => {
-    if (settlementButtonPushed)
+    if (settlementButtonPushed) {
       moves.addSettlement(e, i, vertices);
-    canBuildSettlement(false);
+      canBuildSettlement(false);
+    }
+    else if (upgradeButtonPushed) {
+      moves.upgradeSettlement(e, i,vertices);
+      canUpgradeSettlement(false);
+    }
   }
 
   const getResource = (r) => {
@@ -185,6 +191,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setBuildRoad(true);
     else
       setBuildRoad(false);
+
+    if(currentPlayer.resources.wheat >= 2 && currentPlayer.resources.ore >= 3 && currentPlayer.settlements.length > 0)
+      setUpgradeSettlement(true)
+    else
+      setUpgradeSettlement(false)
 
     if(currentPlayer.resources.sheep >= 1 && currentPlayer.resources.ore >= 1 && currentPlayer.resources.wheat > 1)
       setBuyCard(true);
@@ -241,6 +252,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
+              {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
                 {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
                 {buildRoad && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }

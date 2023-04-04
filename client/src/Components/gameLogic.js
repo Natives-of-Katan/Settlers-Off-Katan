@@ -36,7 +36,7 @@ const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
     if (vertexAvailable(vertex, hexes)) {
         if (firstSettlement(G, ctx, playerID) || (ctx.turn > G.players.length && 
             vertexConnectsRoad(vertex, hexes, G.players[playerID].color))) {  
-            newProps.type = 'city';
+            newProps.type = 'settlement';
             newProps.user = G.players[playerID].color;
             newProps.classes = 'active';
             newVertex.props = newProps
@@ -45,6 +45,24 @@ const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
             G.players[playerID].resources.wood =  G.players[playerID].resources.wood - 1;
             G.players[playerID].resources.brick =  G.players[playerID].resources.brick - 1;
     }   }   
+}
+
+const upgradeSettlement = ({G, playerID}, vertex, i, vertices) => {
+    if (vertex.props.stroke == G.players[playerID].user ) {
+        const newVertex = {...vertex}
+        const newProps = {...newVertex.props}
+        newProps.type = 'city';
+        newVertex.props = newProps;
+        // add to cities list, remove from settlements
+        G.players[playerID].cities.push(vertex.id);
+        G.players[playerID].settlements = G.players[playerID].settlements.filter(function(item) {
+            return item !== vertex.id
+        })
+        // update board state and resources
+        vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+        G.players[playerID].resources.wood =  G.players[playerID].resources.wheat - 2;
+        G.players[playerID].resources.brick =  G.players[playerID].resources.brick - 3;
+    }
 }
 
 const firstSettlement = (G, ctx, playerID) => {
@@ -261,6 +279,7 @@ export const settlersOffKatan = numPlayers => ({
             canPlayCard: true,
             startOfTurn: false,
             settlements: [],
+            cities: [],
             roads: [],
             cards: []
         })),
@@ -280,7 +299,8 @@ export const settlersOffKatan = numPlayers => ({
         addRoad,
         addSettlement,
         setPlayerColors,
-        setHexes
+        setHexes,
+        upgradeSettlement
     }
 });
 
