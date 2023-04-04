@@ -9,10 +9,10 @@ const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 // hexes are populated once when game is rendered
 let hexes = new Map();
 
-const rollDice = ({G, playerID, ctx}) => {
+const rollDice = ({G, ctx, playerID}) => {
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
-    G.players[playerID].diceRoll = d1+d2;  
+    G.players[playerID].diceRoll = d1+d2; 
 
     tileNums.forEach((num, index) => {
         if(d1+d2 === num && d1+d2!==7) {
@@ -283,6 +283,9 @@ export const settlersOffKatan = numPlayers => ({
             roads: [],
             cards: []
         })),
+        currentPlayer: 0,
+        turn: 0,
+        currentRoll:0
     }),
 
     turn: {
