@@ -32,6 +32,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
+    const [initiateTrade, setInitiateTrade] = useState(false); 
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
@@ -201,7 +202,12 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setBuyCard(true);
     else
       setBuyCard(false);
-  }
+
+    if(currentPlayer.resources.wheat >= 1 || currentPlayer.resources.sheep >= 1 || currentPlayer.resources.wood >= 1 || currentPlayer.resources.brick >= 1 || currentPlayer.resources.ore >= 1)
+      setInitiateTrade(true);
+    else
+      setInitiateTrade(false);  
+    }
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
@@ -252,6 +258,9 @@ const GameBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
+
+              {initiateTrade && <button type='button' disabled = {!diceRolled} >Trade</button> }
+
               {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
                 {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
                 {buildRoad && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
