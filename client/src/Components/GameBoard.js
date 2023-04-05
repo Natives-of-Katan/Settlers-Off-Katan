@@ -2,34 +2,41 @@ import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
 import {React, useEffect, useState} from 'react';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
-import Vertex from '../Models/Vertex';
-import Edge from '../Models/Edge';
 import CustomHex from '../Models/CustomHex';
+import Edge from '../Models/Edge';
+import Vertex from '../Models/Vertex';
+import { initEdges, initVertices } from './boardUtils';
 
 const GameBoard = ({ctx, G, moves, events}) => {
 
-  useEffect(() => {
-    renderScoreBoard();
-    checkBuildActions();
+    useEffect(() => {
+      renderScoreBoard();
+      checkBuildActions();
   }, [ctx.currentPlayer, G.players[ctx.currentPlayer].resources]);
-  
-  
+    
     // map settings
     const config = configs['hexagon'];
     const generator = GridGenerator.getGenerator(config.map);
     const hexagons = generator.apply(this, config.mapProps);
     const layout = config.layout;
     const size = { x: 10, y: 10 };
-  
+
     // initialize map
-    const [pointCoords, setPoints] = useState([]);
+    const [vertices, updateVertice] = useState(initVertices(hexagons, size));
+    const [edges, updateEdge] = useState(initEdges(hexagons, size));
+    const [hexes, updateHexes] = useState([]);
+
+    const [roadButtonPushed, canBuildRoad] = useState(false);
+    const [settlementButtonPushed, canBuildSettlement] = useState(false);
+    const [upgradeButtonPushed, canUpgradeSettlement] = useState(false);
+
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
     const [buildRoad, setBuildRoad] = useState(false);
-
+    const [longestRoad, setLongestRoad] = useState("");
 
     //button settings
     const [monopolyPlayed, setMonopolyPlayed] = useState(false);
@@ -50,41 +57,19 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const portNums = [ "3:1 ?", "2:1 Wheat", "2:1 Ore", "3:1 ?", "2:1 Sheep", "3:1 ?", "3:1 ?", "2:1 Brick", "2:1 Wood"
     ];
 
-    // When an element is clicked, it's passed to the appropriate function                    
-    const onClick = (id) => {
-      // moves.callFunction(id);
-    }
-
-    // on initial render, get coordinates for vertices
     useEffect(() => {
-      const polygons = Array.from(
-        document.getElementsByTagName('polygon')
-      );
-      setPoints(polygons.map( (obj) => obj.points));
+      moves.setPlayerColors();
+      updateHexes(renderHexTiles());
     }, []);
 
-    // add button to specified vertex
-    const addVertex = (int, type, user) => {
-      // render grid first, or points don't exist
-      if (pointCoords[0] != undefined) {
-        return new Vertex(type,  user, pointCoords[0][int].x, pointCoords[0][int].y, onClick(int));
-      }
-    }
-
-    // add edge to specified vertex
-    const addEdge = (int, user) => {
-      if (pointCoords[0] != undefined) {
-        return (
-          int < 5 ? new Edge(pointCoords[0][int], pointCoords[0][int + 1], user, onClick) : 
-          new Edge(pointCoords[0][int], pointCoords[0][0], user,  onClick)
-        )
-      }
-    }
+    useEffect(() => {
+      moves.setHexes(hexes);
+    }, [hexes]);
 
     const playTurn = () => {
       moves.rollDice();
       setdiceRolled(true);
-  }
+    }
 
     const handleAddResources = id => {
       moves.addDevelopmentResources();
@@ -135,18 +120,62 @@ const GameBoard = ({ctx, G, moves, events}) => {
       console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, JSON.stringify(G.players[ctx.currentPlayer]));
       setdiceRolled(false);
       setBuildSettlement(false);
-  }
+    }
+
+    const handleBuildSettlement = () => {
+      setBuildSettlement(G.players[ctx.currentPlayer].canBuildSettlement())
+    }
   
-  const renderScoreBoard = () => {
-    setScoreboard(G.players.map((player, index) => (
-      <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
-        {console.log(index)}
-        <td>Player{index + 1}</td>
-        <td>{player.score}</td>
-        </tr>
-    )
-    )
-    )
+    const renderScoreBoard = () => {
+      setScoreboard(G.players.map((player, index) => (
+        <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
+          {console.log(index)}
+          <td>Player{index + 1}</td>
+          <td>{player.score}</td>
+          </tr>
+      )
+      )
+      )
+    }
+                
+  const onEdgeClick = (e, i) => {
+    if (roadButtonPushed)
+      moves.addRoad(e, i, edges);
+    canBuildRoad(false);
+  }
+                 
+  const onVertexClick = (e, i) => {
+    if (settlementButtonPushed) {
+      moves.addSettlement(e, i, vertices);
+      canBuildSettlement(false);
+    }
+    else if (upgradeButtonPushed) {
+      moves.upgradeSettlement(e, i,vertices);
+      canUpgradeSettlement(false);
+    }
+  }
+
+  const getResource = (r) => {
+    console.log("Resource", r);
+  }
+
+  const renderHexTiles = () => {
+    const h = hexagons.map((hex, i) => (
+      <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
+      vertices={vertices[i]} edges={edges[i]} onClick={() => getResource(tileResource[i])}>
+      { 
+        edges[i].map((e) => (
+        <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
+        ))}
+      { 
+        vertices[i].map((v) => (
+        <Vertex {...v.props} onClick={() => onVertexClick(v, i)}></Vertex>
+        ))}
+        {/* <Text>{tileNums[i]}</Text> */}
+        <Text>{HexUtils.getID(hex)}</Text>
+      </CustomHex>
+    ))
+    return h;
   }
 
   const checkBuildActions = () => {
@@ -162,6 +191,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setBuildRoad(true);
     else
       setBuildRoad(false);
+
+    if(currentPlayer.resources.wheat >= 2 && currentPlayer.resources.ore >= 3 && currentPlayer.settlements.length > 0)
+      setUpgradeSettlement(true)
+    else
+      setUpgradeSettlement(false)
 
     if(currentPlayer.resources.sheep >= 1 && currentPlayer.resources.ore >= 1 && currentPlayer.resources.wheat > 1)
       setBuyCard(true);
@@ -218,8 +252,9 @@ const GameBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
-                {buildSettlement && <button type='button' disabled = {!diceRolled}>Build Settlement</button> }
-                {buildRoad && <button type='button' disabled = {!diceRolled}>Build Road</button> }
+              {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
+                {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
+                {buildRoad && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
                 
                 {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}
@@ -262,25 +297,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
           <Layout size={size} flat={layout.flat} spacing={layout.spacing} origin={config.origin}>
             { 
-              hexagons.map((hex, i) => (
-                <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} vertices="" edges="">
-                  {addEdge(0, 'none')}
-                  {addEdge(1, 'none')}
-                  {addEdge(2, 'none')}
-                  {addEdge(3, 'none')}
-                  {addEdge(4, 'none')}
-                  {addEdge(5, 'none')}
-                  {addVertex(0, 'none', 'none')} 
-                  {addVertex(1, 'settlement', 'none')}
-                  {addVertex(2, 'none', 'none')}
-                  {addVertex(3, 'city', 'none')}
-                  {addVertex(4, 'none', 'none')}
-                  {addVertex(5, 'free', 'none')}
-                  {/* <Text>{HexUtils.getID(hex)}</Text> */}
-                  <Text>{tileNums[i]}</Text>
-                </CustomHex>
-              ))
-            }
+              renderHexTiles() }
             { 
               portHexagons.map((hex, i) => (
                <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">
