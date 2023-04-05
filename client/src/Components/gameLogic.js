@@ -8,6 +8,7 @@ const rollDice = ({G, ctx, playerID}) => {
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
     G.players[playerID].diceRoll = d1+d2; 
+    G.players[playerID].score+=1;
 
     tileNums.forEach((num, index) => {
         if(d1+d2 === num && d1+d2!==7) {

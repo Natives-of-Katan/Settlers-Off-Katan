@@ -179,6 +179,12 @@ svg g text {
   z-index: 9999;
 }
 
+.game-over-modal {
+  border: 2px solid #ffaa3c;
+  border-radius: 10px;
+  background-color: forestgreen;
+}
+
 circle.none-none {
   fill-opacity: 0.6;
 }
@@ -243,4 +249,8 @@ table {
   border: 2px solid #ffaa3c;
   border-radius: 10px;
   background-color: forestgreen;
+}
+
+.end-game-scoreboard {
+  border: none;
 }

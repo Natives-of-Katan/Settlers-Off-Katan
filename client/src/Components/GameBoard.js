@@ -1,5 +1,6 @@
 import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
 import {React, useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
 import Vertex from '../Models/Vertex';
@@ -11,7 +12,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
   useEffect(() => {
     renderScoreBoard();
     checkBuildActions();
-  }, [ctx.currentPlayer, G.players[ctx.currentPlayer].resources]);
+    checkVictory();
+  }, [G]);
   
   
     // map settings
@@ -29,6 +31,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
     const [buildRoad, setBuildRoad] = useState(false);
+    const [victory, setVictory] = useState(false);
+    const navigate = useNavigate();
 
 
     //button settings
@@ -169,6 +173,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setBuyCard(false);
   }
 
+  const checkVictory = ()=> {
+    if(G.players[ctx.currentPlayer].score >= 10)
+      setVictory(true);
+  }
+
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
     <div className="Game">
@@ -299,6 +308,20 @@ const GameBoard = ({ctx, G, moves, events}) => {
           </table>
         </div>
       </div>
+        {victory && 
+      <div className='modal game-over-modal'>
+        We Have A Winner!
+        <table className='end-game-scoreboard'>
+          {G.players.map((player, index) => (
+            <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
+              <td>Player {index + 1}</td>
+              <td>{player.score}</td>
+            </tr>
+          ))}
+        </table>
+        <button onClick={ () => {navigate('/PassAndPLay')}}>Play Again!</button>
+        <button onClick={ () => {navigate('/')}}>No Thanks</button>
+      </div>}
     </div>
    </div>
   );
