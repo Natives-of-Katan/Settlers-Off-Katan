@@ -1,11 +1,23 @@
 // returns road
 
-function Edge(start, end, user, onclick) {
+const Edge = (props) => {
     return (
-        <line className={"edge-" + user}
-        x1={start.x} x2={end.x} y1={start.y} y2={end.y} stroke="gold" 
-        strokeWidth="2" strokeLinecap="round" onclick={onclick}/>
+        <line 
+        id={props.id} 
+        className={props.classes} 
+        x1={props.x1} 
+        x2={props.x2} 
+        y1={props.y1} 
+        y2={props.y2} 
+        stroke={props.stroke} 
+        onClick={props.onClick}
+        />
     );
+}
+
+Edge.defaultProps = {
+  classes: '',
+  stroke: 'gold'
 }
 
 export default Edge;

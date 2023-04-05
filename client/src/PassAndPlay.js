@@ -12,10 +12,10 @@ const PassAndPlay = () => {
     const handleSubmit = (event) => {
         setMultiplayer([0,0]);
         event.preventDefault();
-        if (!isNaN(numPlayers) && numPlayers >= 4 && numPlayers <= 8) {     //if input is a number and a number between 4 to 8,
-            navigate('/Game');                              //go to Game page
-        } else {                                                            //else ask user to enter a number between 4 and 8
-          alert("Please enter a number between 4 and 8");  
+        if (!isNaN(numPlayers) && numPlayers >= 3 && numPlayers <= 4) {     
+            navigate('/Game');                              
+        } else {                                                     
+          alert("Please enter 3 or 4 to represent the number of players.");  
         }
     };
 
@@ -29,8 +29,8 @@ const PassAndPlay = () => {
                 <h1>Pass and Play mode</h1>
                 <form onSubmit={handleSubmit}>
                     <p>Number of players (4-8):</p>
-                    <input type ="text" name="numPlayers" placeHolder="Enter a number" onChange={handleInputChange}/><br /><br />
-                    <button class="start-game-button btn-default-style" type="submit" onSubmit={handleSubmit}>Start Game</button>
+                    <input type ="text" name="numPlayers" placeholder="Enter a number" onChange={handleInputChange}/><br /><br />
+                    <button className="start-game-button btn-default-style" type="submit" onSubmit={handleSubmit}>Start Game</button>
                 </form>
             </div><br />
             <Link to={"/Play"}>Back to modes</Link>
