@@ -1,21 +1,22 @@
 
 import { vertexAvailable, edgeAvailable } from "./boardUtils";
 
-const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep", 
-                          "wood", "sheep", "wood", "desert", "wood", "wood", 
-                          "brick", "brick", "brick", "ore", "ore", "ore", "sheep"];
-const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
+const tileResource = ["wheat", "wood", "brick", "wheat", "wood", "ore", 
+                          "wheat", "ore", "brick", "desert", "wheat", "sheep", 
+                          "sheep", "sheep", "wood", "sheep", "wood", "brick", "ore"];
+
 
 // hexes are populated once when game is rendered
 let hexes = new Map();
 
-const rollDice = ({G, playerID, ctx}) => {
-    const d1 = 1+Math.floor(Math.random() *6);
-    const d2 = 1+Math.floor(Math.random() *6);
+const rollDice = ({G, playerID, ctx}, d1, d2) => {
+    console.log(G.tileNums);
     G.players[playerID].diceRoll = d1+d2;  
 
-    tileNums.forEach((num, index) => {
+    G.tileNums.forEach((num, index) => {
+        console.log("rollDice2");
         if(d1+d2 === num && d1+d2!==7) {
+            console.log("rollDice3");
             const resource = tileResource[index];
             G.players[playerID].resources[resource] +=1;
         }
@@ -217,9 +218,44 @@ const setHexes = ({G, ctx}, h) => {
     ))
 }
 
+const setTileNums = ({G, ctx}, nums) => {
+    G.tileNums = nums;
+}
+
+/*
+const stealResource =  ({G, playerID, ctx}, num) => {
+    const targetTotalResources = G.players[num].resources.wheat + G.players[num].resources.sheep + G.players[num].resources.wood + G.players[num].resources.brick + G.players[num].resources.ore;
+
+    if (targetTotalResources > 0) {
+        const resourceStolen = 1+Math.floor(Math.random()*targetTotalResources);
+
+        if (resourceStolen <= G.players[num].resources.wheat) {
+            G.players[num].resources.wheat -= 1;
+            G.players[playerID].resources.wheat += 1;
+        }
+        else if (resourceStolen <= G.players[num].resources.sheep + G.players[num].resources.wheat) {
+            G.players[num].resources.sheep -= 1;
+            G.players[playerID].resources.sheep += 1;
+        }
+        else if (resourceStolen <= G.players[num].resources.wood + G.players[num].resources.sheep + G.players[num].resources.wheat) {
+            G.players[num].resources.wood -= 1;
+            G.players[playerID].resources.wood += 1;
+        }
+        else if (resourceStolen <= G.players[num].resources.brick + G.players[num].resources.wood + G.players[num].resources.sheep + G.players[num].resources.wheat) {
+            G.players[num].resources.brick -= 1;
+            G.players[playerID].resources.brick += 1;
+        }
+        else if (resourceStolen <= G.players[num].resources.ore + G.players[num].resources.brick + G.players[num].resources.wood + G.players[num].resources.sheep + G.players[num].resources.wheat) {
+            G.players[num].resources.ore -= 1;
+            G.players[playerID].resources.ore += 1;
+        }   
+    }
+} */
+
 
 export const settlersOffKatan = numPlayers => ({
     setup: () => ({
+        tileNums: [9, 8, 5, 12, 11, 3, 6, 10, 6, "Robber", 4, 11, 2, 4, 3, 5, 9, 10, 8],
         deck: {
             knight: 14,
             victory: 5,
@@ -270,7 +306,9 @@ export const settlersOffKatan = numPlayers => ({
         addRoad,
         addSettlement,
         setPlayerColors,
-        setHexes
+        setHexes,
+        setTileNums
+        //stealResource
     }
 });
 
