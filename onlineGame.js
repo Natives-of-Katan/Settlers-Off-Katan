@@ -9,19 +9,29 @@ const onlineGame = (() => {
       const d1 = 1+Math.floor(Math.random() *6);
       const d2 = 1+Math.floor(Math.random() *6);
       gameState.currentRoll = d1+d2; 
+      gameState.players[seatNum].score+=1;
   
       tileNums.forEach((num, index) => {
         if(d1+d2 === num && d1+d2!==7) {
           const resource = tileResource[index];
           gameState.players[seatNum].resources[resource] +=1;
+          
         }
       });
   
       return gameState;
     }
-  
+    
+    const checkVictory = (gameState) => {
+      const winner = gameState.players.find(player => {
+        return player.score >= 10
+      })
+      return winner
+    }
+    
     return {
-      diceRoll
+      diceRoll,
+      checkVictory
     };
   })();
   

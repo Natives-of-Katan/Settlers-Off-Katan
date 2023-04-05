@@ -286,7 +286,9 @@ export const settlersOffKatan = numPlayers => ({
         })),
         currentPlayer: 0,
         turn: 0,
-        currentRoll:0
+        currentRoll:0,
+        winner: 0,
+        gameOver: false
     }),
 
     turn: {

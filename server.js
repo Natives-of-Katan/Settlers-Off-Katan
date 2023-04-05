@@ -14,6 +14,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
+const User = require('./models/userAccounts');
 var corsOptions = {
     origin: '*', 
     optionsSuccessStatus: 200
@@ -125,8 +126,21 @@ socketServer.on('connect', (socket) => {
         })
 
     socket.on('end-turn', ({gameState, matchID}) => {
-       gameState.currentPlayer = (gameState.currentPlayer +1) % gameState.players.length;
-       gameState.turn +=1;
+        const winner = onlineGame.checkVictory(gameState);
+        if(winner) {
+            gameState.gameOver = true;
+            gameState.winner = gameState.currentPlayer;
+            gamesList.forEach(game => {
+                if(game.matchID == matchID) {
+                    game.socketIDs.forEach(socketID => {
+                        socketServer.to(socketID).emit('game-over', gameState);
+                    })
+                }
+            })
+            return;
+        }
+        gameState.currentPlayer = (gameState.currentPlayer +1) % gameState.players.length;
+        gameState.turn +=1;
         gamesList.forEach(game => {
          if(game.matchID == matchID) {
              game.socketIDs.forEach(socketID => {
@@ -147,7 +161,21 @@ socketServer.on('connect', (socket) => {
                 })}
         })
     })
+
+    socket.on('winner', async (sessionID) => {
+        const opts = {new:true};
+        const user = await User.findOneAndUpdate({"sessionID" : sessionID},
+        {
+        $inc: {
+            settlerWins: 1
+            }
+        },
+        opts
+    );
+    console.log(user);
     });
+
+});
 
  
 

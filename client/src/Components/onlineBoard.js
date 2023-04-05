@@ -4,6 +4,9 @@ import { SockContext } from "../Contexts/SocketContext";
 import { MatchIDContext } from '../Contexts/MatchIDContext';
 import { MatchInfoContext } from '../Contexts/MatchInfoContext';
 import { SeatNumberContext } from '../Contexts/SeatNumberContext';
+import { AuthContext } from '../Contexts/AuthContext';
+import { SessionContext } from '../Contexts/SessionContext';
+import {useNavigate} from 'react-router-dom';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
 import Vertex from '../Models/Vertex';
@@ -26,6 +29,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const { matchID } = useContext(MatchIDContext);
     const {seatNum } = useContext(SeatNumberContext);
     const {matchInfo} = useContext(MatchInfoContext);
+    const {auth} = useContext(AuthContext);
+    const {sessionID} = useContext(SessionContext);
 
     // initialize map
     const [pointCoords, setPoints] = useState([]);
@@ -36,6 +41,10 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const [gameState, setGameState] = useState({});
     const [isMounted, setIsMounted] = useState(false);
     const [turnEnabled, setTurnEnabled] = useState(false);
+    const [winner, setWinner] = useState('');
+    const [gameOver, setGameOver] = useState(false);
+
+    const navigate = useNavigate();
 
 
   //G is the template for our gameState, will use gameState going forward. page renders (isMounted) when gameState is set
@@ -49,15 +58,24 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       checkIfCurrentPlayer();
     }, [gameState]);
 
-
   useEffect(()=> {
 
     //check if you're the current player when new turn state is received
-    socket.on('new-turn-update', (newState) => {
+    socket.on('game-over', (newState) => {
       setGameState(newState);
+      console.log(newState);
+      setGameOver(true);
+      setTurnEnabled(false);
+      if(auth){
+        (seatNum === newState.winner) ? socket.emit('winner', sessionID) : socket.emit('not-winner', sessionID)
+      }
     })
 
     socket.on('roll-success', (newState) => {
+      setGameState(newState);
+    })
+
+    socket.on('new-turn-update', (newState) => {
       setGameState(newState);
     })
 
@@ -234,6 +252,19 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         </div>
       </div>
     </div>}
+     {gameOver &&
+      <div className='modal game-over-modal'>
+        We Have A Winner!
+        <table className='end-game-scoreboard'>
+          {gameState.players.map((player, index) => (
+            <tr key={index} className={index === gameState.currentPlayer ? 'current-player' : ''}>
+              <td>{matchInfo.players[index]}</td><td>{player.score}</td>
+            </tr>
+          ))}
+        </table>
+        <button onClick={ () => {navigate('/Play')}}>Play Again!</button>
+        <button onClick={ () => {navigate('/')}}>No Thanks</button>
+      </div>}
    </div>
   );
 }

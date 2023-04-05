@@ -25,6 +25,7 @@ import { SockContext } from './Contexts/SocketContext';
 import { MatchIDContext } from './Contexts/MatchIDContext';
 import {SeatNumberContext} from './Contexts/SeatNumberContext';
 import { MatchInfoContext } from './Contexts/MatchInfoContext';
+import { SessionContext } from './Contexts/SessionContext';
 import {useState} from 'react'
 
 import io from 'socket.io-client'
@@ -42,6 +43,7 @@ function App() {
   const [seatNum, setSeatNum] = useState();
   const [matchInfo, setMatchInfo] = useState({});
   const [userTurnedOff, setUserTurnedOff] = useState(false);
+  const [sessionID, setSessionID] = useState('');
   return (
     <div>
         <GameMusicContext.Provider
@@ -50,6 +52,7 @@ function App() {
         <GameMusic />    
         <BrowserRouter>    
           <AuthContext.Provider value={{auth, setAuth}}>
+          <SessionContext.Provider value={{sessionID, setSessionID}}>
           <ProfileContext.Provider value={{profile, setProfile}}>
             <NumPlayersContext.Provider value={{numPlayers, setNumPlayers}}>
             <OnlineContext.Provider value={{online, setOnline}}>
@@ -81,6 +84,7 @@ function App() {
             </OnlineContext.Provider>
             </NumPlayersContext.Provider>
           </ProfileContext.Provider>
+          </SessionContext.Provider>
           </AuthContext.Provider>
         </BrowserRouter>
         </GameMusicContext.Provider>
