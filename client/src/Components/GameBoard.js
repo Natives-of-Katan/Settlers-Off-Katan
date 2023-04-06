@@ -6,6 +6,7 @@ import CustomHex from '../Models/CustomHex';
 import Edge from '../Models/Edge';
 import Vertex from '../Models/Vertex';
 import { initEdges, initVertices } from './boardUtils';
+import Modal from 'react-modal';
 
 const GameBoard = ({ctx, G, moves, events}) => {
 
@@ -32,7 +33,10 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
+    
     const [initiateTrade, setInitiateTrade] = useState(false); 
+    const [tradeModalIsOpen, setTradeModalIsOpen] = useState(false);
+
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
@@ -71,6 +75,10 @@ const GameBoard = ({ctx, G, moves, events}) => {
       moves.rollDice();
       setdiceRolled(true);
     }
+
+    const openTradeModal = () => {
+      setTradeModalIsOpen(true);
+    };
 
     const handleAddResources = id => {
       moves.addDevelopmentResources();
@@ -259,7 +267,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
           
               <div className='action-btns'>
 
-              {initiateTrade && <button type='button' disabled = {!diceRolled} >Trade</button> }
+              {initiateTrade && <button type='button' disabled={!diceRolled} onClick={openTradeModal}>Trade</button>}
 
               {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
                 {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
@@ -317,6 +325,37 @@ const GameBoard = ({ctx, G, moves, events}) => {
             }
           </Layout>
         </HexGrid>
+
+        <Modal className='modal' shouldCloseOnOverlayClick={false} isOpen={tradeModalIsOpen} onRequestClose={() => setTradeModalIsOpen(false)}>
+          <h2>Trade Resources</h2>
+          <div>
+            <h3>Player's Resources</h3>
+            <table>
+               <tbody>
+                  <tr>
+                    Your Resources
+                  </tr>
+                  <tr>
+                    <td>Wheat: {JSON.stringify(G.players[ctx.currentPlayer].resources.wheat)}</td>
+                    <td>Sheep: {JSON.stringify(G.players[ctx.currentPlayer].resources.sheep)}</td>
+                    <td>Wood: {JSON.stringify(G.players[ctx.currentPlayer].resources.wood)}</td>
+                    <td>Brick: {JSON.stringify(G.players[ctx.currentPlayer].resources.brick)}</td>
+                    <td>Ore: {JSON.stringify(G.players[ctx.currentPlayer].resources.ore)}</td>
+                  </tr>
+                  
+                </tbody>
+             </table>
+          </div>
+          <div>
+            <h3>Resources to Trade</h3>
+            <table>
+              {/* Add table rows for each resource type */}
+            </table>
+          </div>
+          <button onClick={() => setTradeModalIsOpen(false)}>Close</button>
+          
+        </Modal>
+
         <div>
           <table className='scoreboard board-text'>
             <tbody>
