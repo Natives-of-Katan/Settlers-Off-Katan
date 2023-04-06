@@ -204,13 +204,13 @@ const vertexActive = (v, hexes) => {
   return false;
 }
 
-export const initRoadPlacement = (e, hexes, color) => {
+export const initRoadPlacement = (e, hexArr, color) => {
   // get 2 road vertices
-  let hex = hexes.get(getHexKey(e.props.hexes[0]));
+  let hex = hexArr.get(getHexKey(e.props.hexes[0]));
   let v1 = hex.props.vertices[e.props.edgeNumber];
   let v2 = hex.props.vertices[(e.props.edgeNumber + 1) < 5 ? (e.props.edgeNumber + 1) : 0];
 
-  if (edgeConnectsVertex(v1, hexes, color) || edgeConnectsVertex(v2, hexes, color))
+  if (edgeConnectsVertex(v1, hexArr, color) || edgeConnectsVertex(v2, hexArr, color))
     return true;
   return false;
 }

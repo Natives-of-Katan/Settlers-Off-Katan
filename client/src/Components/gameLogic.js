@@ -10,6 +10,7 @@ const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 // hexes are populated once when game is rendered
 let hexes = new Map();
 let boardVertices = new Map();
+let boardRoads = new Map();
 
 const rollDice = ({G, ctx, playerID}) => {
     const d1 = 1+Math.floor(Math.random() *6);
@@ -124,7 +125,8 @@ const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
             G.players[playerID].resources.wood -= 1;
             G.players[playerID].resources.brick -= 1;
         }
-        G.players[playerID].roads.push(edge.props.id);
+        G.players[playerID].roads.push(newEdge.props.id);
+        boardVertices.set(newEdge.props.id, newEdge)
     }
 }
 
@@ -277,9 +279,16 @@ const setHexes = ({G, ctx}, h) => {
     ))
 }
 
-export const setLongestRoad = ({G, ctx}, player) => {
-    G.players[ctx.currentPlayer].longestRoad = true;
-    G.players[ctx.currentPlayer].score += 1;
+export const checkLongestRoad = ({G, ctx}, longestNum) => {
+    let newNum = 5;
+    if (G.players[ctx.currentPlayer].roads.length > longestNum)
+        newNum = G.players[ctx.currentPlayer].roads.length;
+
+    if (newNum >= longestNum) {
+        G.players[ctx.currentPlayer].longestRoad = true;
+        G.longestRoad = newNum;
+        G.players[ctx.currentPlayer].score += 1;
+    }
 }
 
 export const settlersOffKatan = numPlayers => ({
@@ -322,7 +331,8 @@ export const settlersOffKatan = numPlayers => ({
         })),
         currentPlayer: 0,
         turn: 0,
-        currentRoll:0
+        currentRoll:0,
+        longestRoad: 4
     }),
 
     turn: {
@@ -362,7 +372,7 @@ export const settlersOffKatan = numPlayers => ({
         addSettlement,
         upgradeSettlement,
         addInitialResources,
-        setLongestRoad
+        checkLongestRoad
     }
 });
 
