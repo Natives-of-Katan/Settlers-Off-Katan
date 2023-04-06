@@ -41,21 +41,8 @@ export const adjacentRoadsToVertex = (i) => {
   return [r1, r2, r3];
 }
 
-// from library logic
-const calculateCoordinates = (
-    circumradius,
-    angle,
-    center,
-    ) => {
-    const corners = [];
-    
-    for (let i = 0; i < 6; i++) {
-        const x = circumradius * Math.cos((2 * Math.PI * i) / 6 + angle)
-        const y = circumradius * Math.sin((2 * Math.PI * i) / 6 + angle)
-        const point = new Point(center.x + x, center.y + y)
-        corners.push(point)
-    }
-    return corners;
+export const getHexKey = (h) => {
+  return "q: " + h.q + ", r: " + h.r + ", s: " + h.s
 }
 
 // @param: array of game board hexes, array of vertice points
@@ -133,36 +120,6 @@ export const adjacentVerticesActive = (v, hexes) => {
     return false;
 }
 
-// check both edges
-export const adjacentEdgeActive = (e, hexes) => {
-  if (isActive(e)) return true;
-  // check overlapping edge
-  let overlap = getOverlappingEdge(e.props.edgeNumber);
-  let o1 = e.props.hexes[1];
-  o1 = "q: " + o1.q + ", r: " + o1.r + ", s: " + o1.s
-  if (hexes.get(o1) != null && isActive(hexes.get(o1).props.edges[overlap[0]]))
-      return true;
-  return false;
-}
-
-const vertexActive = (v, hexes) => {
-  if (isActive(v)) return true;
-  // check all overlapping vertices
-  let overlap = getOverlappingVertices(v.props.vertexNumber);
-  let o1 = v.props.hexes[1];
-  let o2 = v.props.hexes[2];
-  let oArray = [o1, o2];
-  oArray = oArray.map((o) => (
-      "q: " + o.q + ", r: " + o.r + ", s: " + o.s
-  ))
-  for (let j = 0; j < oArray.length; j++) {
-    if (hexes.get(oArray[j]) != null 
-    && isActive(hexes.get(oArray[j]).props.vertices[overlap[j]]))
-      return true;
-  }
-  return false;
-}
-
 export const vertexAvailable = (vertex, hexes) => {
   // vertex can't be placed if any of the 3 adjacent vertices are active
   if (isActive(vertex) || adjacentVerticesActive(vertex, hexes))
@@ -216,6 +173,79 @@ export const edgeConnectsProperty = (e, hexes, color) => {
     return true;
   return false;
 }
-const getHexKey = (h) => {
-  return "q: " + h.q + ", r: " + h.r + ", s: " + h.s
+
+// check both edges
+const adjacentEdgeActive = (e, hexes) => {
+  if (isActive(e)) return true;
+  // check overlapping edge
+  let overlap = getOverlappingEdge(e.props.edgeNumber);
+  let o1 = e.props.hexes[1];
+  o1 = "q: " + o1.q + ", r: " + o1.r + ", s: " + o1.s
+  if (hexes.get(o1) != null && isActive(hexes.get(o1).props.edges[overlap[0]]))
+      return true;
+  return false;
+}
+
+const vertexActive = (v, hexes) => {
+  if (isActive(v)) return true;
+  // check all overlapping vertices
+  let overlap = getOverlappingVertices(v.props.vertexNumber);
+  let o1 = v.props.hexes[1];
+  let o2 = v.props.hexes[2];
+  let oArray = [o1, o2];
+  oArray = oArray.map((o) => (
+      "q: " + o.q + ", r: " + o.r + ", s: " + o.s
+  ))
+  for (let j = 0; j < oArray.length; j++) {
+    if (hexes.get(oArray[j]) != null 
+    && isActive(hexes.get(oArray[j]).props.vertices[overlap[j]]))
+      return true;
+  }
+  return false;
+}
+
+export const initRoadPlacement = (e, hexes, color) => {
+  // get 2 road vertices
+  let hex = hexes.get(getHexKey(e.props.hexes[0]));
+  let v1 = hex.props.vertices[e.props.edgeNumber];
+  let v2 = hex.props.vertices[(e.props.edgeNumber + 1) < 5 ? (e.props.edgeNumber + 1) : 0];
+
+  if (edgeConnectsVertex(v1, hexes, color) || edgeConnectsVertex(v2, hexes, color))
+    return true;
+  return false;
+}
+
+const edgeConnectsVertex = (v, hexes, color) => {
+  // check vertex
+  if (v.props.user == color) return true;
+
+  // check all overlapping vertices
+  let overlap = getOverlappingVertices(v.props.vertexNumber);
+  let o1 = v.props.hexes[1];
+  let o2 = v.props.hexes[2];
+  let oArray = [o1, o2];
+
+  for (let j = 0; j < oArray.length; j++) {
+    let hex = hexes.get(getHexKey(oArray[j]));
+    if (hex != null && hex.props.vertices[overlap[j]].props.user == color)
+      return true;
+  }
+  return false;
+}
+
+// from library logic
+const calculateCoordinates = (
+    circumradius,
+    angle,
+    center,
+    ) => {
+    const corners = [];
+    
+    for (let i = 0; i < 6; i++) {
+        const x = circumradius * Math.cos((2 * Math.PI * i) / 6 + angle)
+        const y = circumradius * Math.sin((2 * Math.PI * i) / 6 + angle)
+        const point = new Point(center.x + x, center.y + y)
+        corners.push(point)
+    }
+    return corners;
 }
