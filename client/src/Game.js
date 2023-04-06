@@ -6,6 +6,7 @@ import OnlineBoard from './Components/onlineBoard';
 import { NumPlayersContext } from './Contexts/NumPlayersContext';
 import { SeatNumberContext } from './Contexts/SeatNumberContext';
 import {useContext} from 'react'
+import GameMusic from "./Components/GameMusic";
 
 const Game = () => {
 
@@ -21,7 +22,13 @@ const Game = () => {
     board: GameBoard
   });
 
-  return <GameClient/>;
+  return (
+    <div>
+      <GameMusic />
+      <GameClient />
+    </div>
+  );
+
 }
 
 else {
@@ -30,7 +37,12 @@ else {
     game: settlersOffKatan(multiplayer[1]),
     board: OnlineBoard
   })
-  return <GameClient/>
+  return (
+    <div>
+      <GameMusic />
+      <GameClient />
+    </div>
+  );
 
 }
 };
