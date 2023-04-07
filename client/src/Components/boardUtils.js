@@ -3,17 +3,16 @@ import { HexUtils } from "react-hexgrid";
 import Vertex from "../Models/Vertex";
 import Edge from "../Models/Edge";
 
+export const getHexKey = (h) => {
+  return "q: " + h.q + ", r: " + h.r + ", s: " + h.s
+}
 
 export const compareUsers = (e, color) => {
-  if (e == null) return false
-  return e.props.stroke == color;
+  return (e == null) ? false : e.props.stroke == color;
 }
 
 export const isActive = (v) => {
-  if (v == null) return false;
-  if(v.props.classes.includes('active'))
-      return true;
-  return false;
+  return (v == null) ? false : v.props.classes.includes('active');
 }
 
 export const getOverlappingVertices = (i) => {
@@ -34,15 +33,15 @@ export const getAdjacentVertices = (i) => {
   return [v1, v2, v3, v4]
 }
 
+export const getAdjacentEdges = (i) => {
+
+}
+
 export const adjacentRoadsToVertex = (i) => {
   let r1 = i == 0 ? 5 : (i - 1);
   let r2 = i
   let r3 = i == 5 ? 0 : (i + 1);
   return [r1, r2, r3];
-}
-
-export const getHexKey = (h) => {
-  return "q: " + h.q + ", r: " + h.r + ", s: " + h.s
 }
 
 // @param: array of game board hexes, array of vertice points
@@ -80,7 +79,6 @@ export const initEdges = (hexagons, size) => {
     hexagons.map((hex) => {
         var hexEdges = []
         for (var j = 0; j < 6; j++) {
-          // error checking later - check if adjacent hexes have a vertex corresponding to this
           const hexes = [hex, HexUtils.neighbour(hex, (5 - j))];
           var secPoint = j < 5 ? j + 1 : 0;
           hexEdges.push(
@@ -99,18 +97,14 @@ export const initEdges = (hexagons, size) => {
     return edgeArray;
 }
 
-// vertex can't be placed if any of the 3 adjacent vertices have a property
+// check if adjacent vertices have settlements
 export const adjacentVerticesActive = (v, hexes) => {
     let adjacentV = getAdjacentVertices(v.props.vertexNumber)
-    // for each adjacent vertex, get hex objects
-    const vertexHexes = v.props.hexes.map((h) => (
-        "q: " + h.q + ", r: " + h.r + ", s: " + h.s
-    ))
+    const vertexHexes = v.props.hexes;
     
     // check if vertices in adjacent hexes are active
     for (let n = 0; n < adjacentV.length; n++) {
-        var aHex = (n < 2) ? hexes.get(vertexHexes[0]) : 
-        (n < 3) ? hexes.get(vertexHexes[1]) : hexes.get(vertexHexes[2]);
+        var aHex = hexes.get(getHexKey((n < 2) ? vertexHexes[0] : (n < 3) ? vertexHexes[1] : vertexHexes[2]));
         if (aHex != null) {
             aHex = aHex.props.vertices[adjacentV[n]];
             if (vertexActive(aHex, hexes))
@@ -122,17 +116,11 @@ export const adjacentVerticesActive = (v, hexes) => {
 
 export const vertexAvailable = (vertex, hexes) => {
   // vertex can't be placed if any of the 3 adjacent vertices are active
-  if (isActive(vertex) || adjacentVerticesActive(vertex, hexes))
-      return false;
-  return true;
+  return !(isActive(vertex) || adjacentVerticesActive(vertex, hexes))
 }
 
 export const edgeAvailable = (edge, hexes) => {
-  if (isActive(edge) || adjacentEdgeActive(edge, hexes))
-      return false;
-  return true
-  // road has to connect to existing user vertex
-  // or edge.
+  return !(isActive(edge) || adjacentEdgeActive(edge, hexes))
 }
 
 export const vertexConnectsRoad = (v, hexes, color) => {
@@ -145,7 +133,6 @@ export const vertexConnectsRoad = (v, hexes, color) => {
     h != null ? h.props.edges[adjacentRoadsToVertex(v.props.vertexNumber)[i]] : h
   ))
 
-// get overlap of each edge and put in array
   const overlapEdges = edges.map((e) => (
     (e == null || hexes.get(getHexKey(e.props.hexes[1])) == null) ? null : 
     hexes.get(getHexKey(e.props.hexes[1])).props.edges[getOverlappingEdge(e.props.edgeNumber)]
@@ -153,13 +140,11 @@ export const vertexConnectsRoad = (v, hexes, color) => {
   
   edges.push(overlapEdges);
   edges = edges.flat();
-
   // check if any edges are active with current player
   for (let e of edges) {
     if (compareUsers(e, color) && isActive(e))
       return true;
   }
-
   return false;
 }
 
@@ -169,9 +154,7 @@ export const edgeConnectsProperty = (e, hexes, color) => {
   let v1 = hex.props.vertices[e.props.edgeNumber];
   let v2 = hex.props.vertices[(e.props.edgeNumber + 1) < 5 ? (e.props.edgeNumber + 1) : 0];
 
-  if (vertexConnectsRoad(v1, hexes, color) || vertexConnectsRoad(v2, hexes, color))
-    return true;
-  return false;
+  return (vertexConnectsRoad(v1, hexes, color) || vertexConnectsRoad(v2, hexes, color))
 }
 
 // check both edges
@@ -179,29 +162,20 @@ const adjacentEdgeActive = (e, hexes) => {
   if (isActive(e)) return true;
   // check overlapping edge
   let overlap = getOverlappingEdge(e.props.edgeNumber);
-  let o1 = e.props.hexes[1];
-  o1 = "q: " + o1.q + ", r: " + o1.r + ", s: " + o1.s
-  if (hexes.get(o1) != null && isActive(hexes.get(o1).props.edges[overlap[0]]))
-      return true;
-  return false;
+  let o1 = hexes.get(getHexKey(e.props.hexes[1]));
+  return (o1 != null && isActive(o1.props.edges[overlap[0]]))
 }
 
 const vertexActive = (v, hexes) => {
   if (isActive(v)) return true;
   // check all overlapping vertices
   let overlap = getOverlappingVertices(v.props.vertexNumber);
-  let o1 = v.props.hexes[1];
-  let o2 = v.props.hexes[2];
-  let oArray = [o1, o2];
-  oArray = oArray.map((o) => (
-      "q: " + o.q + ", r: " + o.r + ", s: " + o.s
-  ))
-  for (let j = 0; j < oArray.length; j++) {
-    if (hexes.get(oArray[j]) != null 
-    && isActive(hexes.get(oArray[j]).props.vertices[overlap[j]]))
-      return true;
-  }
-  return false;
+  let o1 = hexes.get(getHexKey(v.props.hexes[1]));
+  let o2 = hexes.get(getHexKey(v.props.hexes[2]));
+
+  if (o1 != null && isActive(o1.props.vertices[overlap[0]]))
+    return true;
+  return (o2 != null && isActive(o2.props.vertices[overlap[1]]))
 }
 
 export const initRoadPlacement = (e, hexArr, color) => {
@@ -218,8 +192,6 @@ export const initRoadPlacement = (e, hexArr, color) => {
 const edgeConnectsVertex = (v, hexes, color) => {
   // check vertex
   if (v.props.user == color) return true;
-
-  // check all overlapping vertices
   let overlap = getOverlappingVertices(v.props.vertexNumber);
   let o1 = v.props.hexes[1];
   let o2 = v.props.hexes[2];

@@ -1,5 +1,13 @@
 
-import { vertexAvailable, edgeAvailable, vertexConnectsRoad, edgeConnectsProperty, initRoadPlacement } from "./boardUtils";
+import { 
+    vertexAvailable, 
+    edgeAvailable, 
+    vertexConnectsRoad, 
+    edgeConnectsProperty, 
+    initRoadPlacement, 
+    getHexKey, 
+    } from "./boardUtils";
+    
 import { TurnOrder } from 'boardgame.io/core';
 
 const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep", 
@@ -7,7 +15,7 @@ const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep",
                           "brick", "brick", "brick", "ore", "ore", "ore", "sheep"];
 const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 
-// hexes are populated once when game is rendered
+// holds hex information in map
 let hexes = new Map();
 let boardVertices = new Map();
 let boardRoads = new Map();
@@ -16,9 +24,11 @@ const rollDice = ({G, ctx, playerID}) => {
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
     G.players[playerID].diceRoll = d1+d2; 
-    if (G.players[playerID].diceRoll !== 7)
+    if (G.players[playerID].diceRoll !== 7) {
+        // settlements and cities get different resources
         addInitialResources({G,ctx,playerID}, d1+d2, 'settlements')
         addInitialResources({G,ctx,playerID}, d1+d2, 'cities')
+    }
 }   
 
 const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
@@ -38,10 +48,6 @@ const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
         });
     })
 }
-
-const getHexKey = (h) => {
-    return "q: " + h.q + ", r: " + h.r + ", s: " + h.s
-  }
 
 const setPlayerColors = ({G}) => {
     const colors = ["gold", "blue", "violet", "brown"];
@@ -126,7 +132,7 @@ const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
             G.players[playerID].resources.brick -= 1;
         }
         G.players[playerID].roads.push(newEdge.props.id);
-        boardVertices.set(newEdge.props.id, newEdge)
+        boardRoads.set(newEdge.props.id, newEdge)
     }
 }
 
@@ -273,14 +279,14 @@ const resetDevPlays = ({G, ctx}) => {
     G.players[ctx.currentPlayer].canPlayCard = true;
 }
 
-const setHexes = ({G, ctx}, h) => {
+const setHexMap = ({G, ctx}, h) => {
     h.map((hex) => (
         hexes.set("q: " + hex.props.q + ", r: " + hex.props.r + ", s: " + hex.props.s, hex)
     ))
 }
 
 export const checkLongestRoad = ({G, ctx}, longestNum) => {
-    let newNum = 5;
+    let newNum;
     if (G.players[ctx.currentPlayer].roads.length > longestNum)
         newNum = G.players[ctx.currentPlayer].roads.length;
 
@@ -341,7 +347,7 @@ export const settlersOffKatan = numPlayers => ({
 
     phases: {
         initRound1: {
-          moves: { addSettlement, addRoad, addInitialResources, setPlayerColors, setHexes },
+          moves: { addSettlement, addRoad, addInitialResources, setPlayerColors, setHexMap },
           start: true,
           next: 'initRound2',
           turn: { order: TurnOrder.ONCE },

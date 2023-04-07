@@ -70,7 +70,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     }, [firstRounds])
 
     useEffect(() => {
-      moves.setHexes(hexes);
+      moves.setHexMap(hexes);
       renderScoreBoard()
     }, [hexes]);
 
