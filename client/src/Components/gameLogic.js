@@ -7,7 +7,9 @@ import {
     initRoadPlacement, 
     getHexKey, 
     } from "./boardUtils";
-    
+
+
+import { longestRoad } from "./roadUtils";    
 import { TurnOrder } from 'boardgame.io/core';
 
 const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep", 
@@ -285,14 +287,20 @@ const setHexMap = ({G, ctx}, h) => {
     ))
 }
 
-export const checkLongestRoad = ({G, ctx}, longestNum) => {
-    let newNum;
-    if (G.players[ctx.currentPlayer].roads.length > longestNum)
-        newNum = G.players[ctx.currentPlayer].roads.length;
+export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
+    // get player roads from map
+    const playerRoads = G.players[ctx.currentPlayer].roads.map((r) => (
+        boardRoads.get(r)
+    ))
+    let longestPlayerRoad = longestRoad(playerRoads, hexes);
 
-    if (newNum >= longestNum) {
+    if (longestPlayerRoad > longestNum) {
+        if (prevWinner != undefined) {
+            G.players[prevWinner].longestRoad = false;
+            G.players[prevWinner].score -= 1;
+        }
         G.players[ctx.currentPlayer].longestRoad = true;
-        G.longestRoad = newNum;
+        G.longestRoad = longestPlayerRoad;
         G.players[ctx.currentPlayer].score += 1;
     }
 }

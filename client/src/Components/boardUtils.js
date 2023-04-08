@@ -33,10 +33,6 @@ export const getAdjacentVertices = (i) => {
   return [v1, v2, v3, v4]
 }
 
-export const getAdjacentEdges = (i) => {
-
-}
-
 export const adjacentRoadsToVertex = (i) => {
   let r1 = i == 0 ? 5 : (i - 1);
   let r2 = i

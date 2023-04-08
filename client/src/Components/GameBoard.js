@@ -39,7 +39,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
     const [buildRoad, setBuildRoad] = useState(false);
     const [longestRoad, setLongestRoad] = useState(4);
-    const [longestRoadPlayer, setLongestRoadPlayer] = useState("");
+    const [longestRoadPlayer, setLongestRoadPlayer] = useState();
 
     //button settings
     const [monopolyPlayed, setMonopolyPlayed] = useState(false);
@@ -64,6 +64,13 @@ const GameBoard = ({ctx, G, moves, events}) => {
       moves.setPlayerColors();
       updateHexes(renderHexTiles());
     }, []);
+
+    useEffect(() => {
+      if (G.longestRoad != longestRoad) {
+        setLongestRoad(G.longestRoad)
+        setLongestRoadPlayer(ctx.currentPlayer)
+      }
+    }, [G.longestRoad])
 
     useEffect(() => {
       moves.addInitialResources(0, 'settlements')
@@ -170,14 +177,9 @@ const GameBoard = ({ctx, G, moves, events}) => {
     if (roadButtonPushed)
       moves.addRoad(e, i, edges);
     canBuildRoad(false);
-
-    moves.checkLongestRoad(longestRoad);
-    if (G.longestRoad != longestRoad) {
-      setLongestRoad(G.longestRoad);
-      setLongestRoadPlayer("Player " + (parseInt(ctx.currentPlayer, 10) + 1))
-    }
+    moves.checkLongestRoad(longestRoad, longestRoadPlayer);
   }
-                 
+
   const onVertexClick = (e, i) => {
     if (settlementButtonPushed) {
       moves.addSettlement(e, i, vertices);
@@ -206,7 +208,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
         <Vertex {...v.props} onClick={() => onVertexClick(v, i)}></Vertex>
         ))}
         <Text>{tileNums[i]}</Text>
-        {/* <Text>{HexUtils.getID(hex)}</Text> */}
       </CustomHex>
     ))
     return h;
@@ -248,7 +249,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
                 <div>
                     {!firstRounds && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {/*firstPhasesComplete() &&*/ diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {firstPhasesComplete() && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
@@ -352,11 +353,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
               {scoreBoard}
             </tbody>
           </table>
-          {longestRoad != "" && <table className='longest-road'>
+          {longestRoad > 4 && <table className='longest-road'>
             <tbody>
               <tr><td>Longest Road:</td></tr>
-              {longestRoad > 4 && <tr><td>{longestRoad}</td></tr>}
-              <tr><td>{longestRoadPlayer}</td>
+              <tr><td>{longestRoad}</td></tr>
+              <tr><td>{"Player " + (parseInt(longestRoadPlayer, 10) + 1)}</td>
               </tr>
             </tbody>
           </table>}
