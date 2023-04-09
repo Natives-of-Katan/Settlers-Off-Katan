@@ -553,11 +553,12 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
             <select value={selectedPlayerIndex} onChange={handlePlayerSelect}>
               <option value="" disabled> Select a player</option>
               {getOtherPlayerOptions()}
-            </select>
-            <button onClick={() => {handleMakeTrade(G, ctx, moves.makeTrade);}}>Make Trade</button>
+            </select>&nbsp;&nbsp;
+            <button onClick={() => {handleMakeTrade(G, ctx, moves.makeTrade);}}>Make Trade</button><br></br><br></br>
           </div>
-          <button onClick={resetTradeWantedResources}>Reset Trade Offer</button><br></br><br></br>
-          <button onClick={() => setTradeModalIsOpen(false)}>Cancel</button>          
+          <button onClick={() => {setTradeWarning(""); resetTradeWantedResources();}}>Reset Trade Offer</button><br></br><br></br>
+          <button onClick={() => {setTradeWarning(""); resetTradeWantedResources(); setTradeModalIsOpen(false);}}>Cancel</button>   
+
         </Modal>
 
         <div>
