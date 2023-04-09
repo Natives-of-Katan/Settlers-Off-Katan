@@ -14,9 +14,7 @@ const rollDice = ({G, playerID, ctx}, d1, d2) => {
     G.players[playerID].diceRoll = d1+d2;  
 
     G.tileNums.forEach((num, index) => {
-        console.log("rollDice2");
         if(d1+d2 === num && d1+d2!==7) {
-            console.log("rollDice3");
             const resource = tileResource[index];
             G.players[playerID].resources[resource] +=1;
         }
@@ -116,6 +114,35 @@ const drawDevelopmentCard = ({G, playerID}) => {
             G.deck.road -= 1;
         }
     }
+}
+
+const playKnight = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.knight > 0) {
+        G.players[playerID].developmentCards.knight -= 1;
+        G.players[playerID].playedKnights++;
+
+        if (G.players[playerID].playedKnights > G.largestArmy && G.largestArmy < 2) {
+            G.largestArmy = G.players[playerID].playedKnights;
+        }
+        else if (G.players[playerID].playedKnights > G.largestArmy && G.largestArmy === 2) {
+            G.largestArmy = G.players[playerID].playedKnights;
+            G.players[playerID].largestArmyCard = 1;
+            G.players[playerID].score += 2;
+        }
+        else if (G.players[playerID].playedKnights > G.largestArmy) {
+            G.largestArmy = G.players[playerID].playedKnights;
+
+            for (let i=0; i<G.players.length; i++) {
+                if (G.players[i].largestArmyCard === 1) {
+                    G.players[i].largestArmyCard = 0;
+                    G.players[i].score -= 2;
+                }
+            }
+
+            G.players[playerID].largestArmyCard = 1;
+            G.players[playerID].score += 2;
+        }
+      }
 }
 
 const playVictoryCard = ({G, playerID}) => {
@@ -222,7 +249,7 @@ const setTileNums = ({G, ctx}, nums) => {
     G.tileNums = nums;
 }
 
-/*
+
 const stealResource =  ({G, playerID, ctx}, num) => {
     const targetTotalResources = G.players[num].resources.wheat + G.players[num].resources.sheep + G.players[num].resources.wood + G.players[num].resources.brick + G.players[num].resources.ore;
 
@@ -250,7 +277,22 @@ const stealResource =  ({G, playerID, ctx}, num) => {
             G.players[playerID].resources.ore += 1;
         }   
     }
-} */
+}
+
+/*
+const discardCard = ({G, playerID, ctx}, choice) => {
+    if (choice === "wheat" && G.players[playerID].wheat > 0)
+        G.players[playerID].wheat -= 1;
+    else if (choice === "sheep" && G.players[playerID].sheep > 0)
+        G.players[playerID].sheep -= 1;
+    else if (choice === "wood" && G.players[playerID].wood > 0)
+        G.players[playerID].wood -= 1; 
+    else if (choice === "brick" && G.players[playerID].brick > 0)
+        G.players[playerID].brick -= 1; 
+    else if (choice === "ore" && G.players[playerID].ore > 0)
+        G.players[playerID].ore -= 1;  
+}
+*/
 
 
 export const settlersOffKatan = numPlayers => ({
@@ -263,6 +305,7 @@ export const settlersOffKatan = numPlayers => ({
             road: 2,
             plenty: 2
         },
+        largestArmy: 0,
         players: Array(numPlayers).fill().map( () => ({
             score: 0,
             color: "black",
@@ -280,6 +323,8 @@ export const settlersOffKatan = numPlayers => ({
                 road: 0,
                 plenty: 0
             },
+            playedKnights: 0,
+            largestArmyCard: 0,
             diceRoll: 0,
             canBuildSettlement: false,
             canBuildRoad: false,
@@ -293,7 +338,14 @@ export const settlersOffKatan = numPlayers => ({
     }),
 
     turn: {
-        onBegin: resetDevPlays
+        onBegin: resetDevPlays,
+        /*
+        stages: {
+            discard: {
+                moves: {discardCard}
+            }            
+        }
+        */
     },
 
     moves: {
@@ -307,8 +359,9 @@ export const settlersOffKatan = numPlayers => ({
         addSettlement,
         setPlayerColors,
         setHexes,
-        setTileNums
-        //stealResource
+        setTileNums,
+        stealResource,
+        playKnight
     }
 });
 
