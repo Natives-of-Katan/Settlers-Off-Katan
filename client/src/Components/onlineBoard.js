@@ -25,7 +25,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const size = { x: 10, y: 10 };
 
     //socket
-    const { socket } = useContext(SockContext);
+    const { socket, setSocket } = useContext(SockContext);
     const { matchID } = useContext(MatchIDContext);
     const {seatNum } = useContext(SeatNumberContext);
     const {matchInfo} = useContext(MatchInfoContext);
@@ -56,12 +56,13 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     //whenever gameState changes, check if you're the current player to enable turn actions
     useEffect(() => {
       checkIfCurrentPlayer();
+      socket.emit('mid-turn-state', gameState);
     }, [gameState]);
 
   useEffect(()=> {
 
     //check if you're the current player when new turn state is received
-    socket.on('game-over', (newState) => {
+    socket.once('game-over', (newState) => {
       setGameState(newState);
       console.log(newState);
       setGameOver(true);

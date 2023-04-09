@@ -127,16 +127,21 @@ socketServer.on('connect', (socket) => {
 
     socket.on('end-turn', ({gameState, matchID}) => {
         const winner = onlineGame.checkVictory(gameState);
+        console.log(winner);
         if(winner) {
+            console.log('winner!')
             gameState.gameOver = true;
             gameState.winner = gameState.currentPlayer;
-            gamesList.forEach(game => {
-                if(game.matchID == matchID) {
-                    game.socketIDs.forEach(socketID => {
-                        socketServer.to(socketID).emit('game-over', gameState);
-                    })
-                }
+            const index = gamesList.findIndex(game => game.matchID === matchID);
+            gamesList[index].socketIDs.forEach(socketID => {
+                console.log('sent')
+                socketServer.to(socketID).emit('game-over', gameState)
             })
+            gamesList[index] = {
+                matchID: 0,
+                socketIDs: [],
+                players: []
+            }
             return;
         }
         gameState.currentPlayer = (gameState.currentPlayer +1) % gameState.players.length;
@@ -172,7 +177,9 @@ socketServer.on('connect', (socket) => {
         },
         opts
     );
+    socket.emit('done');
     console.log(user);
+    console.log('lol')
     });
 
 });
