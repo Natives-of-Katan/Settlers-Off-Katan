@@ -1,5 +1,6 @@
 import React from 'react'
 import {Link, useNavigate} from 'react-router-dom';
+import {GameMusicContext} from '../Contexts/GameMusicContext';
 import {AuthContext} from '../Contexts/AuthContext'
 import {ProfileContext} from '../Contexts/ProfileContext';
 import {useContext} from 'react'
@@ -10,6 +11,8 @@ function Navbar() {
 
   const {auth, setAuth} = useContext(AuthContext);
   const {profile, setProfile} = useContext(ProfileContext);
+  const {setPlaying, userTurnedOff} = useContext(GameMusicContext);
+  
   const navigate = useNavigate();
 
   const handleSubmit = event => {
@@ -30,9 +33,9 @@ function Navbar() {
 
   return (
     <ul id="navbar"> 
-    <li id="logo" className="nav-button"><Link to="/">Settlers Off Katan</Link></li>
-    <li className="nav-button"><Link to="/Options">Options</Link></li>
-    <li className="nav-button"><Link to="/">Home</Link></li>
+    <li id="logo" class="nav-button"><Link to="/" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Settlers Off Katan</Link></li>
+    <li class="nav-button"><Link to="/Options" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Options</Link></li>
+    <li class="nav-button"><Link to="/" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Home</Link></li>
     {auth && <li><Link to='/Account'>{profile.username}</Link></li>}
     {auth && <button onClick={handleSubmit}>Logout</button>}
   </ul> 

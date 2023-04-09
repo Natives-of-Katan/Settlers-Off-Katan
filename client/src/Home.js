@@ -2,25 +2,27 @@ import React from 'react';
 import {useContext} from 'react';
 import {AuthContext} from './Contexts/AuthContext';
 import {Link} from 'react-router-dom';
+import {GameMusicContext} from './Contexts/GameMusicContext';
 
 const Home = () => {
 
     const {auth, setAuth} = useContext(AuthContext);
+    const {setPlaying, userTurnedOff} = useContext(GameMusicContext);
 
     return(
         <div className="App home">
             <div className ="content">
                 <h1>Welcome to Settlers Off Katan</h1>
                 <Link to={"/Play"}>
-                    <button class="home-button btn-default-style">Play</button>
+                    <button class="home-button btn-default-style" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Play</button>
                 </Link>
                 <br /><br />
                 <Link to={"/Rules"}>
-                    <button class="home-button btn-default-style">Rules</button>
+                    <button class="home-button btn-default-style" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Rules</button>
                     </Link>
                 <br/><br />
                 <Link to={"/Options"}>
-                    <button class="home-button btn-default-style">Options</button>
+                    <button class="home-button btn-default-style" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Options</button>
                 </Link>
                 <br />
             </div><br />

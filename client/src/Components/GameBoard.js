@@ -1,4 +1,4 @@
-import { HexGrid, Layout, Text, GridGenerator } from 'react-hexgrid';
+import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
 import {React, useEffect, useState} from 'react';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
@@ -8,7 +8,6 @@ import Vertex from '../Models/Vertex';
 import { initEdges, initVertices } from './boardUtils';
 
 const GameBoard = ({ctx, G, moves, events}) => {
-
     useEffect(() => {
       renderScoreBoard();
       checkBuildActions();
@@ -28,6 +27,9 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
     const [roadButtonPushed, canBuildRoad] = useState(false);
     const [settlementButtonPushed, canBuildSettlement] = useState(false);
+    const [upgradeButtonPushed, canUpgradeSettlement] = useState(false);
+    const [firstRounds, setFirstRounds] = useState(ctx.turn < G.players.length * 2);
+    const [gameStart, setGameStart] = useState(false);
 
     const [diceRolled, setdiceRolled] = useState(false);
     const [movingRobber, setMovingRobber] = useState(false);
@@ -38,8 +40,10 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
+
     const [buildRoad, setBuildRoad] = useState(false);
-    const [longestRoad, setLongestRoad] = useState("");
+    const [longestRoad, setLongestRoad] = useState(4);
+    const [longestRoadPlayer, setLongestRoadPlayer] = useState();
 
     //button settings
     const [monopolyPlayed, setMonopolyPlayed] = useState(false);
@@ -66,7 +70,19 @@ const GameBoard = ({ctx, G, moves, events}) => {
     }, []);
 
     useEffect(() => {
-      moves.setHexes(hexes);
+      if (G.longestRoad != longestRoad) {
+        setLongestRoad(G.longestRoad)
+        setLongestRoadPlayer(ctx.currentPlayer)
+      }
+    }, [G.longestRoad])
+
+    useEffect(() => {
+      moves.addInitialResources(0, 'settlements')
+    }, [firstRounds])
+
+    useEffect(() => {
+      moves.setHexMap(hexes);
+      renderScoreBoard()
     }, [hexes]);
 
     const playTurn = () => {
@@ -151,34 +167,60 @@ const GameBoard = ({ctx, G, moves, events}) => {
       console.log("player %s ended turn. Current state of player %s: %s", ctx.currentPlayer, ctx.currentPlayer, JSON.stringify(G.players[ctx.currentPlayer]));
       setdiceRolled(false);
       setBuildSettlement(false);
+      setGameStart(false)
+      if (ctx.turn >= G.players.length * 2)
+        setFirstRounds(false)
+    }
+
+    const startGame = () => {
+      if(ctx.phase !== 'initRound2' && ctx.phase !=='initRound1')
+        setFirstRounds(false)
+      setGameStart(true)
+      setBuildSettlement(true)
+      setdiceRolled(true)
     }
 
     const handleBuildSettlement = () => {
       setBuildSettlement(G.players[ctx.currentPlayer].canBuildSettlement())
+    }
+
+    const firstPhasesComplete = () => {
+      if (ctx.phase == 'initRound1' && (G.players[ctx.currentPlayer].settlements.length < 1 
+        || G.players[ctx.currentPlayer].roads.length < 1)) 
+        return false;
+      else if  (ctx.phase == 'initRound2' && (G.players[ctx.currentPlayer].settlements.lengthh < 2 
+        || G.players[ctx.currentPlayer].roads.length < 2)) 
+        return false
+      else
+        return true
     }
   
     const renderScoreBoard = () => {
       setScoreboard(G.players.map((player, index) => (
         <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
           {console.log(index)}
-          <td>Player{index + 1}</td>
+          <td style={{color: player.color}}>Player{index + 1}</td>
           <td>{player.score}</td>
           </tr>
-      )
-      )
-      )
+      )))
     }
                 
   const onEdgeClick = (e, i) => {
     if (roadButtonPushed)
       moves.addRoad(e, i, edges);
     canBuildRoad(false);
+    moves.checkLongestRoad(longestRoad, longestRoadPlayer);
   }
-                 
+
   const onVertexClick = (e, i) => {
-    if (settlementButtonPushed)
+    if (settlementButtonPushed) {
       moves.addSettlement(e, i, vertices);
-    canBuildSettlement(false)
+      canBuildSettlement(false);
+    }
+    else if (upgradeButtonPushed) {
+      moves.upgradeSettlement(e, i,vertices);
+      canUpgradeSettlement(false);
+    }
   }
 
   const onHexClick = (value, tile) => {
@@ -207,11 +249,16 @@ const GameBoard = ({ctx, G, moves, events}) => {
       moves.setTileNums(newTileNums);
     }
   }
+  const getResource = (r) => {
+    console.log("Resource", r);
+  }
 
   const renderHexTiles = () => {
     const h = hexagons.map((hex, i) => (
+
       <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
       vertices={vertices[i]} edges={edges[i]} onClick={() => onHexClick(tileNums[i], i)}>
+
       { 
         edges[i].map((e) => (
         <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
@@ -240,6 +287,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
     else
       setBuildRoad(false);
 
+    if(currentPlayer.resources.wheat >= 2 && currentPlayer.resources.ore >= 3 && currentPlayer.settlements.length > 0)
+      setUpgradeSettlement(true)
+    else
+      setUpgradeSettlement(false)
+
     if(currentPlayer.resources.sheep >= 1 && currentPlayer.resources.ore >= 1 && currentPlayer.resources.wheat > 1)
       setBuyCard(true);
     else
@@ -263,6 +315,15 @@ const GameBoard = ({ctx, G, moves, events}) => {
                   {diceRolled && movingRobber && knightPlayed && <text>You played a knight. Choose a tile to move the Robber to</text>}
                   {diceRolled && stealingResource && <text>Choose a player to steal a resource from</text>}
                   {!diceRolled && <text>Roll The Dice!</text>}
+                    {!firstRounds && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
+                    {firstPhasesComplete() && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                </div>
+                <div>
+                  {gameStart && <text>Place settlement and road</text>}
+                  {!firstRounds && diceRolled && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
+                  {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
+                </div>
               </div>
             </div>
               
@@ -298,9 +359,15 @@ const GameBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
+
                 {buildSettlement && !movingRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={canBuildSettlement}>Build Settlement</button> }
                 {buildRoad && !movingRobber && !knightPlayed && !stealingResource &&  <button type='button' disabled = {!diceRolled} onClick={canBuildRoad}>Build Road</button> }
                 {buyCard && !movingRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
+
+                {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
+                {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
+                {(gameStart || buildRoad) && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
+                {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
                 
                 {!monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleDraw}>Draw Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}
                 {!monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleAddResources}>Add 1 of each resource and development card (this button is for dev purposes)</button>}
@@ -371,10 +438,17 @@ const GameBoard = ({ctx, G, moves, events}) => {
               {scoreBoard}
             </tbody>
           </table>
+          {longestRoad > 4 && <table className='longest-road'>
+            <tbody>
+              <tr><td>Longest Road:</td></tr>
+              <tr><td>{longestRoad}</td></tr>
+              <tr><td>{"Player " + (parseInt(longestRoadPlayer, 10) + 1)}</td>
+              </tr>
+            </tbody>
+          </table>}
         </div>
       </div>
     </div>
-   </div>
   );
 }
 
