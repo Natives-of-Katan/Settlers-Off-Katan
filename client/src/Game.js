@@ -38,11 +38,14 @@ else {
     board: OnlineBoard
   })
   return (
+    <GameClient />
+  )
+  /*return (
     <div>
       <GameMusic />
       <GameClient />
     </div>
-  );
+  );*/
 
 }
 };

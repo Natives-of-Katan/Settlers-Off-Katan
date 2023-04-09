@@ -26,16 +26,13 @@ const rollDice = ({G, ctx, playerID}) => {
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
     G.players[playerID].diceRoll = d1+d2; 
-<<<<<<< HEAD
-    G.players[playerID].score+=1;
-=======
+
     if (G.players[playerID].diceRoll !== 7) {
         // settlements and cities get different resources
         addInitialResources({G,ctx,playerID}, d1+d2, 'settlements')
         addInitialResources({G,ctx,playerID}, d1+d2, 'cities')
     }
-}   
->>>>>>> master
+}  
 
 const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
     G.players.forEach((player) => {
@@ -350,12 +347,10 @@ export const settlersOffKatan = numPlayers => ({
         currentPlayer: 0,
         turn: 0,
         currentRoll:0,
-<<<<<<< HEAD
+
         winner: 0,
-        gameOver: false
-=======
+        gameOver: false,
         longestRoad: 4
->>>>>>> master
     }),
 
     turn: {
