@@ -15,6 +15,16 @@ import { SeatNumberContext } from '../Contexts/SeatNumberContext';
 import { AuthContext } from '../Contexts/AuthContext';
 import { SessionContext } from '../Contexts/SessionContext';
 
+import {
+rollDice,
+processEndTurn,
+addInitialResources,
+setPlayerColors,
+addSettlement,
+upgradeSettlement,
+firstSettlements
+} from './onlineLogic';
+
 const OnlineBoard = ({ctx, G, moves, events}) => {
  //online stuff 
  const { socket} = useContext(SockContext);
@@ -25,7 +35,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
  const { sessionID } = useContext(SessionContext);
 
  const [isMounted, setIsMounted] = useState(false);
- const [gameState, setGameState] = useState(G);
+ const [gameState, setGameState] = useState({});
  const [turnEnabled, setTurnEnabled] = useState(false);
  const [canEmit, setCanEmit] = useState(false);
 
@@ -38,15 +48,18 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       setTurnEnabled(true);
       setCanEmit(true);
     }
+    console.log(matchID)
   }, []);
 
-  //if gameState changes, emit the change/re-render scoreboard, but noly emit teh changes if you're allowed/its your turn
+
+  //if gameState changes, emit the change/re-render scoreboard, but noly emit the changes if you're allowed/its your turn
   //if canEmit == false, then you received these changes and should not emit them again
   useEffect(() => {
-    checkBuildActions();
-    checkVictory();
+    //checkBuildActions();
+   // checkVictory();
     if(canEmit)
-      socket.emit('state-change', gameState);
+      socket.emit('state-change', ({gameState, matchID}));
+      console.log(gameState);
   }, [gameState]);
 
    
@@ -54,13 +67,18 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
   useEffect(()=> {
 
     //when a new state change is received, set gameState to what it was and check if you're the current player
-    socket.on('state-change', newState => {
+    socket.on('state-change', (newState) => {
       setGameState(newState);
-      if(seatNum == newState.currentPlayer) {
+      console.log('hi');
+      if(seatNum === newState.currentPlayer) {
         setTurnEnabled(true);
         setCanEmit(true);
       }
-      console.log('new state received:\n %s', gameState);
+      else {
+        setTurnEnabled(false);
+        setCanEmit(false);
+      }
+      console.log('new state received:\n %s', newState);
     })
 
   },[socket]);
@@ -136,8 +154,9 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       moves.setHexMap(hexes);
     }, [hexes]);
 
+    //begin turn
     const playTurn = () => {
-      moves.rollDice();
+      setGameState(rollDice(gameState));
       setdiceRolled(true);
     }
 
@@ -186,12 +205,13 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
 
     //function handleEndTurn() {
     const handleEndTurn = () => {
-      events.endTurn();
       setdiceRolled(false);
+      setTurnEnabled(false);
       setBuildSettlement(false);
       setGameStart(false)
       if (gameState.turn >= gameState.players.length * 2)
         setFirstRounds(false)
+        socket.emit('turn-end', ({gameState, matchID}));
     }
 
     const startGame = () => {
@@ -293,17 +313,19 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
      {isMounted &&  <div className="GameBoard">
             <div className='board-text board-header'>
               <div className='board-header-center'>
-                <div className='current-player'>Player {gameState.currentPlayer + 1 }
+                <div className='current-player'> {gameState.currentPlayer == seatNum ? "Your Turn!" : "Player" + gameState.currentPlayer + 1 +'s turn!' }
                 </div>
                 <div>
-                    {!firstRounds && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {!firstRounds && !diceRolled && turnEnabled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {firstPhasesComplete() && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {firstPhasesComplete() && diceRolled && turnEnabled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
-                  {!firstRounds && diceRolled && <text>You rolled: {gameState.currentPlayer.diceRoll}</text>}
-                  {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
+                  {/*!firstRounds && diceRolled && <text>You rolled: {gameState.currentPlayer.diceRoll}</text>*/}
+                  {!firstRounds && !gameStart && !diceRolled && turnEnabled && <text>Roll The Dice!</text>}
+                  {diceRolled && turnEnabled && !firstRounds && <text>You Rolled a {gameState.currentRoll} </text>}
+                  {!turnEnabled && !firstRounds && <text>Player {gameState.currentPlayer +1} rolled a {gameState.currentRoll}</text>}
                 </div>
               </div>
             </div>
@@ -317,23 +339,23 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
                   </tr>
                   <tr>
                     <td>Wheat</td>
-                    <td>{JSON.stringify(gameState.players[seatNum].resources.wheat)}</td>
+                    <td>{gameState.players[seatNum].resources.wheat}</td>
                   </tr>
                   <tr>
                     <td>Sheep</td>
-                    <td>{JSON.stringify(gameState.players[seatNum].resources.sheep)}</td>
+                    <td>{gameState.players[seatNum].resources.sheep}</td>
                   </tr>
                   <tr>
                     <td>Wood</td>
-                    <td>{JSON.stringify(gameState.players[seatNum].resources.wood)}</td>
+                    <td>{gameState.players[seatNum].resources.wood}</td>
                   </tr>
                   <tr>
                     <td>Brick</td>
-                    <td>{JSON.stringify(gameState.players[seatNum].resources.brick)}</td>
+                    <td>{gameState.players[seatNum].resources.brick}</td>
                   </tr>
                   <tr>
                     <td>Ore</td>
-                    <td>{JSON.stringify(gameState.players[seatNum].resources.ore)}</td>
+                    <td>{gameState.players[seatNum].resources.ore}</td>
                   </tr>
                   
                 </tbody>

@@ -21,17 +21,28 @@ let hexes = new Map();
 let boardVertices = new Map();
 let boardRoads = new Map();
 
-export const rollDice = ({gameState}) => {
+export const rollDice = (gameState) => {
+    const newState = { ...gameState }
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
-    gameState.currentPlayer.diceRoll = d1+d2; 
+    newState.currentRoll = d1+d2; 
 
-    if (gameState.currentPlayer.diceRoll !== 7) {
+    if ( newState.currentRoll !== 7) {
         // settlements and cities get different resources
-        addInitialResources({gameState}, d1+d2, 'settlements')
-        addInitialResources({gameState}, d1+d2, 'cities')
+        addInitialResources({gameState: newState}, d1+d2, 'settlements')
+        addInitialResources({gameState: newState}, d1+d2, 'cities')
     }
+
+    return newState;
 }  
+
+export const processEndTurn = (gameState) => {
+    const newState = { ...gameState }
+    newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
+    newState.turn += 1;
+
+    return newState;
+}
 
 const addInitialResources = ({gameState, ctx, playerID}, diceNum, property) => {
     gameState.players.forEach((player) => {
