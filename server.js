@@ -178,8 +178,6 @@ socketServer.on('connect', (socket) => {
         opts
     );
     socket.emit('done');
-    console.log(user);
-    console.log('lol')
     });
 
 });
