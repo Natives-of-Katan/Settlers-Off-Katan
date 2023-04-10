@@ -316,6 +316,12 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setBuyCard(true);
     else
       setBuyCard(false);
+
+    if(currentPlayer.score + currentPlayer.developmentCards.victory >= 10) {
+      for (let i = currentPlayer.developmentCards.victory; i > 0; i--) {
+        handleVictoryCard();
+      }
+    }
   }
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
@@ -387,8 +393,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
         
 
                 {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.knight > 0 && !monopolyPlayed && !roadPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && plentyFirstChoice === '' && <button onClick={() => handleKnight()}>Play Knight (Move the robber and steal a resource)</button>}
-
-                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.victory > 0 && !monopolyPlayed && !roadPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleVictoryCard}>Play Victory Card (gain 1 Victory point)</button>}
         
                 {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.monopoly > 0 && !monopolyPlayed && !roadPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && plentyFirstChoice === '' && <button onClick={() => handleMonopoly('')}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
                 {monopolyPlayed && <button onClick={() => handleMonopoly('wheat')}>Wheat</button>}

@@ -233,7 +233,7 @@ const playVictoryCard = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.victory > 0) {
         G.players[playerID].developmentCards.victory -= 1;
         G.players[playerID].score += 1;
-        G.players[playerID].canPlayCard = false;
+        console.log("Victory Card Played" + G.players[playerID].score);
     }
 }
 
