@@ -25,17 +25,18 @@ let boardRoads = new Map();
 const rollDice = ({G, playerID, ctx}, d1, d2) => {
     console.log(G.tileNums);
     G.players[playerID].diceRoll = d1+d2;  
+    console.log(d1+d2);
 
-    G.tileNums.forEach((num, index) => {
-        if(d1+d2 === num && d1+d2!==7) {
-            const resource = tileResource[index];
-            G.players[playerID].resources[resource] +=1;
-        }
-    });  
+    if (G.players[playerID].diceRoll !== 7) {
+        // settlements and cities get different resources
+        addInitialResources({G,ctx,playerID}, d1+d2, 'settlements')
+        addInitialResources({G,ctx,playerID}, d1+d2, 'cities')
+    }  
 }
 
 const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
     G.players.forEach((player) => {
+        console.log(player);
         let playerProperties = property == 'settlements' ? player.settlements : player.cities;
         let settlementHexes = playerProperties.map((v) => { 
             // get array of adjacent hexes
@@ -45,10 +46,12 @@ const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
         });
         // add resources if the hex is rolled
         settlementHexes.forEach((sHexes) => { sHexes.forEach((hex) => {
-            if (hex != undefined && (diceNum == 0 || diceNum == hex.props.number) && hex.props.fill != 'desert')
+            if (hex != undefined && (diceNum == 0 || diceNum == hex.props.number) && hex.props.fill != 'desert') {
+                console.log("working");
                 player.resources[hex.props.fill] += (property == 'settlements' ? 1 : 2);
+            }
             });
-        });
+        });        
     })
 }
 
@@ -118,7 +121,7 @@ const firstRoads = (G, ctx, playerID, e, hexes, color) => {
     return false;
 }
 
-const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
+const addRoad = ({G, playerID, ctx}, edge, i, edges, roadBuilding, secondRoad) => {
     // new properties
     const newEdge = {...edge}
     const newProps = {...newEdge.props}
@@ -127,17 +130,25 @@ const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
     newEdge.props = newProps;
     // if edge is available
     const firstRounds = firstRoads(G, ctx, playerID, edge, hexes, G.players[playerID].color);
-    if (edgeAvailable(edge, hexes) && (firstRounds|| (ctx.turn > G.players.length * 2 && 
+    if (edgeAvailable(edge, hexes) && (firstRounds || (ctx.turn > G.players.length * 2 && 
         edgeConnectsProperty(edge, hexes, G.players[playerID].color)))) {
         edges = edges[i][edges[i].indexOf(edge)] = newEdge;
-        if (!firstRounds) {
+        if (!firstRounds && !roadBuilding) {
             G.players[playerID].resources.wood -= 1;
             G.players[playerID].resources.brick -= 1;
         }
+        
+        G.players[playerID].totalRoads++;
         G.players[playerID].roads.push(newEdge.props.id);
         boardRoads.set(newEdge.props.id, newEdge)
+
+        if (roadBuilding && secondRoad) {
+            G.players[playerID].developmentCards.road -= 1;
+            G.players[playerID].canPlayCard = false;
+        }
     }
 }
+
 
 const addDevelopmentResources = ({G, playerID}) => {
     G.players[playerID].resources.sheep += 1;
@@ -216,6 +227,7 @@ const playKnight = ({G, playerID}) => {
         }
       }
 }
+
 
 const playVictoryCard = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.victory > 0) {
@@ -416,6 +428,7 @@ export const settlersOffKatan = numPlayers => ({
             largestArmyCard: 0,
             diceRoll: 0,
             longestRoad: false,
+            totalRoads: 0, //this is for keeping track of if a road was placed for when Road Building is played
             canBuildSettlement: false,
             canBuildRoad: false,
             canBuyCard: false,
@@ -475,7 +488,6 @@ export const settlersOffKatan = numPlayers => ({
         addRoad,
         addSettlement,
         setPlayerColors,
-        //setHexes,
         setTileNums,
         stealResource,
         playKnight,
