@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {GameMusicContext} from "./Contexts/GameMusicContext";
 
 const Options = () => {
@@ -16,6 +16,12 @@ const Options = () => {
         setUserTurnedOff(!userTurnedOff);
     };
 
+    const navigate = useNavigate();
+
+    const goBack = () => {
+        navigate(-1);
+    };
+   
     return(
         <div className="App">
         <div className="optionsForm">
@@ -40,10 +46,9 @@ const Options = () => {
             <form>
             <br />
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
-                <Link to={"/"}><button class="options-button btn-default-style" type="submit">Accept</button></Link>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 
-                <Link to={"/"}><button class="options-button btn-default-style" type="submit">Cancel</button></Link>            
+                <button class="options-button btn-default-style" type="button" onClick={goBack}>Go Back</button>          
             </form>
-            </div><br />   
+            </div><br />  
         </div>
     )    
 }

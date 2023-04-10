@@ -357,7 +357,7 @@ export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
 
   
 export const settlersOffKatan = numPlayers => ({
-    setup: () => {
+    setup: () => ({
             deck: {
                 knight: 14,
                 victory: 5,
