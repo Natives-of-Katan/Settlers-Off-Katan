@@ -387,20 +387,40 @@ const stealResource =  ({G, playerID, ctx}, num) => {
     }
 }
 
-/*
-const discardCard = ({G, playerID, ctx}, choice) => {
-    if (choice === "wheat" && G.players[playerID].wheat > 0)
-        G.players[playerID].wheat -= 1;
-    else if (choice === "sheep" && G.players[playerID].sheep > 0)
-        G.players[playerID].sheep -= 1;
-    else if (choice === "wood" && G.players[playerID].wood > 0)
-        G.players[playerID].wood -= 1; 
-    else if (choice === "brick" && G.players[playerID].brick > 0)
-        G.players[playerID].brick -= 1; 
-    else if (choice === "ore" && G.players[playerID].ore > 0)
-        G.players[playerID].ore -= 1;  
+
+const discardCards = ({G, ctx}, totalResources, index) => {
+    const discard = Math.floor(totalResources/2);
+    console.log(totalResources/2);
+    console.log(Math.floor(totalResources/2));
+
+
+    for (let i=0; i < discard; i++) {
+        let choice = 1+Math.floor(Math.random() * G.players[index].resources.wheat + G.players[index].resources.sheep + G.players[index].resources.wood + G.players[index].resources.brick + G.players[index].resources.ore);
+        console.log("Choice is " + choice);
+
+        if (choice <= G.players[index].resources.wheat) {
+            G.players[index].resources.wheat--;
+            console.log("Discarded Wheat");
+        }
+        else if (choice <= G.players[index].resources.wheat + G.players[index].resources.sheep) {
+            G.players[index].resources.sheep--;
+            console.log("Discarded Sheep");
+        }
+        else if (choice <= G.players[index].resources.wheat + G.players[index].resources.sheep + G.players[index].resources.wood) {
+            G.players[index].resources.wood--;
+            console.log("Discarded Wood");
+        }
+        else if (choice <= G.players[index].resources.wheat + G.players[index].resources.sheep + G.players[index].resources.wood + G.players[index].resources.brick) {
+            G.players[index].resources.brick--;
+            console.log("Discarded Brick");
+        }
+        else if (choice <= G.players[index].resources.wheat + G.players[index].resources.sheep + G.players[index].resources.wood + G.players[index].resources.brick + G.players[index].resources.ore) {
+            G.players[index].resources.ore--;
+            console.log("Discarded Ore");
+        }
+    }
 }
-*/
+
 
 export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
     // get player roads from map
@@ -478,13 +498,6 @@ export const settlersOffKatan = numPlayers => ({
 
     turn: {
         onBegin: resetDevPlays,
-        /*
-        stages: {
-            discard: {
-                moves: {discardCard}
-            }            
-        }
-        */
     },
 
     phases: {
@@ -522,6 +535,7 @@ export const settlersOffKatan = numPlayers => ({
         setTileNums,
         stealResource,
         playKnight,
+        discardCards,
         upgradeSettlement,
         addInitialResources,
         checkLongestRoad,

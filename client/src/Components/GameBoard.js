@@ -97,15 +97,19 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
       
       if (d1+d2 === 7) {
-        setMovingRobber(true);
-        /*
+
         for (let i=0; i<G.players.length; i++) {
+          console.log("Checked " + i);
           let totalResources = G.players[i].resources.wheat + G.players[i].resources.sheep + G.players[i].resources.wood + G.players[i].resources.brick + G.players[i].resources.ore;
+          
           if (totalResources > 7) {
-            for
+            console.log(i + " discarded");
+            moves.discardCards(totalResources, i);
           }
         }
-        */
+
+        setMovingRobber(true);
+        
       }
       
       
