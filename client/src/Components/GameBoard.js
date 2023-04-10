@@ -288,8 +288,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const h = hexagons.map((hex, i) => (
 
       <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
-      vertices={vertices[i]} edges={edges[i]} number={tileNums[i]} onClick={() => onHexClick(tileNums[i], i)}>
-        {console.log(tileNums[i])}
+      vertices={vertices[i]} edges={edges[i]} numKey={i} number={tileNums[i]} onClick={() => onHexClick(tileNums[i], i)}>
       { 
         edges[i].map((e) => (
         <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>

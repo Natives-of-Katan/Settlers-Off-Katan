@@ -46,12 +46,11 @@ const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
         });
         // add resources if the hex is rolled
         settlementHexes.forEach((sHexes) => { sHexes.forEach((hex) => {
-            if (hex != undefined && (diceNum == 0||  diceNum == hex.props.number)) {
-                console.log(hex.props.number);
-                console.log("working");
+            if (hex != undefined && (diceNum == 0 || (diceNum == hex.props.number && G.robberIndex !== hex.props.numKey))) {
+                console.log("key", hex.props.numKey);
                 player.resources[hex.props.fill] += (property == 'settlements' ? 1 : 2);
             }
-            });
+        });
         });        
     })
 }
