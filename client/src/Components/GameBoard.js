@@ -95,9 +95,19 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
       moves.rollDice(d1, d2);
 
+      
       if (d1+d2 === 7) {
         setMovingRobber(true);
+        /*
+        for (let i=0; i<G.players.length; i++) {
+          let totalResources = G.players[i].resources.wheat + G.players[i].resources.sheep + G.players[i].resources.wood + G.players[i].resources.brick + G.players[i].resources.ore;
+          if (totalResources > 7) {
+            for
+          }
+        }
+        */
       }
+      
       
       setdiceRolled(true);
     }
@@ -278,8 +288,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const h = hexagons.map((hex, i) => (
 
       <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
-      vertices={vertices[i]} edges={edges[i]} onClick={() => onHexClick(tileNums[i], i)}>
-
+      vertices={vertices[i]} edges={edges[i]} number={tileNums[i]} onClick={() => onHexClick(tileNums[i], i)}>
+        {console.log(tileNums[i])}
       { 
         edges[i].map((e) => (
         <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
@@ -341,7 +351,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
                   {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
                     {!firstRounds && !movingRobber && !knightPlayed && !stealingResource && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {firstPhasesComplete() && !movingRobber && !knightPlayed && !stealingResource && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {/*firstPhasesComplete() && */!movingRobber && !knightPlayed && !stealingResource && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}

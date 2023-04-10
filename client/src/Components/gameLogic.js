@@ -46,7 +46,8 @@ const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
         });
         // add resources if the hex is rolled
         settlementHexes.forEach((sHexes) => { sHexes.forEach((hex) => {
-            if (hex != undefined && (diceNum == 0 || diceNum == hex.props.number) && hex.props.fill != 'desert') {
+            if (hex != undefined && (diceNum == 0||  diceNum == hex.props.number)) {
+                console.log(hex.props.number);
                 console.log("working");
                 player.resources[hex.props.fill] += (property == 'settlements' ? 1 : 2);
             }
@@ -348,6 +349,12 @@ const setHexMap = ({G, ctx}, h) => {
 }
 
 const setTileNums = ({G, ctx}, nums) => {
+    for (let i=0; i<nums.length; i++) {
+        if (nums[i] == "Robber") {
+            G.robberIndex = i;
+        }
+    }
+
     G.tileNums = nums;
 }
 
@@ -417,6 +424,7 @@ export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
 export const settlersOffKatan = numPlayers => ({
     setup: () => ({
         tileNums: [9, 8, 5, 12, 11, 3, 6, 10, 6, "Robber", 4, 11, 2, 4, 3, 5, 9, 10, 8],
+        robberIndex: 9,
         deck: {
             knight: 14,
             victory: 5,
