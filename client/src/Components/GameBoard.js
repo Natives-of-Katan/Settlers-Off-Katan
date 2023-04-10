@@ -338,7 +338,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
                   {!firstRounds && diceRolled && movingRobber && !knightPlayed && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}. Choose a tile to move the Robber to</text>}
                   {diceRolled && movingRobber && knightPlayed && <text>You played a knight. Choose a tile to move the Robber to</text>}
                   {diceRolled && stealingResource && <text>Choose a player to steal a resource from</text>}
-                  {!firstRounds && !diceRolled && <text>Roll The Dice!</text>}
+                  {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
                     {!firstRounds && !movingRobber && !knightPlayed && !stealingResource && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
                     {firstPhasesComplete() && !movingRobber && !knightPlayed && !stealingResource && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
@@ -346,7 +346,6 @@ const GameBoard = ({ctx, G, moves, events}) => {
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
                   {!firstRounds && diceRolled && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
-                  {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
                 </div>
               </div>
             </div>
