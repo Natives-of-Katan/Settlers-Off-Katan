@@ -18,9 +18,17 @@ import { SessionContext } from '../Contexts/SessionContext';
 import {
 rollDice,
 processEndTurn,
+setHexMap,
+addDevelopmentResources,
+drawDevelopmentCard,
+playVictoryCard,
+playMonopoly,
+playYearOfPlenty,
+addRoad,
 addInitialResources,
 setPlayerColors,
 addSettlement,
+checkLongestRoad,
 upgradeSettlement,
 firstSettlements
 } from './onlineLogic';
@@ -34,42 +42,57 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
  const { auth } = useContext(AuthContext);
  const { sessionID } = useContext(SessionContext);
 
+
  const [isMounted, setIsMounted] = useState(false);
  const [gameState, setGameState] = useState({});
+ 
  const [turnEnabled, setTurnEnabled] = useState(false);
  const [canEmit, setCanEmit] = useState(false);
 
 
    //gameState is the template for our gameState, will use gameState going forward. page renders (isMounted) when gameState is set
    useEffect(() => {
-    setGameState(G);
-    setIsMounted(true);
+    socket.emit('ready', matchID);
+  }, []);
+
+  useEffect(() => {
     if(seatNum == 0) {
       setTurnEnabled(true);
       setCanEmit(true);
     }
-    console.log(matchID)
-  }, []);
+  }, [isMounted]);
 
 
-  //if gameState changes, emit the change/re-render scoreboard, but noly emit the changes if you're allowed/its your turn
-  //if canEmit == false, then you received these changes and should not emit them again
+  //if gameState changes, emit the changes, only if it's your turn 
   useEffect(() => {
     //checkBuildActions();
-   // checkVictory();
-    if(canEmit)
+    if(isMounted)
+      checkVictory();
+    if(canEmit & isMounted) {
       socket.emit('state-change', ({gameState, matchID}));
       console.log(gameState);
+    }
   }, [gameState]);
 
    
   //useEffects for socket listeners
   useEffect(()=> {
 
-    //when a new state change is received, set gameState to what it was and check if you're the current player
+    //received once at the beginning of the game 
+    socket.once('initial-state', gameState => {
+      setGameState(gameState);
+      setIsMounted(true);
+
+      //if you're player 1, you can make a move
+      if(seatNum === 0) {
+        setTurnEnabled(true);
+        setCanEmit(true);
+      }
+    })
+
+    //when a new state change is received, update gameState, check if current player
     socket.on('state-change', (newState) => {
       setGameState(newState);
-      console.log('hi');
       if(seatNum === newState.currentPlayer) {
         setTurnEnabled(true);
         setCanEmit(true);
@@ -112,7 +135,9 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const [longestRoad, setLongestRoad] = useState(4);
     const [longestRoadPlayer, setLongestRoadPlayer] = useState();
     const [victory, setVictory] = useState(false);
+    const [phase, setPhase] = useState('initRound1');
     const navigate = useNavigate();
+
 
 
     //button settings
@@ -134,25 +159,35 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const portNums = [ "3:1 ?", "2:1 Wheat", "2:1 Ore", "3:1 ?", "2:1 Sheep", "3:1 ?", "3:1 ?", "2:1 Brick", "2:1 Wood"
     ];
 
+    
     useEffect(() => {
-      moves.setPlayerColors();
+      if(isMounted) {
+        console.log(gameState);
+        setGameState(setPlayerColors(gameState));
       updateHexes(renderHexTiles());
-    }, []);
+      }
+    }, [isMounted]);
 
+
+  
     useEffect(() => {
-      if (gameState.longestRoad != longestRoad) {
+      if (isMounted && gameState.longestRoad != longestRoad) {
         setLongestRoad(gameState.longestRoad)
         setLongestRoadPlayer(gameState.currentPlayer)
       }
-    }, [gameState.longestRoad])
+    }, [isMounted, gameState.longestRoad])
+    
+  
+    useEffect(() => {
+      if(isMounted)
+        addInitialResources(gameState, 0, 'settlements')
+    }, [isMounted, firstRounds])
 
     useEffect(() => {
-      moves.addInitialResources(0, 'settlements')
-    }, [firstRounds])
-
-    useEffect(() => {
-      moves.setHexMap(hexes);
-    }, [hexes]);
+      if(isMounted)
+        setHexMap(hexes);
+    }, [isMounted, hexes])
+    
 
     //begin turn
     const playTurn = () => {
@@ -161,22 +196,22 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     }
 
     const handleAddResources = id => {
-      moves.addDevelopmentResources();
+      addDevelopmentResources();
     }
 
     const handleDraw = id => {
-      moves.drawDevelopmentCard();
+      drawDevelopmentCard();
     }
 
     const handleVictoryCard = id => {
-      moves.playVictoryCard();
+      playVictoryCard();
     }
 
     const handleMonopoly = (choice) => {
       if (!monopolyPlayed)
         setMonopolyPlayed(true);
       else {
-        moves.playMonopoly(choice);
+        playMonopoly(choice);
         setMonopolyPlayed(false);
       }
     }
@@ -197,21 +232,24 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
             setFirstChoice('ore');
         }
         else {
-          moves.playYearOfPlenty(plentyFirstChoice, choice2);
+          playYearOfPlenty(plentyFirstChoice, choice2);
           setFirstChoice('');
           setPlentyPlayed(false);
         }
     }
 
-    //function handleEndTurn() {
     const handleEndTurn = () => {
       setdiceRolled(false);
       setTurnEnabled(false);
       setBuildSettlement(false);
       setGameStart(false)
+
       if (gameState.turn >= gameState.players.length * 2)
         setFirstRounds(false)
-        socket.emit('turn-end', ({gameState, matchID}));
+
+      //emit state at end of turn, then 'turn off' socket emitter
+      socket.emit('turn-end', ({gameState, matchID}));
+      setCanEmit(false);
     }
 
     const startGame = () => {
@@ -239,18 +277,18 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
          
   const onEdgeClick = (e, i) => {
     if (roadButtonPushed)
-      moves.addRoad(e, i, edges);
+      addRoad(e, i, edges);
     canBuildRoad(false);
-    moves.checkLongestRoad(longestRoad, longestRoadPlayer);
+    checkLongestRoad(longestRoad, longestRoadPlayer);
   }
 
   const onVertexClick = (e, i) => {
     if (settlementButtonPushed) {
-      moves.addSettlement(e, i, vertices);
+      addSettlement(e, i, vertices);
       canBuildSettlement(false);
     }
     else if (upgradeButtonPushed) {
-      moves.upgradeSettlement(e, i,vertices);
+      upgradeSettlement(e, i,vertices);
       canUpgradeSettlement(false);
     }
   }
@@ -304,7 +342,10 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
 
   const checkVictory = ()=> {
     if(gameState.players[gameState.currentPlayer].score >= 10)
+    if(!victory) {
       setVictory(true);
+      socket.emit('winner', ({matchID, sessionID}));
+    }
   }
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
@@ -313,19 +354,20 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
      {isMounted &&  <div className="GameBoard">
             <div className='board-text board-header'>
               <div className='board-header-center'>
-                <div className='current-player'> {gameState.currentPlayer == seatNum ? "Your Turn!" : "Player" + gameState.currentPlayer + 1 +'s turn!' }
-                </div>
+                {!victory && <div className='current-player'> {gameState.currentPlayer == seatNum ? "Your Turn!" : matchInfo.players[gameState.currentPlayer] +'s turn!' }
+                </div>}
                 <div>
-                    {!firstRounds && !diceRolled && turnEnabled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
-                    {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {firstPhasesComplete() && diceRolled && turnEnabled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {!firstRounds && !diceRolled && turnEnabled && !victory &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {!gameStart && firstRounds && !victory && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
+                     { (diceRolled && turnEnabled) && !victory && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
                   {/*!firstRounds && diceRolled && <text>You rolled: {gameState.currentPlayer.diceRoll}</text>*/}
-                  {!firstRounds && !gameStart && !diceRolled && turnEnabled && <text>Roll The Dice!</text>}
-                  {diceRolled && turnEnabled && !firstRounds && <text>You Rolled a {gameState.currentRoll} </text>}
-                  {!turnEnabled && !firstRounds && <text>Player {gameState.currentPlayer +1} rolled a {gameState.currentRoll}</text>}
+                  {!firstRounds && !gameStart && !diceRolled && !victory && turnEnabled && <text>Roll The Dice!</text>}
+                  {diceRolled && turnEnabled && !firstRounds && !victory && <text>You Rolled a {gameState.currentRoll} </text>}
+                  {!turnEnabled && !firstRounds && !victory && <text>{matchInfo.players[gameState.currentPlayer]} rolled a {gameState.currentRoll}</text>}
+                  {victory && <text>Game Over!</text>}
                 </div>
               </div>
             </div>
@@ -423,7 +465,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
             <tbody>
               {gameState.players.map((player, index) => (
                 <tr key={index} className={index === gameState.currentPlayer ? 'current-player' : ''}>
-                  <td style={{color: player.color}}>Player{index + 1}</td>
+                  <td style={{color: player.color}}>{matchInfo.players[index]}</td>
                   <td>{player.score}</td>
                  </tr> 
               ))}
@@ -445,15 +487,16 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         <table className='end-game-scoreboard'>
           {gameState.players.map((player, index) => (
             <tr key={index} className={index === gameState.currentPlayer ? 'current-player' : ''}>
-              <td>Player {index + 1}</td>
+              <td>{matchInfo.players[index]}</td>
               <td>{player.score}</td>
             </tr>
           ))}
         </table>
-        <button onClick={ () => {navigate('/PassAndPLay')}}>Play Again!</button>
+        <button onClick={ () => {navigate('/Play')}}>Play Again!</button>
         <button onClick={ () => {navigate('/')}}>No Thanks</button>
       </div>}
     </div>}
+    {!isMounted && <div>Initializing Game...</div>}
    </div>
   );
 }

@@ -347,7 +347,7 @@ export const settlersOffKatan = numPlayers => ({
         currentPlayer: 0,
         turn: 0,
         currentRoll:0,
-
+        phase: 'initRound1',
         winner: 0,
         gameOver: false,
         longestRoad: 4

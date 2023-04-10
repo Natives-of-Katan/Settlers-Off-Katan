@@ -18,6 +18,7 @@ var corsOptions = {
     origin: '*', 
     optionsSuccessStatus: 200
 }
+const initialize = require('./onlineState');
 
 let gamesList = [];
 
@@ -62,7 +63,10 @@ socketServer.on('connect', (socket) => {
     socket.on('create-lobby', (lobbyObject) => {
         console.log('match ID is %s and player name is %s', lobbyObject.matchID, lobbyObject.name)
         let players = [];
+        let sessionIDs = [];
         players.push(lobbyObject.name);
+        sessionIDs.push(lobbyObject.sessionID);
+
         const game = {
             code: lobbyObject.matchID,
             players: players
@@ -73,8 +77,10 @@ socketServer.on('connect', (socket) => {
         const storeGame = {
             matchID: lobbyObject.matchID,
             socketIDs: playerSockets,
-            players: players
+            players: players,
+            sessionIDs: sessionIDs
         }
+
 
         gamesList.push(storeGame);
         console.log(gamesList);
@@ -124,30 +130,57 @@ socketServer.on('connect', (socket) => {
             }
         })
 
+    //server sends initial game state
+    socket.on('ready', (matchID) => {
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        const numPlayers = gamesList[index].players.length;
+        const gameState = initialize(numPlayers);
+        gamesList[index].socketIDs.forEach(socketID => {
+                socketServer.to(socketID).emit('initial-state', gameState)
+        })
+    })
+
+
    socket.on('state-change', ({gameState, matchID}) => {
-        console.log(gamesList);
         console.log('state change for match %d', matchID);
-        console.log(gameState);
-        //find the game 
-        const index = gamesList.findIndex(game => matchID === matchID);
-        console.log(index);
+        const index = gamesList.findIndex(game => game.matchID === matchID);
         gamesList[index].socketIDs.forEach(socketID => {
             if(socketID != socket.id)
                 socketServer.to(socketID).emit('state-change', gameState)
         })
     })
 
+
     socket.on('turn-end', ({gameState, matchID}) => {
-    const newState = { ...gameState }
-    newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
-    newState.turn += 1;
-    console.log(newState);
-    const index = gamesList.findIndex(game => matchID === matchID);
-    gamesList[index].socketIDs.forEach(socketID => {
-                socketServer.to(socketID).emit('state-change', newState)
-                console.log('emit');
-        })
+        const newState = { ...gameState }
+        newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
+        newState.turn += 1;
+
+        //find the game, change phase if necessary
+        const index = gamesList.findIndex(game => matchID === matchID);
+        if(newState.turn == gamesList[index].players.length)
+            newState.phase = 'initRound2';
+        if(newState.turn == (gamesList[index].players.length * 2))
+            newState.phase = 'gameplay';
+
+        gamesList[index].socketIDs.forEach(socketID => {
+                    socketServer.to(socketID).emit('state-change', newState)
+            })
     })
+
+    socket.on('winner', async ({matchID, sessionID}) => {
+        console.log('winner');
+        const opts = {new:true};
+        const user = await User.findOneAndUpdate({"sessionID" : sessionID},
+        {
+        $inc: {
+            settlerWins: 1
+            }
+        },
+        opts
+    );
+    console.log(user);
+    });
 });
 
  

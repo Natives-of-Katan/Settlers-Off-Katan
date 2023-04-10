@@ -9,6 +9,8 @@ import {SeatNumberContext} from "./Contexts/SeatNumberContext";
 import { MatchInfoContext } from "./Contexts/MatchInfoContext";
 import { ProfileContext } from "./Contexts/ProfileContext";
 import { AuthContext } from "./Contexts/AuthContext";
+import { SessionContext } from "./Contexts/SessionContext";
+import { initialStateContext } from "./Contexts/initialStateContext";
 
 const Lobby = () => {
 
@@ -22,7 +24,9 @@ const Lobby = () => {
     const {setSeatNum} = useContext(SeatNumberContext);
     const {setMatchInfo} = useContext(MatchInfoContext);
     const {profile } = useContext(ProfileContext);
+    const { setInitialState} = useContext(initialStateContext);
     const {auth} = useContext(AuthContext);
+    const {sessionID} = useContext(SessionContext);
 
     //local vars
     const {matchID, setMatchID} = useContext(MatchIDContext);
@@ -85,7 +89,9 @@ const Lobby = () => {
     const createLobby = () => {
         socket.emit('create-lobby', {
             matchID: matchID,
-            name: name
+            name: name,
+            sessionID: sessionID,
+            auth: auth
         });
     }
 
@@ -94,6 +100,7 @@ const Lobby = () => {
         console.log('starting game');
         socket.emit('start-game', matchID);
     }
+    
 
     return(
         <div className="App">

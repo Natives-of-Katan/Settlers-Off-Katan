@@ -22,29 +22,20 @@ let boardVertices = new Map();
 let boardRoads = new Map();
 
 export const rollDice = (gameState) => {
-    const newState = { ...gameState }
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
-    newState.currentRoll = d1+d2; 
+    gameState.players[gameState.currentPlayer] +=1;
+    gameState.currentRoll = d1+d2; 
+    gameState.players[gameState.currentPlayer].score+=10;
 
-    if ( newState.currentRoll !== 7) {
+    if ( gameState.currentRoll !== 7) {
         // settlements and cities get different resources
-        addInitialResources({gameState: newState}, d1+d2, 'settlements')
-        addInitialResources({gameState: newState}, d1+d2, 'cities')
+        addInitialResources(gameState, d1+d2, 'settlements')
+        addInitialResources(gameState, d1+d2, 'cities')
     }
+} 
 
-    return newState;
-}  
-
-export const processEndTurn = (gameState) => {
-    const newState = { ...gameState }
-    newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
-    newState.turn += 1;
-
-    return newState;
-}
-
-const addInitialResources = ({gameState, ctx, playerID}, diceNum, property) => {
+export const addInitialResources = (gameState, diceNum, property) => {
     gameState.players.forEach((player) => {
         let playerProperties = property == 'settlements' ? player.settlements : player.cities;
         let settlementHexes = playerProperties.map((v) => { 
@@ -62,185 +53,191 @@ const addInitialResources = ({gameState, ctx, playerID}, diceNum, property) => {
     })
 }
 
-const setPlayerColors = ({gameState}) => {
+export const setPlayerColors = (gameState) => {
+    const newState = { ...gameState };
     const colors = ["gold", "blue", "violet", "brown"];
-    for (let i = 0; i < gameState.players.length; i++) {
-        gameState.players[i].color = colors[i];
+    for (let i = 0; i < newState.players.length; i++) {
+        newState.players[i] = {...newState.players[i], color: colors[i]};
     }
+    return newState;
 }
 
-const addSettlement = ({gameState, playerID, ctx}, vertex, i, vertices) => {
+export const addSettlement = (gameState, vertex, i, vertices) => {
     const newVertex = {...vertex}
     const newProps = {...newVertex.props}
     // check if the vertex is taken
-    if (vertexAvailable(vertex, hexes) && (firstSettlements(gameState, ctx, playerID) || 
-    (ctx.turn > gameState.players.length * 2 && vertexConnectsRoad(vertex, hexes, gameState.players[playerID].color)))) 
+    if (vertexAvailable(vertex, hexes) && (firstSettlements(gameState) || 
+    (gameState.turn > gameState.players.length * 2 && vertexConnectsRoad(vertex, hexes, gameState.players[gameState.currentPlayer].color)))) 
     {
-        if (!firstSettlements(gameState, ctx, playerID)) {
-            gameState.players[playerID].resources.wood -=1;
-            gameState.players[playerID].resources.sheep -= 1;
-            gameState.players[playerID].resources.wheat -= 1;
-            gameState.players[playerID].resources.brick -= 1;
+        if (!firstSettlements(gameState)) {
+            gameState.players[gameState.currentPlayer].resources.wood -=1;
+            gameState.players[gameState.currentPlayer].resources.sheep -= 1;
+            gameState.players[gameState.currentPlayer].resources.wheat -= 1;
+            gameState.players[gameState.currentPlayer].resources.brick -= 1;
         }
         newProps.type = 'settlement';
-        newProps.user = gameState.players[playerID].color;
+        newProps.user = gameState.players[gameState.currentPlayer].color;
         newProps.classes = 'active';
         newVertex.props = newProps
 
         vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
         boardVertices.set(vertex.props.id, newVertex)
-        gameState.players[playerID].score += 1;
-        gameState.players[playerID].settlements.push(newVertex.props.id);
+        gameState.players[gameState.currentPlayer].score += 1;
+        gameState.players[gameState.currentPlayer].settlements.push(newVertex.props.id);
     }  
 }
 
-const upgradeSettlement = ({gameState, playerID}, vertex, i, vertices) => {
-    if (vertex.props.stroke == gameState.players[playerID].user ) {
+const upgradeSettlement = (gameState, vertex, i, vertices) => {
+    if (vertex.props.stroke == gameState.players[gameState.currentPlayer].user ) {
         const newVertex = {...vertex}
         const newProps = {...newVertex.props}
         newProps.type = 'city';
         newVertex.props = newProps;
 
         // add to cities list, remove from settlements
-        gameState.players[playerID].cities.push(vertex.props.id);
+        gameState.players[gameState.currentPlayer].cities.push(vertex.props.id);
         boardVertices.set(vertex.props.id, newVertex)
-        gameState.players[playerID].settlements = gameState.players[playerID].settlements.filter(function(item) {
+        gameState.players[gameState.currentPlayer].settlements = gameState.players[gameState.currentPlayer].settlements.filter(function(item) {
             return item !== vertex.props.id
         })
         // update board state and resources
         vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
-        gameState.players[playerID].resources.wheat -= 2;
-        gameState.players[playerID].resources.ore -= 3;
-        gameState.players[playerID].score += 1;
+        gameState.players[gameState.currentPlayer].resources.wheat -= 2;
+        gameState.players[gameState.currentPlayer].resources.ore -= 3;
+        gameState.players[gameState.currentPlayer].score += 1;
     }
 }
 
-const firstSettlements = (gameState, ctx, playerID) => {
-    return ((ctx.turn <= gameState.players.length && gameState.players[playerID].settlements.length == 0) 
-        || (ctx.turn > gameState.players.length && gameState.players[playerID].settlements.length == 1 ))
+const firstSettlements = (gameState) => {
+    return ((gameState.turn <= gameState.players.length && gameState.players[gameState.currentPlayer].settlements.length == 0) 
+        || (gameState.turn > gameState.players.length && gameState.players[gameState.currentPlayer].settlements.length == 1 ))
 }
 
-const firstRoads = (gameState, ctx, playerID, e, hexes, color) => {
+const firstRoads = (gameState, e, hexes, color) => {
     if (initRoadPlacement(e, hexes, color))
-        return ((ctx.phase == 'initRound1' && gameState.players[playerID].settlements.length == 1 
-        && gameState.players[playerID].roads.length == 0) || ctx.phase == 'initRound2' 
-        && gameState.players[playerID].roads.length == 1)
+        return ((gameState.phase == 'initRound1' && gameState.players[gameState.currentPlayer].settlements.length == 1 
+        && gameState.players[gameState.currentPlayer].roads.length == 0) || gameState.phase == 'initRound2' 
+        && gameState.players[gameState.currentPlayer].roads.length == 1)
     return false;
 }
 
-const addRoad = ({gameState, playerID, ctx}, edge, i, edges) => {
+export const addRoad = (gameState, edge, i, edges) => {
     // new properties
     const newEdge = {...edge}
     const newProps = {...newEdge.props}
-    newProps.stroke =  gameState.players[playerID].color;
+    newProps.stroke =  gameState.players[gameState.currentPlayer].color;
     newProps.classes = newProps.classes + "active";
     newEdge.props = newProps;
     // if edge is available
-    const firstRounds = firstRoads(gameState, ctx, playerID, edge, hexes, gameState.players[playerID].color);
-    if (edgeAvailable(edge, hexes) && (firstRounds|| (ctx.turn > gameState.players.length * 2 && 
-        edgeConnectsProperty(edge, hexes, gameState.players[playerID].color)))) {
+    const firstRounds = firstRoads(gameState, edge, hexes, gameState.players[gameState.currentPlayer].color);
+    if (edgeAvailable(edge, hexes) && (firstRounds|| (gameState.turn > gameState.players.length * 2 && 
+        edgeConnectsProperty(edge, hexes, gameState.players[gameState.currentPlayer].color)))) {
         edges = edges[i][edges[i].indexOf(edge)] = newEdge;
         if (!firstRounds) {
-            gameState.players[playerID].resources.wood -= 1;
-            gameState.players[playerID].resources.brick -= 1;
+            gameState.players[gameState.currentPlayer].resources.wood -= 1;
+            gameState.players[gameState.currentPlayer].resources.brick -= 1;
         }
-        gameState.players[playerID].roads.push(newEdge.props.id);
+        gameState.players[gameState.currentPlayer].roads.push(newEdge.props.id);
         boardRoads.set(newEdge.props.id, newEdge)
     }
 }
 
-const addDevelopmentResources = ({gameState, playerID}) => {
-    gameState.players[playerID].resources.sheep += 1;
-    gameState.players[playerID].resources.wheat += 1;
-    gameState.players[playerID].resources.ore += 1;
-    gameState.players[playerID].resources.brick += 1;
-    gameState.players[playerID].resources.wood += 1;
-    gameState.players[playerID].developmentCards.knight += 1;
-    gameState.players[playerID].developmentCards.victory += 1;
-    gameState.players[playerID].developmentCards.monopoly += 1;
-    gameState.players[playerID].developmentCards.road += 1;
-    gameState.players[playerID].developmentCards.plenty += 1;
+export const addDevelopmentResources = (gameState) => {
+    gameState.players[gameState.currentPlayer].resources.sheep += 1;
+    gameState.players[gameState.currentPlayer].resources.wheat += 1;
+    gameState.players[gameState.currentPlayer].resources.ore += 1;
+    gameState.players[gameState.currentPlayer].resources.brick += 1;
+    gameState.players[gameState.currentPlayer].resources.wood += 1;
+    gameState.players[gameState.currentPlayer].developmentCards.knight += 1;
+    gameState.players[gameState.currentPlayer].developmentCards.victory += 1;
+    gameState.players[gameState.currentPlayer].developmentCards.monopoly += 1;
+    gameState.players[gameState.currentPlayer].developmentCards.road += 1;
+    gameState.players[gameState.currentPlayer].developmentCards.plenty += 1;
 }
 
-const drawDevelopmentCard = ({gameState, playerID}) => {
+export const drawDevelopmentCard = (gameState) => {
+    const current = gameState.currentPlayer;
     //Checks if the player has the required resources and that the deck has at least 1 card in it
-    if (gameState.players[playerID].resources.sheep > 0 && gameState.players[playerID].resources.wheat > 0 && gameState.players[playerID].resources.ore > 0 && gameState.deck.knight+gameState.deck.victory+gameState.deck.monopoly+gameState.deck.plenty+gameState.deck.road > 0) {
+    if (gameState.players[current].resources.sheep > 0 && gameState.players[current].resources.wheat > 0 && gameState.players[current].resources.ore > 0 && gameState.deck.knight + gameState.deck.victory + gameState.deck.monopoly + gameState.deck.plenty + gameState.deck.road > 0) {
         
         //Determines what card will be drawn
         const drawnCard = 1+Math.floor(Math.random() * (gameState.deck.knight+gameState.deck.victory+gameState.deck.monopoly+gameState.deck.plenty+gameState.deck.road));
         
         //Subtracts the resources from the player
-        gameState.players[playerID].resources.sheep -= 1;
-        gameState.players[playerID].resources.wheat -= 1;
-        gameState.players[playerID].resources.ore -= 1;
+        gameState.players[current].resources.sheep -= 1;
+        gameState.players[current].resources.wheat -= 1;
+        gameState.players[current].resources.ore -= 1;
         
         //Adds card to player's hand and removes it from the deck
         if (drawnCard <= gameState.deck.knight) {
-            gameState.players[playerID].developmentCards.knight += 1;
+            gameState.players[current].developmentCards.knight += 1;
             gameState.deck.knight -= 1;
         }
         else if (drawnCard <= (gameState.deck.knight+gameState.deck.victory)) {
-            gameState.players[playerID].developmentCards.victory += 1;
+            gameState.players[current].developmentCards.victory += 1;
             gameState.deck.victory -= 1;
         }
         else if (drawnCard <= (gameState.deck.knight+gameState.deck.victory+gameState.deck.monopoly)) {
-            gameState.players[playerID].developmentCards.monopoly += 1;
+            gameState.players[current].developmentCards.monopoly += 1;
             gameState.deck.monopoly -= 1;
         }
         else if (drawnCard <= (gameState.deck.knight+gameState.deck.victory+gameState.deck.monopoly+gameState.deck.plenty)) {
-            gameState.players[playerID].developmentCards.plenty += 1;
+            gameState.players[current].developmentCards.plenty += 1;
             gameState.deck.plenty -= 1;
         }
-        else if (drawnCard <= (gameState.deck.knight+gameState.deck.victory+gameState.deck.monopoly+gameState.deck.plenty+gameState.deck.road)) {
-            gameState.players[playerID].developmentCards.road += 1;
+        else if (drawnCard <= (gameState.deck.knight + gameState.deck.victory + gameState.deck.monopoly + gameState.deck.plenty + gameState.deck.road)) {
+            gameState.players[current].developmentCards.road += 1;
             gameState.deck.road -= 1;
         }
     }
 }
 
-const playVictoryCard = ({gameState, playerID}) => {
-    if (gameState.players[playerID].developmentCards.victory > 0) {
-        gameState.players[playerID].developmentCards.victory -= 1;
-        gameState.players[playerID].score += 1;
-        gameState.players[playerID].canPlayCard = false;
+export const playVictoryCard = (gameState) => {
+    const current = gameState.currentPlayer;
+    if (gameState.players[current].developmentCards.victory > 0) {
+        gameState.players[current].developmentCards.victory -= 1;
+        gameState.players[current].score += 1;
+        gameState.players[current].canPlayCard = false;
     }
 }
 
-const playYearOfPlenty = ({gameState , playerID}, choice1, choice2) => {
-    if (gameState.players[playerID].developmentCards.plenty > 0) {
+export const playYearOfPlenty = (gameState, choice1, choice2) => {
+    const current = gameState.currentPlayer;
+    if (gameState.players[current].developmentCards.plenty > 0) {
 
-        gameState.players[playerID].developmentCards.plenty -=1;
-        gameState.players[playerID].canPlayCard = false;
+        gameState.players[current].developmentCards.plenty -=1;
+        gameState.players[current].canPlayCard = false;
 
         if (choice1 === 'wheat') 
-            gameState.players[playerID].resources.wheat += 1;
+            gameState.players[current].resources.wheat += 1;
         else if (choice1 === 'sheep') 
-            gameState.players[playerID].resources.sheep += 1;
+            gameState.players[current].resources.sheep += 1;
         else if (choice1 === 'wood') 
-            gameState.players[playerID].resources.wood += 1;
+            gameState.players[current].resources.wood += 1;
         else if (choice1 === 'brick') 
-            gameState.players[playerID].resources.brick += 1;
+            gameState.players[current].resources.brick += 1;
         else if (choice1 === 'ore') 
-            gameState.players[playerID].resources.ore += 1;
+            gameState.players[current].resources.ore += 1;
 
         if (choice2 === 'wheat') 
-            gameState.players[playerID].resources.wheat += 1;
+            gameState.players[current].resources.wheat += 1;
         else if (choice2 === 'sheep') 
-            gameState.players[playerID].resources.sheep += 1;
+            gameState.players[current].resources.sheep += 1;
         else if (choice2 === 'wood') 
-            gameState.players[playerID].resources.wood += 1;
+            gameState.players[current].resources.wood += 1;
         else if (choice2 === 'brick') 
-            gameState.players[playerID].resources.brick += 1;
+            gameState.players[current].resources.brick += 1;
         else if (choice2 === 'ore') 
-            gameState.players[playerID].resources.ore += 1; 
+            gameState.players[current].resources.ore += 1; 
     }
 }
 
-const playMonopoly = ({gameState, playerID}, choice) => {
-    if (gameState.players[playerID].developmentCards.monopoly > 0) {
+export const playMonopoly = (gameState, choice) => {
+    const current = gameState.currentPlayer;
+    if (gameState.players[current].developmentCards.monopoly > 0) {
 
-        gameState.players[playerID].developmentCards.monopoly -= 1;
-        gameState.players[playerID].canPlayCard = false;
+        gameState.players[current].developmentCards.monopoly -= 1;
+        gameState.players[current].canPlayCard = false;
         
         let numResource = 0;
         
@@ -251,7 +248,7 @@ const playMonopoly = ({gameState, playerID}, choice) => {
                 gameState.players[i].resources.wheat = 0;
             }
 
-            gameState.players[playerID].resources.wheat = numResource;
+            gameState.players[current].resources.wheat = numResource;
         }
         else if (choice === 'sheep') {
             for (let i = 0; i < gameState.players.length; i++) {
@@ -259,7 +256,7 @@ const playMonopoly = ({gameState, playerID}, choice) => {
                 gameState.players[i].resources.sheep = 0;
             }
 
-            gameState.players[playerID].resources.sheep = numResource;
+            gameState.players[current].resources.sheep = numResource;
         }
         else if (choice === 'wood') {
             for (let i = 0; i < gameState.players.length; i++) {
@@ -267,7 +264,7 @@ const playMonopoly = ({gameState, playerID}, choice) => {
                 gameState.players[i].resources.wood = 0;
             }
 
-            gameState.players[playerID].resources.wood = numResource;
+            gameState.players[current].resources.wood = numResource;
         }
         else if (choice === 'brick') {
             for (let i = 0; i < gameState.players.length; i++) {
@@ -275,7 +272,7 @@ const playMonopoly = ({gameState, playerID}, choice) => {
                 gameState.players[i].resources.brick = 0;
             }
 
-            gameState.players[playerID].resources.brick = numResource;
+            gameState.players[current].resources.brick = numResource;
         }
         else if (choice === 'ore') {
             for (let i = 0; i < gameState.players.length; i++) {
@@ -283,24 +280,24 @@ const playMonopoly = ({gameState, playerID}, choice) => {
                 gameState.players[i].resources.ore = 0;
             }
 
-            gameState.players[playerID].resources.ore = numResource;
+            gameState.players[current].resources.ore = numResource;
         }
     }
 }
 
-const resetDevPlays = ({gameState, ctx}) => {
-    gameState.players[ctx.currentPlayer].canPlayCard = true;
+const resetDevPlays = (gameState) => {
+    gameState.players[gameState.currentPlayer].canPlayCard = true;
 }
 
-const setHexMap = ({gameState, ctx}, h) => {
+export const setHexMap = (h) => {
     h.map((hex) => (
         hexes.set("q: " + hex.props.q + ", r: " + hex.props.r + ", s: " + hex.props.s, hex)
     ))
 }
 
-export const checkLongestRoad = ({gameState, ctx}, longestNum, prevWinner) => {
+export const checkLongestRoad = (gameState, longestNum, prevWinner) => {
     // get player roads from map
-    const playerRoads = gameState.players[ctx.currentPlayer].roads.map((r) => (
+    const playerRoads = gameState.players[gameState.currentPlayer].roads.map((r) => (
         boardRoads.get(r)
     ))
     let longestPlayerRoad = longestRoad(playerRoads, hexes);
@@ -310,9 +307,9 @@ export const checkLongestRoad = ({gameState, ctx}, longestNum, prevWinner) => {
             gameState.players[prevWinner].longestRoad = false;
             gameState.players[prevWinner].score -= 1;
         }
-        gameState.players[ctx.currentPlayer].longestRoad = true;
+        gameState.players[gameState.currentPlayer].longestRoad = true;
         gameState.longestRoad = longestPlayerRoad;
-        gameState.players[ctx.currentPlayer].score += 1;
+        gameState.players[gameState.currentPlayer].score += 1;
     }
 }
 
