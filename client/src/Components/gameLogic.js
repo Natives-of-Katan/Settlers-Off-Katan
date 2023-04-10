@@ -156,11 +156,13 @@ const addDevelopmentResources = ({G, playerID}) => {
     G.players[playerID].resources.ore += 1;
     G.players[playerID].resources.brick += 1;
     G.players[playerID].resources.wood += 1;
+    /*
     G.players[playerID].developmentCards.knight += 1;
     G.players[playerID].developmentCards.victory += 1;
     G.players[playerID].developmentCards.monopoly += 1;
     G.players[playerID].developmentCards.road += 1;
     G.players[playerID].developmentCards.plenty += 1;
+    */
 }
 
 const drawDevelopmentCard = ({G, playerID}) => {
@@ -177,7 +179,7 @@ const drawDevelopmentCard = ({G, playerID}) => {
         
         //Adds card to player's hand and removes it from the deck
         if (drawnCard <= G.deck.knight) {
-            G.players[playerID].developmentCards.knight += 1;
+            G.players[playerID].newDevelopmentCards.knight += 1;
             G.deck.knight -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory)) {
@@ -185,24 +187,40 @@ const drawDevelopmentCard = ({G, playerID}) => {
             G.deck.victory -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly)) {
-            G.players[playerID].developmentCards.monopoly += 1;
+            G.players[playerID].newDevelopmentCards.monopoly += 1;
             G.deck.monopoly -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty)) {
-            G.players[playerID].developmentCards.plenty += 1;
+            G.players[playerID].newDevelopmentCards.plenty += 1;
             G.deck.plenty -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty+G.deck.road)) {
-            G.players[playerID].developmentCards.road += 1;
+            G.players[playerID].newDevelopmentCards.road += 1;
             G.deck.road -= 1;
         }
     }
+}
+
+const updateDevelopmentCards = ({G, playerID}) => {
+    G.players[playerID].developmentCards.knight =+ G.players[playerID].newDevelopmentCards.knight;
+    G.players[playerID].newDevelopmentCards.knight = 0;
+
+    G.players[playerID].developmentCards.monopoly =+ G.players[playerID].newDevelopmentCards.monopoly;
+    G.players[playerID].newDevelopmentCards.monopoly = 0;
+
+    G.players[playerID].developmentCards.plenty =+ G.players[playerID].newDevelopmentCards.plenty;
+    G.players[playerID].newDevelopmentCards.plenty = 0;
+
+    G.players[playerID].developmentCards.road =+ G.players[playerID].newDevelopmentCards.road;
+    G.players[playerID].newDevelopmentCards.road = 0;
+
 }
 
 const playKnight = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.knight > 0) {
         G.players[playerID].developmentCards.knight -= 1;
         G.players[playerID].playedKnights++;
+        G.players[playerID].canPlayCard = false;
 
         if (G.players[playerID].playedKnights > G.largestArmy && G.largestArmy < 2) {
             G.largestArmy = G.players[playerID].playedKnights;
@@ -424,6 +442,12 @@ export const settlersOffKatan = numPlayers => ({
                 road: 0,
                 plenty: 0
             },
+            newDevelopmentCards: {
+                knight: 0,
+                monopoly: 0,
+                road: 0,
+                plenty: 0
+            },
             playedKnights: 0,
             largestArmyCard: 0,
             diceRoll: 0,
@@ -493,7 +517,8 @@ export const settlersOffKatan = numPlayers => ({
         playKnight,
         upgradeSettlement,
         addInitialResources,
-        checkLongestRoad
+        checkLongestRoad,
+        updateDevelopmentCards
     }
 });
 

@@ -179,6 +179,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setdiceRolled(false);
       setBuildSettlement(false);
       setGameStart(false);
+      moves.updateDevelopmentCards();
       if (ctx.turn >= G.players.length * 2)
         setFirstRounds(false)
     }
@@ -312,7 +313,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     else
       setUpgradeSettlement(false)
 
-    if(currentPlayer.resources.sheep >= 1 && currentPlayer.resources.ore >= 1 && currentPlayer.resources.wheat > 1)
+    if(currentPlayer.resources.sheep >= 1 && currentPlayer.resources.ore >= 1 && currentPlayer.resources.wheat >= 1)
       setBuyCard(true);
     else
       setBuyCard(false);
@@ -389,7 +390,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
                 {(gameStart || buildRoad) && !roadPlayed && !movingRobber && !monopolyPlayed && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 
                 {buyCard && !firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleDraw}>Buy Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}
-                {!firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleAddResources}>Add 1 of each resource and development card (this button is for dev purposes)</button>}
+                {!firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleAddResources}>Add 1 of each resource (this button is for dev purposes)</button>}
         
 
                 {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.knight > 0 && !monopolyPlayed && !roadPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && plentyFirstChoice === '' && <button onClick={() => handleKnight()}>Play Knight (Move the robber and steal a resource)</button>}
