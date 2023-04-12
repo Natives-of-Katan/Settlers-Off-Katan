@@ -393,17 +393,18 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       <div className="GameBoard">
             <div className='board-text board-header'>
               <div className='board-header-center'>
-                <div className='current-player'>Player {Number(ctx.currentPlayer) + 1}
+                {!victory && <div className='current-player'>Player {Number(ctx.currentPlayer) + 1} 
+                </div>}
+                <div>
+                    {!firstRounds && !diceRolled && !victory &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {!gameStart && firstRounds && !victory && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
+                    {firstPhasesComplete() && diceRolled && !victory && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
-                    {!firstRounds && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
-                    {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {firstPhasesComplete() && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
-                </div>
-                <div>
-                  {gameStart && <text>Place settlement and road</text>}
-                  {!firstRounds && diceRolled && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
-                  {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
+                  {gameStart && !victory && <text>Place settlement and road</text>}
+                  {!firstRounds && diceRolled && !victory &&  <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
+                  {!firstRounds && !gameStart && !diceRolled && !victory && <text>Roll The Dice!</text>}
+                  {victory && <text>Game Over!</text>}
                 </div>
               </div>
             </div>
