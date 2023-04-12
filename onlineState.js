@@ -8,7 +8,8 @@
              plenty: 2
          },
          players: Array(num).fill().map( () => ({
-             score: 0,
+            //score of 10 will be removed in production
+             score: 10,
              color: "black",
              resources: {
                  wheat: 0,

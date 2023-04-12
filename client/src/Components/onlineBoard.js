@@ -72,6 +72,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       socket.emit('state-change', ({gameState, matchID}));
       console.log(gameState);
     }
+    if(gameState.phase === 'gameplay')
+      setFirstRounds(false);
   }, [gameState]);
 
    
@@ -86,14 +88,14 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       //if you're player 1, you can make a move
       if(seatNum === 0) {
         setTurnEnabled(true);
-        setCanEmit(true);
       }
-    })
+    },[gameState])
 
     //when a new state change is received, update gameState, check if current player
     socket.on('state-change', (newState) => {
       setGameState(newState);
       if(seatNum === newState.currentPlayer) {
+        console.log('your turn');
         setTurnEnabled(true);
         setCanEmit(true);
       }
@@ -101,7 +103,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         setTurnEnabled(false);
         setCanEmit(false);
       }
-      console.log('new state received:\n %s', newState);
+      console.log('new state received:\n ');
+      console.log(newState);
     })
 
   },[socket]);
@@ -122,7 +125,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const [roadButtonPushed, canBuildRoad] = useState(false);
     const [settlementButtonPushed, canBuildSettlement] = useState(false);
     const [upgradeButtonPushed, canUpgradeSettlement] = useState(false);
-    const [firstRounds, setFirstRounds] = useState(G.turn < G.players.length * 2);
+    const [firstRounds, setFirstRounds] = useState(true);
     const [gameStart, setGameStart] = useState(false);
 
     const [diceRolled, setdiceRolled] = useState(false);
@@ -175,7 +178,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         setLongestRoad(gameState.longestRoad)
         setLongestRoadPlayer(gameState.currentPlayer)
       }
-    }, [isMounted, gameState.longestRoad])
+    }, [gameState.longestRoad])
     
   
     useEffect(() => {
@@ -196,22 +199,22 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     }
 
     const handleAddResources = id => {
-      addDevelopmentResources();
+      addDevelopmentResources(gameState);
     }
 
     const handleDraw = id => {
-      drawDevelopmentCard();
+      drawDevelopmentCard(gameState);
     }
 
     const handleVictoryCard = id => {
-      playVictoryCard();
+      playVictoryCard(gameState);
     }
 
     const handleMonopoly = (choice) => {
       if (!monopolyPlayed)
         setMonopolyPlayed(true);
       else {
-        playMonopoly(choice);
+        playMonopoly(gameState, choice);
         setMonopolyPlayed(false);
       }
     }
@@ -232,7 +235,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
             setFirstChoice('ore');
         }
         else {
-          playYearOfPlenty(plentyFirstChoice, choice2);
+          playYearOfPlenty(gameState, plentyFirstChoice, choice2);
           setFirstChoice('');
           setPlentyPlayed(false);
         }
@@ -243,9 +246,6 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       setTurnEnabled(false);
       setBuildSettlement(false);
       setGameStart(false)
-
-      if (gameState.turn >= gameState.players.length * 2)
-        setFirstRounds(false)
 
       //emit state at end of turn, then 'turn off' socket emitter
       socket.emit('turn-end', ({gameState, matchID}));
@@ -277,18 +277,18 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
          
   const onEdgeClick = (e, i) => {
     if (roadButtonPushed)
-      addRoad(e, i, edges);
+      setGameState(addRoad(gameState, e, i, edges));
     canBuildRoad(false);
-    checkLongestRoad(longestRoad, longestRoadPlayer);
+    checkLongestRoad(gameState, longestRoad, longestRoadPlayer);
   }
 
   const onVertexClick = (e, i) => {
     if (settlementButtonPushed) {
-      addSettlement(e, i, vertices);
+      setGameState(addSettlement(gameState, e, i, vertices));
       canBuildSettlement(false);
     }
     else if (upgradeButtonPushed) {
-      upgradeSettlement(e, i,vertices);
+      upgradeSettlement(gameState, e, i,vertices);
       canUpgradeSettlement(false);
     }
   }
@@ -303,11 +303,11 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       vertices={vertices[i]} edges={edges[i]} onClick={() => getResource(tileResource[i])}>
       { 
         edges[i].map((e) => (
-        <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
+        <Edge {...e.props} onClick={() => {onEdgeClick(e, i)}}></Edge>
         ))}
       { 
         vertices[i].map((v) => (
-        <Vertex {...v.props} onClick={() => onVertexClick(v, i)}></Vertex>
+        <Vertex {...v.props} onClick={() => {onVertexClick(v, i)}}></Vertex>
         ))}
         <Text>{tileNums[i]}</Text>
       </CustomHex>
@@ -357,9 +357,9 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
                 {!victory && <div className='current-player'> {gameState.currentPlayer == seatNum ? "Your Turn!" : matchInfo.players[gameState.currentPlayer] +'s turn!' }
                 </div>}
                 <div>
-                    {!firstRounds && !diceRolled && turnEnabled && !victory &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                {!firstRounds && !diceRolled && !victory && <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && !victory && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                     { (diceRolled && turnEnabled) && !victory && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {firstPhasesComplete() && diceRolled && !victory && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}

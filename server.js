@@ -143,6 +143,7 @@ socketServer.on('connect', (socket) => {
 
    socket.on('state-change', ({gameState, matchID}) => {
         console.log('state change for match %d', matchID);
+        console.log(gameState.players[gameState.currentPlayer].settlements);
         const index = gamesList.findIndex(game => game.matchID === matchID);
         gamesList[index].socketIDs.forEach(socketID => {
             if(socketID != socket.id)
@@ -166,6 +167,7 @@ socketServer.on('connect', (socket) => {
         gamesList[index].socketIDs.forEach(socketID => {
                     socketServer.to(socketID).emit('state-change', newState)
             })
+        console.log(newState);
     })
 
     socket.on('winner', async ({matchID, sessionID}) => {
