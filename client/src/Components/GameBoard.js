@@ -14,7 +14,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     renderScoreBoard();
     checkBuildActions();
     checkVictory();
-  }, [G]);
+  }, [G,ctx]);
   
   
     // map settings

@@ -8,7 +8,7 @@
              plenty: 2
          },
          players: Array(num).fill().map( () => ({
-            //score of 10 will be removed in production
+            //score of 10 will be removed in production, used to test game over screen!
              score: 10,
              color: "black",
              resources: {
