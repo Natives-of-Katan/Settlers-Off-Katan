@@ -316,14 +316,17 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
   }
 
   const onVertexClick = (e, i) => {
+    const playerV = G.players[ctx.currentPlayer].settlements.length;
     if (settlementButtonPushed) {
       moves.addSettlement(e, i, vertices);
-      canBuildSettlement(false);
     }
     else if (upgradeButtonPushed) {
       moves.upgradeSettlement(e, i,vertices);
       canUpgradeSettlement(false);
     }
+    if (G.players[ctx.currentPlayer].settlements.length > playerV)
+      canBuildSettlement(false);
+
   }
 
   const getResource = (r) => {
@@ -444,7 +447,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
 
                 {initiateTrade && <button type='button' disabled={!diceRolled} onClick={openTradeModal}>Trade</button>}
                 {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
-                {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
+                {firstPhasebuildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
                 {(gameStart || buildRoad) && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
                 
