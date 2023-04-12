@@ -133,11 +133,14 @@ socketServer.on('connect', (socket) => {
     //server sends initial game state
     socket.on('ready', (matchID) => {
         const index = gamesList.findIndex(game => game.matchID === matchID);
+        console.log(gamesList[index].players);
+        if(index >= 0 ) {
         const numPlayers = gamesList[index].players.length;
         const gameState = initialize(numPlayers);
         gamesList[index].socketIDs.forEach(socketID => {
                 socketServer.to(socketID).emit('initial-state', gameState)
         })
+    }
     })
 
 

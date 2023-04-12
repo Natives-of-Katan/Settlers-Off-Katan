@@ -14,6 +14,7 @@ import { MatchInfoContext } from '../Contexts/MatchInfoContext';
 import { SeatNumberContext } from '../Contexts/SeatNumberContext';
 import { AuthContext } from '../Contexts/AuthContext';
 import { SessionContext } from '../Contexts/SessionContext';
+import { OnlineContext } from '../Contexts/OnlineContext';
 
 import {
 rollDice,
@@ -41,7 +42,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
  const {matchInfo} = useContext(MatchInfoContext);
  const { auth } = useContext(AuthContext);
  const { sessionID } = useContext(SessionContext);
-
+ const { setOnline } = useContext(OnlineContext);
 
  const [isMounted, setIsMounted] = useState(false);
  const [gameState, setGameState] = useState({});
@@ -492,8 +493,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
             </tr>
           ))}
         </table>
-        <button onClick={ () => {navigate('/Play')}}>Play Again!</button>
-        <button onClick={ () => {navigate('/')}}>No Thanks</button>
+        <button onClick={ () => {navigate('/Play'); setOnline(false)}}>Play Again!</button>
+        <button onClick={ () => {navigate('/'); setOnline(false)}}>No Thanks</button>
       </div>}
     </div>}
     {!isMounted && <div>Initializing Game...</div>}
