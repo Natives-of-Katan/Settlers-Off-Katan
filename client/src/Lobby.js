@@ -10,7 +10,6 @@ import { MatchInfoContext } from "./Contexts/MatchInfoContext";
 import { ProfileContext } from "./Contexts/ProfileContext";
 import { AuthContext } from "./Contexts/AuthContext";
 import { SessionContext } from "./Contexts/SessionContext";
-import { initialStateContext } from "./Contexts/initialStateContext";
 
 const Lobby = () => {
 
@@ -24,7 +23,6 @@ const Lobby = () => {
     const {setSeatNum} = useContext(SeatNumberContext);
     const {setMatchInfo} = useContext(MatchInfoContext);
     const {profile } = useContext(ProfileContext);
-    const { setInitialState} = useContext(initialStateContext);
     const {auth} = useContext(AuthContext);
     const {sessionID} = useContext(SessionContext);
 

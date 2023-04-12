@@ -37,15 +37,13 @@ else {
     game: settlersOffKatan(multiplayer[1]),
     board: OnlineBoard
   })
+
   return (
-    <GameClient />
-  )
-  /*return (
     <div>
       <GameMusic />
       <GameClient />
     </div>
-  );*/
+  );
 
 }
 };
