@@ -575,11 +575,8 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
-                  {!firstRounds && diceRolled && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
                 <div>
                   {gameStart && !victory && <text>Place settlement and road</text>}
-                  {!firstRounds && diceRolled && !victory &&  <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
-                  {!firstRounds && !gameStart && !diceRolled && !victory && <text>Roll The Dice!</text>}
                   {victory && <text>Game Over!</text>}
                 </div>
               </div>
