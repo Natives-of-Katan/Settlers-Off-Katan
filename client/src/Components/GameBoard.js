@@ -1,5 +1,6 @@
 import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
 import {React, useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
 import CustomHex from '../Models/CustomHex';
@@ -8,15 +9,18 @@ import Vertex from '../Models/Vertex';
 import { initEdges, initVertices } from './boardUtils';
 import Modal from 'react-modal';
 
+
+
 const GameBoard = ({ctx, G, moves, events, playerID}) => {
 
-  useEffect(() => {
-    renderScoreBoard();
-    if (G.players) {
-      checkBuildActions();
-    }
-  }, [ctx.currentPlayer, G.players]);
-
+    useEffect(() => {
+      if(G.players) {
+        checkBuildActions();
+      }
+      renderScoreBoard();
+      checkVictory();
+  }, [G, ctx]);
+    
     // map settings
     const config = configs['hexagon'];
     const generator = GridGenerator.getGenerator(config.map);
@@ -53,6 +57,9 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const [buildRoad, setBuildRoad] = useState(false);
     const [longestRoad, setLongestRoad] = useState(4);
     const [longestRoadPlayer, setLongestRoadPlayer] = useState();
+    const [victory, setVictory] = useState(false);
+    const navigate = useNavigate();
+
 
     //button settings
     const [monopolyPlayed, setMonopolyPlayed] = useState(false);
@@ -375,23 +382,29 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       setInitiateTrade(false);  
     }
 
+  const checkVictory = ()=> {
+    if(G.players[ctx.currentPlayer].score >= 10)
+      setVictory(true);
+  }
+
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
     <div className="Game">
       <div className="GameBoard">
             <div className='board-text board-header'>
               <div className='board-header-center'>
-                <div className='current-player'>Player {Number(ctx.currentPlayer) + 1}
+                {!victory && <div className='current-player'>Player {Number(ctx.currentPlayer) + 1} 
+                </div>}
+                <div>
+                    {!firstRounds && !diceRolled && !victory &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {!gameStart && firstRounds && !victory && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
+                    {firstPhasesComplete() && diceRolled && !victory && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
-                    {!firstRounds && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
-                    {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {firstPhasesComplete() && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
-                </div>
-                <div>
-                  {gameStart && <text>Place settlement and road</text>}
-                  {!firstRounds && diceRolled && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
-                  {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
+                  {gameStart && !victory && <text>Place settlement and road</text>}
+                  {!firstRounds && diceRolled && !victory &&  <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
+                  {!firstRounds && !gameStart && !diceRolled && !victory && <text>Roll The Dice!</text>}
+                  {victory && <text>Game Over!</text>}
                 </div>
               </div>
             </div>
@@ -577,6 +590,20 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
           </table>}
         </div>
       </div>
+        {victory && 
+      <div className='modal game-over-modal'>
+        We Have A Winner!
+        <table className='end-game-scoreboard'>
+          {G.players.map((player, index) => (
+            <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
+              <td>Player {index + 1}</td>
+              <td>{player.score}</td>
+            </tr>
+          ))}
+        </table>
+        <button onClick={ () => {navigate('/PassAndPLay')}}>Play Again!</button>
+        <button onClick={ () => {navigate('/')}}>No Thanks</button>
+      </div>}
     </div>
    </div>
   );

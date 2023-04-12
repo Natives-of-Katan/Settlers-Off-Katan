@@ -9,6 +9,7 @@ import {SeatNumberContext} from "./Contexts/SeatNumberContext";
 import { MatchInfoContext } from "./Contexts/MatchInfoContext";
 import { ProfileContext } from "./Contexts/ProfileContext";
 import { AuthContext } from "./Contexts/AuthContext";
+import { SessionContext } from "./Contexts/SessionContext";
 
 const Lobby = () => {
 
@@ -23,6 +24,7 @@ const Lobby = () => {
     const {setMatchInfo} = useContext(MatchInfoContext);
     const {profile } = useContext(ProfileContext);
     const {auth} = useContext(AuthContext);
+    const {sessionID} = useContext(SessionContext);
 
     //local vars
     const {matchID, setMatchID} = useContext(MatchIDContext);
@@ -77,15 +79,16 @@ const Lobby = () => {
 
     //runs every time the players array is updated, once it is 4 or longer then the start button is enabled (game requires at least 4 players)
     const checkMinPlayers = () => {
-        //players.length < 4 ? setDisableStart(true) : setDisableStart(false);
-        setDisableStart(false);
+        players.length < 3 ? setDisableStart(true) : setDisableStart(false);
     }
 
     //emit to the server that we are creating a lobby with our username and the generated game code 
     const createLobby = () => {
         socket.emit('create-lobby', {
             matchID: matchID,
-            name: name
+            name: name,
+            sessionID: sessionID,
+            auth: auth
         });
     }
 
@@ -94,6 +97,7 @@ const Lobby = () => {
         console.log('starting game');
         socket.emit('start-game', matchID);
     }
+    
 
     return(
         <div className="App">

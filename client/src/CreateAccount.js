@@ -2,6 +2,7 @@ import React from "react";
 import {Link} from "react-router-dom";
 import {useNavigate} from 'react-router-dom';
 import {AuthContext} from './Contexts/AuthContext';
+import { SessionContext } from "./Contexts/SessionContext";
 import {useContext, useState} from 'react';
 import axios from "axios";
 
@@ -29,6 +30,7 @@ const CreateAccount = () => {
 
     //function used to set authentication status, using AuthContext that was imported
     const {setAuth} = useContext(AuthContext);
+    const {setSessionID} = useContext(SessionContext);
 
     //as long as their username is <n4 characters, user is told so
     const handleNameChange = event => {
@@ -95,6 +97,7 @@ const CreateAccount = () => {
         }).then(res=> {
             if(res.status===200) {
                 setAuth(true);
+                setSessionID(res.data.sessionID);
                 navigate('/Account');
                }
             else {   
