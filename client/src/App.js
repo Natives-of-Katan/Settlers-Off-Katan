@@ -25,11 +25,15 @@ import { SockContext } from './Contexts/SocketContext';
 import { MatchIDContext } from './Contexts/MatchIDContext';
 import {SeatNumberContext} from './Contexts/SeatNumberContext';
 import { MatchInfoContext } from './Contexts/MatchInfoContext';
+import { SessionContext } from './Contexts/SessionContext';
+import { initialStateContext } from './Contexts/initialStateContext';
 import {useState} from 'react'
 
 import io from 'socket.io-client'
 
 function App() {
+  
+  //initial states for contexts
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.2);
   const [auth, setAuth] = useState(false);
@@ -42,6 +46,8 @@ function App() {
   const [seatNum, setSeatNum] = useState();
   const [matchInfo, setMatchInfo] = useState({});
   const [userTurnedOff, setUserTurnedOff] = useState(false);
+  const [sessionID, setSessionID] = useState('');
+  const [initialState, setInitialState] = useState({});
   return (
     <div>
         <GameMusicContext.Provider
@@ -50,6 +56,7 @@ function App() {
         <GameMusic />    
         <BrowserRouter>    
           <AuthContext.Provider value={{auth, setAuth}}>
+          <SessionContext.Provider value={{sessionID, setSessionID}}>
           <ProfileContext.Provider value={{profile, setProfile}}>
             <NumPlayersContext.Provider value={{numPlayers, setNumPlayers}}>
             <OnlineContext.Provider value={{online, setOnline}}>
@@ -58,6 +65,7 @@ function App() {
             <MatchIDContext.Provider value={{matchID, setMatchID}}>
             <SeatNumberContext.Provider value={{seatNum, setSeatNum}}>
             <MatchInfoContext.Provider value={{matchInfo, setMatchInfo}}>
+            <initialStateContext.Provider value={{initialState, setInitialState}}>
             <Navbar />
             <Routes>
             <Route exact path="/Results" element={<Results/>} />
@@ -73,6 +81,7 @@ function App() {
             <Route exact path="/CreateAccount" element={<CreateAccount/>} />
             <Route exact path="/" element={<Home/>} />
             </Routes>
+            </initialStateContext.Provider>
             </MatchInfoContext.Provider>
             </SeatNumberContext.Provider>
             </MatchIDContext.Provider>
@@ -81,6 +90,7 @@ function App() {
             </OnlineContext.Provider>
             </NumPlayersContext.Provider>
           </ProfileContext.Provider>
+          </SessionContext.Provider>
           </AuthContext.Provider>
         </BrowserRouter>
         </GameMusicContext.Provider>

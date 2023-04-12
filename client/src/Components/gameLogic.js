@@ -1,4 +1,3 @@
-
 import { 
     vertexAvailable, 
     edgeAvailable, 
@@ -9,9 +8,10 @@ import {
     vertexUser,
     } from "./boardUtils";
 
-
 import { longestRoad } from "./roadUtils";    
 import { TurnOrder } from 'boardgame.io/core';
+import { INVALID_MOVE } from 'boardgame.io/core';
+import produce from 'immer';
 
 const tileResource = ["wheat", "wood", "brick", "wheat", "wood", "ore", 
                           "wheat", "ore", "brick", "desert", "wheat", "sheep", 
@@ -436,6 +436,55 @@ const discardCards = ({G, ctx}, totalResources, index) => {
     }
 }
 
+const makeTrade = (actualG, ctx, currentPlayerIndex, selectedPlayerIndex, tradeResources, wantedResources) => {
+    console.log('traderesources in makeTrade:', tradeResources);
+    console.log('wantedresources in makeTrade:', wantedResources);
+    console.log('selectedPlayerIndex right before const SelectedPlayer:', selectedPlayerIndex);
+    console.log('actualG in makeTrade:', actualG);
+  
+    const G = produce(actualG.G, draft => {
+      //const currentPlayer = draft.players[currentPlayerIndex];
+      const selectedPlayer = draft.players[selectedPlayerIndex];
+  
+      if (!selectedPlayer) {
+        console.error('Selected player not found in makeTrade');
+        return INVALID_MOVE;
+      }
+  
+      console.log('currentPlayerIndex in makeTrade:', currentPlayerIndex);
+      console.log('selectedPlayerIndex in makeTrade:', selectedPlayerIndex);
+      console.log('traderesources in makeTrade:', tradeResources);
+      console.log('wantedresources in makeTrade:', wantedResources);
+  
+      draft.players[currentPlayerIndex].resources.wheat -= tradeResources.wheat;
+      draft.players[selectedPlayerIndex].resources.wheat += tradeResources.wheat;    
+      draft.players[selectedPlayerIndex].resources.wheat -= wantedResources.wheat;
+      draft.players[currentPlayerIndex].resources.wheat += wantedResources.wheat;
+  
+      draft.players[currentPlayerIndex].resources.sheep -= tradeResources.sheep;
+      draft.players[selectedPlayerIndex].resources.sheep += tradeResources.sheep;    
+      draft.players[selectedPlayerIndex].resources.sheep -= wantedResources.sheep;
+      draft.players[currentPlayerIndex].resources.sheep += wantedResources.sheep;
+      
+      draft.players[currentPlayerIndex].resources.wood -= tradeResources.wood;
+      draft.players[selectedPlayerIndex].resources.wood += tradeResources.wood;    
+      draft.players[selectedPlayerIndex].resources.wood -= wantedResources.wood;
+      draft.players[currentPlayerIndex].resources.wood += wantedResources.wood;
+  
+      draft.players[currentPlayerIndex].resources.brick -= tradeResources.brick;
+      draft.players[selectedPlayerIndex].resources.brick += tradeResources.brick;    
+      draft.players[selectedPlayerIndex].resources.brick -= wantedResources.brick;
+      draft.players[currentPlayerIndex].resources.brick += wantedResources.brick;
+      
+      draft.players[currentPlayerIndex].resources.ore -= tradeResources.ore;
+      draft.players[selectedPlayerIndex].resources.ore += tradeResources.ore;    
+      draft.players[selectedPlayerIndex].resources.ore -= wantedResources.ore;
+      draft.players[currentPlayerIndex].resources.ore += wantedResources.ore;
+      
+    });
+  
+    return G;
+  };
 
 export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
     // get player roads from map
@@ -455,6 +504,7 @@ export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
     }
 }
 
+  
 export const settlersOffKatan = numPlayers => ({
     setup: () => ({
         tileNums: [9, 8, 5, 12, 11, 3, 6, 10, 6, "Robber", 4, 11, 2, 4, 3, 5, 9, 10, 8],
@@ -556,7 +606,12 @@ export const settlersOffKatan = numPlayers => ({
         addInitialResources,
         checkLongestRoad,
         updateDevelopmentCards,
-        findUsers
+        findUsers,
+        makeTrade: {
+            move: makeTrade,
+            client: false,
+            redact: true,
+        }
     }
 });
 

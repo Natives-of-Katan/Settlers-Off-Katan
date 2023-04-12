@@ -5,6 +5,7 @@ import { OnlineContext } from "./Contexts/OnlineContext";
 import { SockContext } from "./Contexts/SocketContext";
 import { ProfileContext} from './Contexts/ProfileContext';
 import {AuthContext} from './Contexts/AuthContext';
+import { SessionContext } from "./Contexts/SessionContext";
 import { SeatNumberContext } from "./Contexts/SeatNumberContext";
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +17,8 @@ const JoinMatch = () => {
     const {setSeatNum} = useContext(SeatNumberContext);
     const {auth} = useContext(AuthContext);
     const {profile} = useContext(ProfileContext);
+    const {sessionID} = useContext(SessionContext);
+    
     //local vars
     const [matchID, setMatchID] = useState('');
     const [name, setName] = useState(auth ? profile.username : '');
@@ -60,7 +63,9 @@ const JoinMatch = () => {
     const handleSubmit = () => {
         socket.emit('join', {
             matchID: Number(matchID),
-            name: name
+            name: name,
+            sessionID: sessionID,
+            auth: auth
         })
         setRequested(true);
     }
