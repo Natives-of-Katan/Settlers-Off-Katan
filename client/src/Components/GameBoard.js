@@ -49,6 +49,12 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(
       ctx.currentPlayer === 0 ? 1 : 0
     );
+    const [tradeConfirmModalIsOpen, setTradeConfirmModalIsOpen] = useState(false);
+    const closeTradeConfirmModal = () => {
+      setTradeConfirmModalIsOpen(false);
+    };
+    const [lastTradedResources, setLastTradedResources] = useState({}); //for traded resources after trade
+    const [lastWantedResources, setLastWantedResources] = useState({}); //for wanted resources after trade
 
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
@@ -196,7 +202,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       const tradeResources = tradeCounts;
       const wantedResources = wantedResourceCounts;
     
-      const selectedPlayerHasEnoughResources = Object.keys(wantedResources).every(resource => {  //check if enough resources to trade with
+      const selectedPlayerHasEnoughResources = Object.keys(wantedResources).every(resource => {
         return G.players[selectedPlayerIndex].resources[resource] >= wantedResources[resource];
       });
     
@@ -215,7 +221,20 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     
       setTradeModalIsOpen(false);
       resetTradeWantedResources();
+      setTradeConfirmModalIsOpen(true);
+    
+      setLastTradedResources(tradeResources);
+      setLastWantedResources(wantedResources);
     };
+    
+
+    const renderTradedResources = (resources) => {
+      return Object.entries(resources)
+        .filter(([key, value]) => value > 0)
+        .map(([key, value]) => `${value} ${key}`)
+        .join(" and ");
+    };
+    
         
     useEffect(() => {
       console.log('Selected Player Index (inside useEffect):', selectedPlayerIndex);
@@ -572,6 +591,22 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
           <button onClick={() => {setTradeWarning(""); resetTradeWantedResources();}}>Reset Trade Offer</button><br></br><br></br>
           <button onClick={() => {setTradeWarning(""); resetTradeWantedResources(); setTradeModalIsOpen(false);}}>Cancel</button>   
 
+        </Modal>
+
+        <Modal
+          className="modal"
+          shouldCloseOnOverlayClick={false}
+          isOpen={tradeConfirmModalIsOpen}
+          onRequestClose={closeTradeConfirmModal}
+        >
+          <h2>Trade Successful</h2>
+          <p>
+            Player {Number(ctx.currentPlayer) + 1} has traded their{" "}
+            {renderTradedResources(lastTradedResources)}, for{" "}
+            {renderTradedResources(lastWantedResources)} from Player{" "}
+            {selectedPlayerIndex + 1}
+          </p>
+          <button onClick={closeTradeConfirmModal}>Close</button>
         </Modal>
 
         <div>
