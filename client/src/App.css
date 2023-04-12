@@ -289,13 +289,15 @@ table {
   background-color: forestgreen;
 }
 
-<<<<<<< HEAD
+
 .end-game-scoreboard {
   border: none;
-=======
+
+}
+
 .modal {
   /*z-index: 9999; 
   position: absolute; */
   width: 50vw    /* Occupy the 90% of the screen width */
->>>>>>> master
+
 }

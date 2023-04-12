@@ -9,14 +9,16 @@ import Vertex from '../Models/Vertex';
 import { initEdges, initVertices } from './boardUtils';
 import Modal from 'react-modal';
 
+
+
 const GameBoard = ({ctx, G, moves, events, playerID}) => {
 
-const GameBoard = ({ctx, G, moves, events}) => {
     useEffect(() => {
       if(G.players) {
         checkBuildActions();
       }
       renderScoreBoard();
+      checkVictory();
   }, [G, ctx]);
     
     // map settings

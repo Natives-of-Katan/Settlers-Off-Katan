@@ -366,34 +366,6 @@ export const settlersOffKatan = numPlayers => ({
                 road: 2,
                 plenty: 2
             },
-<<<<<<< HEAD
-            developmentCards: {
-                knight: 0,
-                victory: 0,
-                monopoly: 0,
-                road: 0,
-                plenty: 0
-            },
-            diceRoll: 0,
-            longestRoad: false,
-            canBuildSettlement: false,
-            canBuildRoad: false,
-            canBuyCard: false,
-            canPlayCard: true,
-            startOfTurn: false,
-            settlements: [],
-            cities: [],
-            roads: [],
-            cards: []
-        })),
-        currentPlayer: 0,
-        turn: 0,
-        currentRoll:0,
-        phase: 'initRound1',
-        winner: 0,
-        gameOver: false,
-        longestRoad: 4
-=======
             players: Array(numPlayers).fill().map(() => ({
                 score: 0,
                 color: "black",
@@ -427,7 +399,6 @@ export const settlersOffKatan = numPlayers => ({
           turn: 0,
           currentRoll:0,
           longestRoad: 4
->>>>>>> master
     }),
 
     turn: {
