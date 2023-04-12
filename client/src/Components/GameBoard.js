@@ -301,7 +301,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const renderScoreBoard = () => {
       setScoreboard(G.players.map((player, index) => (
         <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
-          {console.log(index)}
+          {console.log(index)}firs
           <td style={{color: player.color}}>Player{index + 1}</td>
           <td>{player.score}</td>
           </tr>
@@ -359,7 +359,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const currentPlayer = G.players[ctx.currentPlayer]
     let resources = currentPlayer.resources;
     const enoughResources = Object.values(resources).every(value => value >= 1);
-    if(enoughResources)
+    if(enoughResources || !firstPhasesComplete())
       setBuildSettlement(true);
     else
       setBuildSettlement(false);
@@ -447,7 +447,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
 
                 {initiateTrade && <button type='button' disabled={!diceRolled} onClick={openTradeModal}>Trade</button>}
                 {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
-                {firstPhasebuildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
+                {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
                 {(gameStart || buildRoad) && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
                 
