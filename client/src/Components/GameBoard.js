@@ -6,13 +6,17 @@ import CustomHex from '../Models/CustomHex';
 import Edge from '../Models/Edge';
 import Vertex from '../Models/Vertex';
 import { initEdges, initVertices } from './boardUtils';
+import Modal from 'react-modal';
 
-const GameBoard = ({ctx, G, moves, events}) => {
-    useEffect(() => {
-      renderScoreBoard();
+const GameBoard = ({ctx, G, moves, events, playerID}) => {
+
+  useEffect(() => {
+    renderScoreBoard();
+    if (G.players) {
       checkBuildActions();
-  }, [ctx.currentPlayer, G.players[ctx.currentPlayer].resources]);
-    
+    }
+  }, [ctx.currentPlayer, G.players]);
+
     // map settings
     const config = configs['hexagon'];
     const generator = GridGenerator.getGenerator(config.map);
@@ -33,6 +37,15 @@ const GameBoard = ({ctx, G, moves, events}) => {
 
     const [diceRolled, setdiceRolled] = useState(false);
     const [scoreBoard, setScoreboard] = useState([]);
+    
+    //trade hooks
+    const [initiateTrade, setInitiateTrade] = useState(false); 
+    const [tradeModalIsOpen, setTradeModalIsOpen] = useState(false);
+    const [tradeWarning, setTradeWarning] = useState("");
+    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(
+      ctx.currentPlayer === 0 ? 1 : 0
+    );
+
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
     const [buyCard, setBuyCard] = useState(false);
@@ -85,6 +98,121 @@ const GameBoard = ({ctx, G, moves, events}) => {
       moves.rollDice();
       setdiceRolled(true);
     }
+
+    //Trade functions
+    const openTradeModal = () => {
+      setTradeModalIsOpen(true);
+    };
+
+    const [tradeCounts, setTradeCounts] = useState({
+      wheat: 0,
+      sheep: 0,
+      wood: 0,
+      brick: 0,
+      ore: 0,
+    });
+
+    const [wantedResourceCounts, setWantedResourceCounts] = useState({
+      wheat: 0,
+      sheep: 0,
+      wood: 0,
+      brick: 0,
+      ore: 0,
+    });
+
+    const resetTradeWantedResources = () => {
+      setTradeCounts({
+        wheat: 0,
+        sheep: 0,
+        wood: 0,
+        brick: 0,
+        ore: 0,
+      });
+    
+      setWantedResourceCounts({
+        wheat: 0,
+        sheep: 0,
+        wood: 0,
+        brick: 0,
+        ore: 0,
+      });
+    };
+
+    const handleTradeButtonClick = (resource) => {
+      setTradeCounts((prevCounts) => {
+        const availableResource = G.players[ctx.currentPlayer].resources[resource];
+        if (prevCounts[resource] < availableResource) {
+          return {
+            ...prevCounts,
+            [resource]: prevCounts[resource] + 1,
+          };
+        }
+        return prevCounts;
+      });
+    };
+
+    const handleWantedResourceButtonClick = (resource) => {
+      setWantedResourceCounts((prevCounts) => ({
+        ...prevCounts,
+        [resource]: prevCounts[resource] + 1,
+      }));
+    }; 
+
+    const getOtherPlayerOptions = () => {
+      return G.players
+        .map((player, index) => {
+          if (index !== parseInt(ctx.currentPlayer, 10)) {
+            return (
+              <option key={index} value={index}>
+                Player {index + 1}
+              </option>
+            );
+          }
+          return null;
+        })
+        .filter((option) => option !== null);
+    };
+
+    const handlePlayerSelect = (event) => {
+      console.log("Selected player:", event.target.value);
+      if (event.target.value === "") {
+        setSelectedPlayerIndex(null);
+      } else {
+        setSelectedPlayerIndex(parseInt(event.target.value));
+      }
+      console.log("Selected player index in handlePlayerSelect (gameboard.js):", selectedPlayerIndex);
+      console.log("Selected player g.players.find:", G.players.find(player => player.id === playerID));
+    };
+
+    const handleMakeTrade = () => {
+      const currentPlayerIndex = parseInt(ctx.currentPlayer, 10);
+      const tradeResources = tradeCounts;
+      const wantedResources = wantedResourceCounts;
+    
+      const selectedPlayerHasEnoughResources = Object.keys(wantedResources).every(resource => {  //check if enough resources to trade with
+        return G.players[selectedPlayerIndex].resources[resource] >= wantedResources[resource];
+      });
+    
+      if (!selectedPlayerHasEnoughResources) {
+        setTradeWarning("The selected player cannot perform this trade.");
+        return;
+      } else {
+        setTradeWarning("");
+      }
+    
+      console.log('tradeResources before maketrade:', tradeResources);
+      console.log('wantedResources before maketrade:', wantedResources);
+      console.log('G before makeTrade:', G);
+    
+      moves.makeTrade(G, currentPlayerIndex, selectedPlayerIndex, tradeResources, wantedResources);
+    
+      setTradeModalIsOpen(false);
+      resetTradeWantedResources();
+    };
+        
+    useEffect(() => {
+      console.log('Selected Player Index (inside useEffect):', selectedPlayerIndex);
+    }, [selectedPlayerIndex]);
 
     const handleAddResources = id => {
       moves.addDevelopmentResources();
@@ -214,6 +342,10 @@ const GameBoard = ({ctx, G, moves, events}) => {
   }
 
   const checkBuildActions = () => {
+    if (!G.players) {
+      return;
+    }
+
     const currentPlayer = G.players[ctx.currentPlayer]
     let resources = currentPlayer.resources;
     const enoughResources = Object.values(resources).every(value => value >= 1);
@@ -236,7 +368,12 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setBuyCard(true);
     else
       setBuyCard(false);
-  }
+
+    if(currentPlayer.resources.wheat >= 1 || currentPlayer.resources.sheep >= 1 || currentPlayer.resources.wood >= 1 || currentPlayer.resources.brick >= 1 || currentPlayer.resources.ore >= 1)
+      setInitiateTrade(true);
+    else
+      setInitiateTrade(false);  
+    }
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
@@ -291,6 +428,8 @@ const GameBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
+
+                {initiateTrade && <button type='button' disabled={!diceRolled} onClick={openTradeModal}>Trade</button>}
                 {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
                 {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
                 {(gameStart || buildRoad) && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
@@ -347,6 +486,81 @@ const GameBoard = ({ctx, G, moves, events}) => {
             }
           </Layout>
         </HexGrid>
+
+        <Modal className='modal' shouldCloseOnOverlayClick={false} isOpen={tradeModalIsOpen} onRequestClose={() => setTradeModalIsOpen(false)}>
+          <h2>Trade Resources</h2>
+          <div>
+            <h3>Resources To Trade</h3>
+            <table className='board-text'>
+               <tbody>
+                  <tr>
+                    <td>
+                      Wheat: {JSON.stringify(G.players[ctx.currentPlayer].resources.wheat)}&nbsp;
+                      <button onClick={() => handleTradeButtonClick('wheat')}>Trade: {tradeCounts.wheat}</button>
+                    </td>&nbsp;&nbsp;
+                    <td>
+                      Sheep: {JSON.stringify(G.players[ctx.currentPlayer].resources.sheep)}{' '}
+                      <button onClick={() => handleTradeButtonClick('sheep')}>Trade: {tradeCounts.sheep}</button>
+                    </td>&nbsp;&nbsp;
+                    <td>
+                      Wood: {JSON.stringify(G.players[ctx.currentPlayer].resources.wood)}{' '}
+                      <button onClick={() => handleTradeButtonClick('wood')}>Trade: {tradeCounts.wood}</button>
+                    </td>&nbsp;&nbsp;
+                    <td>
+                      Brick: {JSON.stringify(G.players[ctx.currentPlayer].resources.brick)}{' '}
+                      <button onClick={() => handleTradeButtonClick('brick')}>Trade: {tradeCounts.brick}</button>
+                    </td>&nbsp;&nbsp;
+                    <td>
+                      Ore: {JSON.stringify(G.players[ctx.currentPlayer].resources.ore)}{' '}
+                      <button onClick={() => handleTradeButtonClick('ore')}>Trade: {tradeCounts.ore}</button>
+                    </td>
+                  </tr>
+                </tbody>
+             </table>
+          </div>
+          <div>
+            <h3>Trading For:</h3>
+            <table className='board-text'>
+              <tbody>
+                <tr>
+                  <td>
+                    Wheat: {wantedResourceCounts.wheat}{' '}
+                    <button onClick={() => handleWantedResourceButtonClick('wheat')}>Add</button>
+                  </td>&nbsp;&nbsp;
+                  <td>
+                    Sheep: {wantedResourceCounts.sheep}{' '}
+                    <button onClick={() => handleWantedResourceButtonClick('sheep')}>Add</button>
+                  </td>&nbsp;&nbsp;
+                  <td>
+                    Wood: {wantedResourceCounts.wood}{' '}
+                    <button onClick={() => handleWantedResourceButtonClick('wood')}>Add</button>
+                  </td>&nbsp;&nbsp;
+                  <td>
+                    Brick: {wantedResourceCounts.brick}{' '}
+                    <button onClick={() => handleWantedResourceButtonClick('brick')}>Add</button>
+                  </td>&nbsp;&nbsp;
+                  <td>
+                    Ore: {wantedResourceCounts.ore}{' '}
+                    <button onClick={() => handleWantedResourceButtonClick('ore')}>Add</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div><br></br>
+          <div>
+            {tradeWarning && <p style={{ color: "red" }}>{tradeWarning}</p>}
+            <span>Trading with Player: </span>
+            <select value={selectedPlayerIndex} onChange={handlePlayerSelect}>
+              <option value="" disabled> Select a player</option>
+              {getOtherPlayerOptions()}
+            </select>&nbsp;&nbsp;
+            <button onClick={() => {handleMakeTrade(G, ctx, moves.makeTrade);}}>Make Trade</button><br></br><br></br>
+          </div>
+          <button onClick={() => {setTradeWarning(""); resetTradeWantedResources();}}>Reset Trade Offer</button><br></br><br></br>
+          <button onClick={() => {setTradeWarning(""); resetTradeWantedResources(); setTradeModalIsOpen(false);}}>Cancel</button>   
+
+        </Modal>
+
         <div>
           <table className='scoreboard board-text'>
             <tbody>

@@ -1,4 +1,3 @@
-
 import { 
     vertexAvailable, 
     edgeAvailable, 
@@ -8,9 +7,10 @@ import {
     getHexKey, 
     } from "./boardUtils";
 
-
 import { longestRoad } from "./roadUtils";    
 import { TurnOrder } from 'boardgame.io/core';
+import { INVALID_MOVE } from 'boardgame.io/core';
+import produce from 'immer';
 
 const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep", 
                           "wood", "sheep", "wood", "desert", "wood", "wood", 
@@ -287,6 +287,56 @@ const setHexMap = ({G, ctx}, h) => {
     ))
 }
 
+const makeTrade = (actualG, ctx, currentPlayerIndex, selectedPlayerIndex, tradeResources, wantedResources) => {
+    console.log('traderesources in makeTrade:', tradeResources);
+    console.log('wantedresources in makeTrade:', wantedResources);
+    console.log('selectedPlayerIndex right before const SelectedPlayer:', selectedPlayerIndex);
+    console.log('actualG in makeTrade:', actualG);
+  
+    const G = produce(actualG.G, draft => {
+      //const currentPlayer = draft.players[currentPlayerIndex];
+      const selectedPlayer = draft.players[selectedPlayerIndex];
+  
+      if (!selectedPlayer) {
+        console.error('Selected player not found in makeTrade');
+        return INVALID_MOVE;
+      }
+  
+      console.log('currentPlayerIndex in makeTrade:', currentPlayerIndex);
+      console.log('selectedPlayerIndex in makeTrade:', selectedPlayerIndex);
+      console.log('traderesources in makeTrade:', tradeResources);
+      console.log('wantedresources in makeTrade:', wantedResources);
+  
+      draft.players[currentPlayerIndex].resources.wheat -= tradeResources.wheat;
+      draft.players[selectedPlayerIndex].resources.wheat += tradeResources.wheat;    
+      draft.players[selectedPlayerIndex].resources.wheat -= wantedResources.wheat;
+      draft.players[currentPlayerIndex].resources.wheat += wantedResources.wheat;
+  
+      draft.players[currentPlayerIndex].resources.sheep -= tradeResources.sheep;
+      draft.players[selectedPlayerIndex].resources.sheep += tradeResources.sheep;    
+      draft.players[selectedPlayerIndex].resources.sheep -= wantedResources.sheep;
+      draft.players[currentPlayerIndex].resources.sheep += wantedResources.sheep;
+      
+      draft.players[currentPlayerIndex].resources.wood -= tradeResources.wood;
+      draft.players[selectedPlayerIndex].resources.wood += tradeResources.wood;    
+      draft.players[selectedPlayerIndex].resources.wood -= wantedResources.wood;
+      draft.players[currentPlayerIndex].resources.wood += wantedResources.wood;
+  
+      draft.players[currentPlayerIndex].resources.brick -= tradeResources.brick;
+      draft.players[selectedPlayerIndex].resources.brick += tradeResources.brick;    
+      draft.players[selectedPlayerIndex].resources.brick -= wantedResources.brick;
+      draft.players[currentPlayerIndex].resources.brick += wantedResources.brick;
+      
+      draft.players[currentPlayerIndex].resources.ore -= tradeResources.ore;
+      draft.players[selectedPlayerIndex].resources.ore += tradeResources.ore;    
+      draft.players[selectedPlayerIndex].resources.ore -= wantedResources.ore;
+      draft.players[currentPlayerIndex].resources.ore += wantedResources.ore;
+      
+    });
+  
+    return G;
+  };
+
 export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
     // get player roads from map
     const playerRoads = G.players[ctx.currentPlayer].roads.map((r) => (
@@ -305,48 +355,49 @@ export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
     }
 }
 
+  
 export const settlersOffKatan = numPlayers => ({
     setup: () => ({
-        deck: {
-            knight: 14,
-            victory: 5,
-            monopoly: 2,
-            road: 2,
-            plenty: 2
-        },
-        players: Array(numPlayers).fill().map( () => ({
-            score: 0,
-            color: "black",
-            resources: {
-                wheat: 0,
-                sheep: 0,
-                wood: 0,
-                brick: 0,
-                ore: 0
+            deck: {
+                knight: 14,
+                victory: 5,
+                monopoly: 2,
+                road: 2,
+                plenty: 2
             },
-            developmentCards: {
-                knight: 0,
-                victory: 0,
-                monopoly: 0,
-                road: 0,
-                plenty: 0
-            },
-            diceRoll: 0,
-            longestRoad: false,
-            canBuildSettlement: false,
-            canBuildRoad: false,
-            canBuyCard: false,
-            canPlayCard: true,
-            startOfTurn: false,
-            settlements: [],
-            cities: [],
-            roads: [],
-            cards: []
-        })),
-        currentPlayer: 0,
-        turn: 0,
-        currentRoll:0,
-        longestRoad: 4
+            players: Array(numPlayers).fill().map(() => ({
+                score: 0,
+                color: "black",
+                resources: {
+                    wheat: 0,
+                    sheep: 0,
+                    wood: 0,
+                    brick: 0,
+                    ore: 0
+                },
+                developmentCards: {
+                    knight: 0,
+                    victory: 0,
+                    monopoly: 0,
+                    road: 0,
+                    plenty: 0
+                },
+                diceRoll: 0,
+                longestRoad: false,
+                canBuildSettlement: false,
+                canBuildRoad: false,
+                canBuyCard: false,
+                canPlayCard: true,
+                startOfTurn: false,
+                settlements: [],
+                cities: [],
+                roads: [],
+                cards: []                
+          })),
+          currentPlayer: 0,
+          turn: 0,
+          currentRoll:0,
+          longestRoad: 4
     }),
 
     turn: {
@@ -386,7 +437,12 @@ export const settlersOffKatan = numPlayers => ({
         addSettlement,
         upgradeSettlement,
         addInitialResources,
-        checkLongestRoad
+        checkLongestRoad,
+        makeTrade: {
+            move: makeTrade,
+            client: false,
+            redact: true,
+        }
     }
 });
 
