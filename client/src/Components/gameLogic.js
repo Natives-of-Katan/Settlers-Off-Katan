@@ -6,6 +6,7 @@ import {
     edgeConnectsProperty, 
     initRoadPlacement, 
     getHexKey, 
+    vertexUser,
     } from "./boardUtils";
 
 
@@ -61,6 +62,20 @@ const setPlayerColors = ({G}) => {
         G.players[i].color = colors[i];
     }
 }
+
+const findUsers = ({G}, vertices) => {
+    
+    let usersOnHex = [];
+
+    for (let i = 0; i < vertices.length; i++) {
+        console.log("vertextUser " + vertexUser(vertices[i], hexes));
+        usersOnHex[i] = vertexUser(vertices[i], hexes);
+        console.log("usersOnHex " + usersOnHex[i]);
+    }
+
+    G.robberUsers = usersOnHex;
+}
+
 
 const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
     const newVertex = {...vertex}
@@ -202,16 +217,16 @@ const drawDevelopmentCard = ({G, playerID}) => {
 }
 
 const updateDevelopmentCards = ({G, playerID}) => {
-    G.players[playerID].developmentCards.knight =+ G.players[playerID].newDevelopmentCards.knight;
+    G.players[playerID].developmentCards.knight += G.players[playerID].newDevelopmentCards.knight;
     G.players[playerID].newDevelopmentCards.knight = 0;
 
-    G.players[playerID].developmentCards.monopoly =+ G.players[playerID].newDevelopmentCards.monopoly;
+    G.players[playerID].developmentCards.monopoly += G.players[playerID].newDevelopmentCards.monopoly;
     G.players[playerID].newDevelopmentCards.monopoly = 0;
 
-    G.players[playerID].developmentCards.plenty =+ G.players[playerID].newDevelopmentCards.plenty;
+    G.players[playerID].developmentCards.plenty += G.players[playerID].newDevelopmentCards.plenty;
     G.players[playerID].newDevelopmentCards.plenty = 0;
 
-    G.players[playerID].developmentCards.road =+ G.players[playerID].newDevelopmentCards.road;
+    G.players[playerID].developmentCards.road += G.players[playerID].newDevelopmentCards.road;
     G.players[playerID].newDevelopmentCards.road = 0;
 
 }
@@ -493,7 +508,8 @@ export const settlersOffKatan = numPlayers => ({
         currentPlayer: 0,
         turn: 0,
         currentRoll:0,
-        longestRoad: 4
+        longestRoad: 4,
+        robberUsers: [],
     }),
 
     turn: {
@@ -539,7 +555,8 @@ export const settlersOffKatan = numPlayers => ({
         upgradeSettlement,
         addInitialResources,
         checkLongestRoad,
-        updateDevelopmentCards
+        updateDevelopmentCards,
+        findUsers
     }
 });
 

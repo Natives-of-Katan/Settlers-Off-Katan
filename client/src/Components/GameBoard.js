@@ -5,7 +5,7 @@ import Pattern from '../Models/Pattern'
 import CustomHex from '../Models/CustomHex';
 import Edge from '../Models/Edge';
 import Vertex from '../Models/Vertex';
-import { initEdges, initVertices } from './boardUtils';
+import { initEdges, initVertices, vertexUser } from './boardUtils';
 
 const GameBoard = ({ctx, G, moves, events}) => {
     useEffect(() => {
@@ -34,6 +34,11 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const [diceRolled, setdiceRolled] = useState(false);
     const [movingRobber, setMovingRobber] = useState(false);
     const [stealingResource, setStealingResource] = useState(false);
+    const [placedRobber, setPlacedRobber] = useState(false);
+    const [canStealFromZero, setCanStealFromZero] = useState(false);
+    const [canStealFromOne, setCanStealFromOne] = useState(false);
+    const [canStealFromTwo, setCanStealFromTwo] = useState(false);
+    const [canStealFromThree, setCanStealFromThree] = useState(false);
     const [knightPlayed, setKnightPlayed] = useState(false);
     const [roadPlayed, setRoadPlayed] = useState(false);
     const [roadsWhenPlayed, setRoadsWhenPlayed] = useState(0);
@@ -183,6 +188,10 @@ const GameBoard = ({ctx, G, moves, events}) => {
       if (ctx.currentPlayer != num) {
           moves.stealResource(num);
           setStealingResource(false);
+          setCanStealFromZero(false);
+          setCanStealFromOne(false);
+          setCanStealFromTwo(false);
+          setCanStealFromThree(false);
       }
     }
 
@@ -258,7 +267,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     }
   }
 
-  const onHexClick = (value, tile) => {
+  const onHexClick = (value, tile, vertices) => {
     console.log(value);
 
     const newTileNums = tileNums.map((x) => x);
@@ -279,11 +288,68 @@ const GameBoard = ({ctx, G, moves, events}) => {
       setTileNums(newTileNums);
       setMovingRobber(false);
       setKnightPlayed(false);
-      setStealingResource(true);
 
       moves.setTileNums(newTileNums);
+
+      moves.findUsers(vertices);
+      
+      console.log(G.robberUsers[0]);
+      console.log(G.robberUsers[1]);
+      console.log(G.robberUsers[2]);
+      console.log(G.robberUsers[3]);
+      console.log(G.robberUsers[4]);
+      console.log(G.robberUsers[5]);
+      console.log(G.robberUsers.length);
+
+      setPlacedRobber(true);
     }
   }
+
+  const determineStealing = id => {
+
+    console.log(G.robberUsers[0]);
+    console.log(G.robberUsers[1]);
+    console.log(G.robberUsers[2]);
+    console.log(G.robberUsers[3]);
+    console.log(G.robberUsers[4]);
+    console.log(G.robberUsers[5]);
+    console.log(G.robberUsers.length);
+
+    if ((G.robberUsers[0] == "gold" || G.robberUsers[1] == "gold" || G.robberUsers[2] == "gold" || G.robberUsers[3] == "gold" || G.robberUsers[4] == "gold" || G.robberUsers[5] == "gold") && ctx.currentPlayer != "0") {
+      console.log("gold found");
+      setCanStealFromZero(true);
+      setStealingResource(true);
+    }
+  
+    if ((G.robberUsers[0] == "blue" || G.robberUsers[1] == "blue" || G.robberUsers[2] == "blue" || G.robberUsers[3] == "blue" || G.robberUsers[4] == "blue" || G.robberUsers[5] == "blue") && ctx.currentPlayer != "1") {
+      console.log("blue found");
+      setCanStealFromOne(true);
+      setStealingResource(true);
+    }
+  
+    if ((G.robberUsers[0] == "violet" || G.robberUsers[1] == "violet" || G.robberUsers[2] == "violet" || G.robberUsers[3] == "violet" || G.robberUsers[4] == "violet" || G.robberUsers[5] == "violet") && ctx.currentPlayer != "2") {
+      console.log("violet found");
+      setCanStealFromTwo(true);
+      setStealingResource(true);
+    }
+  
+    if ((G.robberUsers[0] == "brown" || G.robberUsers[1] == "brown" || G.robberUsers[2] == "brown" || G.robberUsers[3] == "brown" || G.robberUsers[4] == "brown" || G.robberUsers[5] == "brown") && ctx.currentPlayer != "3") {
+      console.log("brown found");
+      setCanStealFromThree(true);
+      setStealingResource(true);
+    }
+
+    console.log("canStealFromZero " + canStealFromZero);
+    console.log("canStealFromOne " + canStealFromOne);
+    console.log("canStealFromTwo " + canStealFromTwo);
+    console.log("canStealFromThree " + canStealFromThree);
+    console.log("stealingResouce " + stealingResource);
+
+    setPlacedRobber(false);
+  }
+
+
+
   const getResource = (r) => {
     console.log("Resource", r);
   }
@@ -292,7 +358,7 @@ const GameBoard = ({ctx, G, moves, events}) => {
     const h = hexagons.map((hex, i) => (
 
       <CustomHex key={i} q={hex.q} r={hex.r} s={hex.s} fill={tileResource[i]} 
-      vertices={vertices[i]} edges={edges[i]} numKey={i} number={tileNums[i]} onClick={() => onHexClick(tileNums[i], i)}>
+      vertices={vertices[i]} edges={edges[i]} numKey={i} number={tileNums[i]} onClick={() => onHexClick(tileNums[i], i, vertices[i])}>
       { 
         edges[i].map((e) => (
         <Edge {...e.props} onClick={() => onEdgeClick(e, i)}></Edge>
@@ -352,9 +418,9 @@ const GameBoard = ({ctx, G, moves, events}) => {
                   {diceRolled && movingRobber && knightPlayed && <text>You played a knight. Choose a tile to move the Robber to</text>}
                   {diceRolled && stealingResource && <text>Choose a player to steal a resource from</text>}
                   {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
-                    {!firstRounds && !movingRobber && !knightPlayed && !stealingResource && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {!firstRounds && !movingRobber && !knightPlayed && !stealingResource && !placedRobber && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {/*firstPhasesComplete() && */!movingRobber && !knightPlayed && !stealingResource && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {/*firstPhasesComplete() && */!movingRobber && !knightPlayed && !stealingResource && !placedRobber && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
@@ -397,24 +463,24 @@ const GameBoard = ({ctx, G, moves, events}) => {
               <div className='action-btns'>
 
 
-                {upgradeSettlement && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
-                {buildSettlement && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
-                {(gameStart || buildRoad) && !roadPlayed && !movingRobber && !monopolyPlayed && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
+                {upgradeSettlement && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
+                {buildSettlement && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
+                {(gameStart || buildRoad) && !roadPlayed && !movingRobber && !monopolyPlayed && !placedRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 
-                {buyCard && !firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleDraw}>Buy Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}
-                {!firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleAddResources}>Add 1 of each resource (this button is for dev purposes)</button>}
+                {buyCard && !firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !placedRobber && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleDraw}>Buy Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}
+                {!firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && <button onClick={handleAddResources}>Add 1 of each resource (this button is for dev purposes)</button>}
         
 
-                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.knight > 0 && !monopolyPlayed && !roadPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && plentyFirstChoice === '' && <button onClick={() => handleKnight()}>Play Knight (Move the robber and steal a resource)</button>}
+                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.knight > 0 && !placedRobber && !monopolyPlayed && !roadPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && plentyFirstChoice === '' && <button onClick={() => handleKnight()}>Play Knight (Move the robber and steal a resource)</button>}
         
-                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.monopoly > 0 && !monopolyPlayed && !roadPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && plentyFirstChoice === '' && <button onClick={() => handleMonopoly('')}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
+                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.monopoly > 0 && !placedRobber && !monopolyPlayed && !roadPlayed && !plentyPlayed && !movingRobber && !knightPlayed && !stealingResource && plentyFirstChoice === '' && <button onClick={() => handleMonopoly('')}>Play Monopoly (Choose a resource and take all of that resource from each player)</button>}
                 {monopolyPlayed && <button onClick={() => handleMonopoly('wheat')}>Wheat</button>}
                 {monopolyPlayed && <button onClick={() => handleMonopoly('sheep')}>Sheep</button>}
                 {monopolyPlayed && <button onClick={() => handleMonopoly('wood')}>Wood</button>}
                 {monopolyPlayed && <button onClick={() => handleMonopoly('brick')}>Brick</button>}
                 {monopolyPlayed && <button onClick={() => handleMonopoly('ore')}>Ore</button>}
         
-                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.plenty > 0 && !plentyPlayed && !roadPlayed && !monopolyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={() => handlePlenty('')}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
+                {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.plenty > 0 && !placedRobber && !plentyPlayed && !roadPlayed && !monopolyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={() => handlePlenty('')}>Play Year of Plenty (Choose 2 resources and add them to your resources)</button>}
                 {plentyPlayed && plentyFirstChoice === '' && <>Choice One</>}
                 {plentyPlayed && plentyFirstChoice === '' && <button onClick={() => handlePlenty('wheat', 'none')}>Wheat</button>}
                 {plentyPlayed && plentyFirstChoice === '' && <button onClick={() => handlePlenty('sheep', 'none')}>Sheep</button>}
@@ -428,14 +494,12 @@ const GameBoard = ({ctx, G, moves, events}) => {
                 {plentyPlayed && plentyFirstChoice !== '' && <button onClick={() => handlePlenty(plentyFirstChoice, 'brick')}>Brick</button>}
                 {plentyPlayed && plentyFirstChoice !== '' && <button onClick={() => handlePlenty(plentyFirstChoice, 'ore')}>Ore</button>}
 
-                {stealingResource && G.players.length >= 1 && <button onClick={() => handleStealResource(0)}>Player 1</button>}
-                {stealingResource && G.players.length >= 2 && <button onClick={() => handleStealResource(1)}>Player 2</button>}
-                {stealingResource && G.players.length >= 3 && <button onClick={() => handleStealResource(2)}>Player 3</button>}
-                {stealingResource && G.players.length >= 4 && <button onClick={() => handleStealResource(3)}>Player 4</button>}
-                {stealingResource && G.players.length >= 5 && <button onClick={() => handleStealResource(4)}>Player 5</button>}
-                {stealingResource && G.players.length >= 6 && <button onClick={() => handleStealResource(5)}>Player 6</button>}
-                {stealingResource && G.players.length >= 7 && <button onClick={() => handleStealResource(6)}>Player 7</button>}
-                {stealingResource && G.players.length >= 8 && <button onClick={() => handleStealResource(7)}>Player 8</button>}
+                {placedRobber && <button onClick={() => determineStealing()}>Continue</button>}
+
+                {stealingResource && G.players.length >= 1 && canStealFromZero && ctx.currentPlayer != 0 && <button onClick={() => handleStealResource(0)}>Player 1</button>}
+                {stealingResource && G.players.length >= 2 && canStealFromOne && ctx.currentPlayer != 1 &&  <button onClick={() => handleStealResource(1)}>Player 2</button>}
+                {stealingResource && G.players.length >= 3 && canStealFromTwo && ctx.currentPlayer != 2 &&  <button onClick={() => handleStealResource(2)}>Player 3</button>}
+                {stealingResource && G.players.length >= 4 && canStealFromThree && ctx.currentPlayer != 3 &&  <button onClick={() => handleStealResource(3)}>Player 4</button>}
 
                 {G.players[ctx.currentPlayer].canPlayCard && G.players[ctx.currentPlayer].developmentCards.road > 0 && !plentyPlayed && !roadPlayed && !monopolyPlayed && !movingRobber && !knightPlayed && !stealingResource && <button onClick={() => handleRoadBuilding()}>Play Road Building (Place Two Roads)</button>}
                 </div>
