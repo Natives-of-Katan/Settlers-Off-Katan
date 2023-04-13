@@ -58,9 +58,6 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const [tradeModalIsOpen, setTradeModalIsOpen] = useState(false);
     const [tradeWarning, setTradeWarning] = useState("");
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState("");
-//    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(
-//      ctx.currentPlayer === 0 ? 1 : 0
-//    );
     const [tradeConfirmModalIsOpen, setTradeConfirmModalIsOpen] = useState(false);
     const closeTradeConfirmModal = () => {
       setTradeConfirmModalIsOpen(false);
