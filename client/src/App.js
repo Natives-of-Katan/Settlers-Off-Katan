@@ -41,7 +41,7 @@ function App() {
   const [numPlayers, setNumPlayers] = useState({});
   const [online, setOnline] = useState(false);
   const [multiplayer, setMultiplayer] = useState([false, 0]);
-  const [socket] = useState(io('/'));
+  const [socket] = useState(io('http://localhost:8080'));
   const [matchID, setMatchID] = useState();
   const [seatNum, setSeatNum] = useState();
   const [matchInfo, setMatchInfo] = useState({});

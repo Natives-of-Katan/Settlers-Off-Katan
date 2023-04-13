@@ -80,6 +80,7 @@ const Lobby = () => {
     //runs every time the players array is updated, once it is 4 or longer then the start button is enabled (game requires at least 4 players)
     const checkMinPlayers = () => {
         players.length < 3 ? setDisableStart(true) : setDisableStart(false);
+        setDisableStart(false);
     }
 
     //emit to the server that we are creating a lobby with our username and the generated game code 

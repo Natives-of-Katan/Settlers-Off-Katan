@@ -156,21 +156,20 @@ socketServer.on('connect', (socket) => {
 
 
     socket.on('turn-end', ({gameState, matchID}) => {
-        const newState = { ...gameState }
-        newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
-        newState.turn += 1;
+
+        gameState.currentPlayer = (gameState.currentPlayer + 1 ) % gameState.players.length;
+        gameState.turn += 1;
 
         //find the game, change phase if necessary
         const index = gamesList.findIndex(game => matchID === matchID);
-        if(newState.turn == gamesList[index].players.length)
-            newState.phase = 'initRound2';
-        if(newState.turn == (gamesList[index].players.length * 2))
-            newState.phase = 'gameplay';
+        if(gameState.turn == gamesList[index].players.length)
+            gameState.phase = 'initRound2';
+        if(gameState.turn == (gamesList[index].players.length * 2))
+            gameState.phase = 'gameplay';
 
         gamesList[index].socketIDs.forEach(socketID => {
-                    socketServer.to(socketID).emit('state-change', newState)
+                    socketServer.to(socketID).emit('state-change', gameState)
             })
-        console.log(newState);
     })
 
     socket.on('winner', async ({matchID, sessionID}) => {

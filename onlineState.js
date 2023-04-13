@@ -9,7 +9,7 @@
          },
          players: Array(num).fill().map( () => ({
             //score of 10 will be removed in production, used to test game over screen!
-             score: 10,
+             score: 0,
              color: "black",
              resources: {
                  wheat: 0,

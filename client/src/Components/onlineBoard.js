@@ -75,7 +75,13 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     }
     if(gameState.phase === 'gameplay')
       setFirstRounds(false);
+
+      console.log('emit hange');
+      console.log(gameState)
+      
   }, [gameState]);
+
+
 
    
   //useEffects for socket listeners
@@ -179,7 +185,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         setLongestRoad(gameState.longestRoad)
         setLongestRoadPlayer(gameState.currentPlayer)
       }
-    }, [gameState.longestRoad])
+    }, [isMounted, gameState])
     
   
     useEffect(() => {
@@ -194,9 +200,12 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     
 
     //begin turn
-    const playTurn = () => {
-      setGameState(rollDice(gameState));
+    const playTurn = async () => {
+      console.log(gameState);
+      const newState = await(rollDice(gameState));
+      setGameState(newState);
       setdiceRolled(true);
+      console.log('success roll dice')
     }
 
     const handleAddResources = id => {
@@ -277,10 +286,11 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     }
          
   const onEdgeClick = (e, i) => {
-    if (roadButtonPushed)
+    if (roadButtonPushed) {
       setGameState(addRoad(gameState, e, i, edges));
     canBuildRoad(false);
-    checkLongestRoad(gameState, longestRoad, longestRoadPlayer);
+    setGameState(checkLongestRoad(gameState, longestRoad, longestRoadPlayer));
+    }
   }
 
   const onVertexClick = (e, i) => {

@@ -22,24 +22,32 @@ let boardVertices = new Map();
 let boardRoads = new Map();
 
 export const rollDice = (gameState) => {
+    console.log(gameState)
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
-    gameState.players[gameState.currentPlayer] +=1;
     gameState.currentRoll = d1+d2; 
-
+    console.log(d1+d2);
+    console.log('hello')
     if ( gameState.currentRoll !== 7) {
         // settlements and cities get different resources
-        addInitialResources(gameState, d1+d2, 'settlements')
-        addInitialResources(gameState, d1+d2, 'cities')
+        gameState = addInitialResources(gameState, d1+d2, 'settlements');
+        gameState = addInitialResources(gameState, d1+d2, 'cities');
+        console.log(gameState);
     }
+    console.log('hello');
+    console.log(gameState);
+    return gameState;
 } 
 
+//this works as intended 
 export const addInitialResources = (gameState, diceNum, property) => {
+    
     gameState.players.forEach((player) => {
         let playerProperties = property == 'settlements' ? player.settlements : player.cities;
-        console.log(player.settlements);
+        console.log(property)
         let settlementHexes = playerProperties.map((v) => { 
             // get array of adjacent hexes
+            console.log('hi')
             return [hexes.get(getHexKey(boardVertices.get(v).props.hexes[0])),
             hexes.get(getHexKey(boardVertices.get(v).props.hexes[1])),
             hexes.get(getHexKey(boardVertices.get(v).props.hexes[2]))];
@@ -51,6 +59,8 @@ export const addInitialResources = (gameState, diceNum, property) => {
             });
         });
     })
+
+    return gameState;
 }
 
 export const setPlayerColors = (gameState) => {
@@ -85,8 +95,6 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
         gameState.players[gameState.currentPlayer].score += 1;
         gameState.players[gameState.currentPlayer].settlements.push(newVertex.props.id);
     }  
-    //gameState correct here
-    console.log(gameState);
     return gameState;
 }
 
@@ -109,6 +117,7 @@ const upgradeSettlement = (gameState, vertex, i, vertices) => {
         gameState.players[gameState.currentPlayer].resources.ore -= 3;
         gameState.players[gameState.currentPlayer].score += 1;
     }
+    return gameState;
 }
 
 const firstSettlements = (gameState) => {
@@ -146,7 +155,6 @@ export const addRoad = (gameState, edge, i, edges) => {
         gameState.players[gameState.currentPlayer].roads.push(newEdge.props.id);
         boardRoads.set(newEdge.props.id, newEdge)
     }
-    console.log(gameState);
     return gameState;
 }
 
@@ -161,6 +169,7 @@ export const addDevelopmentResources = (gameState) => {
     gameState.players[gameState.currentPlayer].developmentCards.monopoly += 1;
     gameState.players[gameState.currentPlayer].developmentCards.road += 1;
     gameState.players[gameState.currentPlayer].developmentCards.plenty += 1;
+    return gameState;
 }
 
 export const drawDevelopmentCard = (gameState) => {
@@ -198,6 +207,7 @@ export const drawDevelopmentCard = (gameState) => {
             gameState.deck.road -= 1;
         }
     }
+    return gameState;
 }
 
 export const playVictoryCard = (gameState) => {
@@ -207,6 +217,7 @@ export const playVictoryCard = (gameState) => {
         gameState.players[current].score += 1;
         gameState.players[current].canPlayCard = false;
     }
+    return gameState;
 }
 
 export const playYearOfPlenty = (gameState, choice1, choice2) => {
@@ -238,6 +249,7 @@ export const playYearOfPlenty = (gameState, choice1, choice2) => {
         else if (choice2 === 'ore') 
             gameState.players[current].resources.ore += 1; 
     }
+    return gameState;
 }
 
 export const playMonopoly = (gameState, choice) => {
@@ -291,6 +303,7 @@ export const playMonopoly = (gameState, choice) => {
             gameState.players[current].resources.ore = numResource;
         }
     }
+    return gameState;
 }
 
 const resetDevPlays = (gameState) => {
@@ -319,6 +332,7 @@ export const checkLongestRoad = (gameState, longestNum, prevWinner) => {
         gameState.longestRoad = longestPlayerRoad;
         gameState.players[gameState.currentPlayer].score += 1;
     }
+    return gameState;
 }
 
 export const settlersOffKatan = numPlayers => ({
