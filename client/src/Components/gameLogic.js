@@ -5,6 +5,7 @@ import {
     edgeConnectsProperty, 
     initRoadPlacement, 
     getHexKey, 
+    vertexUser,
     } from "./boardUtils";
 
 import { longestRoad } from "./roadUtils";    
@@ -12,30 +13,31 @@ import { TurnOrder } from 'boardgame.io/core';
 import { INVALID_MOVE } from 'boardgame.io/core';
 import produce from 'immer';
 
-const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep", 
-                          "wood", "sheep", "wood", "desert", "wood", "wood", 
-                          "brick", "brick", "brick", "ore", "ore", "ore", "sheep"];
-const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
+const tileResource = ["wheat", "wood", "brick", "wheat", "wood", "ore", 
+                          "wheat", "ore", "brick", "desert", "wheat", "sheep", 
+                          "sheep", "sheep", "wood", "sheep", "wood", "brick", "ore"];
+
 
 // holds hex information in map
 let hexes = new Map();
 let boardVertices = new Map();
 let boardRoads = new Map();
 
-const rollDice = ({G, ctx, playerID}) => {
-    const d1 = 1+Math.floor(Math.random() *6);
-    const d2 = 1+Math.floor(Math.random() *6);
-    G.players[playerID].diceRoll = d1+d2; 
+const rollDice = ({G, playerID, ctx}, d1, d2) => {
+    console.log(G.tileNums);
+    G.players[playerID].diceRoll = d1+d2;  
+    console.log(d1+d2);
 
     if (G.players[playerID].diceRoll !== 7) {
         // settlements and cities get different resources
         addInitialResources({G,ctx,playerID}, d1+d2, 'settlements')
         addInitialResources({G,ctx,playerID}, d1+d2, 'cities')
-    }
-}  
+    }  
+}
 
 const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
     G.players.forEach((player) => {
+        console.log(player);
         let playerProperties = property == 'settlements' ? player.settlements : player.cities;
         let settlementHexes = playerProperties.map((v) => { 
             // get array of adjacent hexes
@@ -45,10 +47,12 @@ const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
         });
         // add resources if the hex is rolled
         settlementHexes.forEach((sHexes) => { sHexes.forEach((hex) => {
-            if (hex != undefined && (diceNum == 0 || diceNum == hex.props.number) && hex.props.fill != 'desert')
+            if (hex != undefined && (diceNum == 0 || (diceNum == hex.props.number && G.robberIndex !== hex.props.numKey))) {
+                console.log("key", hex.props.numKey);
                 player.resources[hex.props.fill] += (property == 'settlements' ? 1 : 2);
-            });
+            }
         });
+        });        
     })
 }
 
@@ -58,6 +62,20 @@ const setPlayerColors = ({G}) => {
         G.players[i].color = colors[i];
     }
 }
+
+const findUsers = ({G}, vertices) => {
+    
+    let usersOnHex = [];
+
+    for (let i = 0; i < vertices.length; i++) {
+        console.log("vertextUser " + vertexUser(vertices[i], hexes));
+        usersOnHex[i] = vertexUser(vertices[i], hexes);
+        console.log("usersOnHex " + usersOnHex[i]);
+    }
+
+    G.robberUsers = usersOnHex;
+}
+
 
 const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
     const newVertex = {...vertex}
@@ -118,7 +136,7 @@ const firstRoads = (G, ctx, playerID, e, hexes, color) => {
     return false;
 }
 
-const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
+const addRoad = ({G, playerID, ctx}, edge, i, edges, roadBuilding, secondRoad) => {
     // new properties
     const newEdge = {...edge}
     const newProps = {...newEdge.props}
@@ -127,17 +145,25 @@ const addRoad = ({G, playerID, ctx}, edge, i, edges) => {
     newEdge.props = newProps;
     // if edge is available
     const firstRounds = firstRoads(G, ctx, playerID, edge, hexes, G.players[playerID].color);
-    if (edgeAvailable(edge, hexes) && (firstRounds|| (ctx.turn > G.players.length * 2 && 
+    if (edgeAvailable(edge, hexes) && (firstRounds || (ctx.turn > G.players.length * 2 && 
         edgeConnectsProperty(edge, hexes, G.players[playerID].color)))) {
         edges = edges[i][edges[i].indexOf(edge)] = newEdge;
-        if (!firstRounds) {
+        if (!firstRounds && !roadBuilding) {
             G.players[playerID].resources.wood -= 1;
             G.players[playerID].resources.brick -= 1;
         }
+        
+        G.players[playerID].totalRoads++;
         G.players[playerID].roads.push(newEdge.props.id);
         boardRoads.set(newEdge.props.id, newEdge)
+
+        if (roadBuilding && secondRoad) {
+            G.players[playerID].developmentCards.road -= 1;
+            G.players[playerID].canPlayCard = false;
+        }
     }
 }
+
 
 const addDevelopmentResources = ({G, playerID}) => {
     G.players[playerID].resources.sheep += 1;
@@ -145,11 +171,13 @@ const addDevelopmentResources = ({G, playerID}) => {
     G.players[playerID].resources.ore += 1;
     G.players[playerID].resources.brick += 1;
     G.players[playerID].resources.wood += 1;
+    /*
     G.players[playerID].developmentCards.knight += 1;
     G.players[playerID].developmentCards.victory += 1;
     G.players[playerID].developmentCards.monopoly += 1;
     G.players[playerID].developmentCards.road += 1;
     G.players[playerID].developmentCards.plenty += 1;
+    */
 }
 
 const drawDevelopmentCard = ({G, playerID}) => {
@@ -166,7 +194,7 @@ const drawDevelopmentCard = ({G, playerID}) => {
         
         //Adds card to player's hand and removes it from the deck
         if (drawnCard <= G.deck.knight) {
-            G.players[playerID].developmentCards.knight += 1;
+            G.players[playerID].newDevelopmentCards.knight += 1;
             G.deck.knight -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory)) {
@@ -174,25 +202,71 @@ const drawDevelopmentCard = ({G, playerID}) => {
             G.deck.victory -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly)) {
-            G.players[playerID].developmentCards.monopoly += 1;
+            G.players[playerID].newDevelopmentCards.monopoly += 1;
             G.deck.monopoly -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty)) {
-            G.players[playerID].developmentCards.plenty += 1;
+            G.players[playerID].newDevelopmentCards.plenty += 1;
             G.deck.plenty -= 1;
         }
         else if (drawnCard <= (G.deck.knight+G.deck.victory+G.deck.monopoly+G.deck.plenty+G.deck.road)) {
-            G.players[playerID].developmentCards.road += 1;
+            G.players[playerID].newDevelopmentCards.road += 1;
             G.deck.road -= 1;
         }
     }
 }
 
+const updateDevelopmentCards = ({G, playerID}) => {
+    G.players[playerID].developmentCards.knight += G.players[playerID].newDevelopmentCards.knight;
+    G.players[playerID].newDevelopmentCards.knight = 0;
+
+    G.players[playerID].developmentCards.monopoly += G.players[playerID].newDevelopmentCards.monopoly;
+    G.players[playerID].newDevelopmentCards.monopoly = 0;
+
+    G.players[playerID].developmentCards.plenty += G.players[playerID].newDevelopmentCards.plenty;
+    G.players[playerID].newDevelopmentCards.plenty = 0;
+
+    G.players[playerID].developmentCards.road += G.players[playerID].newDevelopmentCards.road;
+    G.players[playerID].newDevelopmentCards.road = 0;
+
+}
+
+const playKnight = ({G, playerID}) => {
+    if (G.players[playerID].developmentCards.knight > 0) {
+        G.players[playerID].developmentCards.knight -= 1;
+        G.players[playerID].playedKnights++;
+        G.players[playerID].canPlayCard = false;
+
+        if (G.players[playerID].playedKnights > G.largestArmy && G.largestArmy < 2) {
+            G.largestArmy = G.players[playerID].playedKnights;
+        }
+        else if (G.players[playerID].playedKnights > G.largestArmy && G.largestArmy === 2) {
+            G.largestArmy = G.players[playerID].playedKnights;
+            G.players[playerID].largestArmyCard = 1;
+            G.players[playerID].score += 2;
+        }
+        else if (G.players[playerID].playedKnights > G.largestArmy) {
+            G.largestArmy = G.players[playerID].playedKnights;
+
+            for (let i=0; i<G.players.length; i++) {
+                if (G.players[i].largestArmyCard === 1) {
+                    G.players[i].largestArmyCard = 0;
+                    G.players[i].score -= 2;
+                }
+            }
+
+            G.players[playerID].largestArmyCard = 1;
+            G.players[playerID].score += 2;
+        }
+      }
+}
+
+
 const playVictoryCard = ({G, playerID}) => {
     if (G.players[playerID].developmentCards.victory > 0) {
         G.players[playerID].developmentCards.victory -= 1;
         G.players[playerID].score += 1;
-        G.players[playerID].canPlayCard = false;
+        console.log("Victory Card Played" + G.players[playerID].score);
     }
 }
 
@@ -288,6 +362,80 @@ const setHexMap = ({G, ctx}, h) => {
     ))
 }
 
+const setTileNums = ({G, ctx}, nums) => {
+    for (let i=0; i<nums.length; i++) {
+        if (nums[i] == "Robber") {
+            G.robberIndex = i;
+        }
+    }
+
+    G.tileNums = nums;
+}
+
+
+const stealResource =  ({G, playerID, ctx}, num) => {
+    const targetTotalResources = G.players[num].resources.wheat + G.players[num].resources.sheep + G.players[num].resources.wood + G.players[num].resources.brick + G.players[num].resources.ore;
+
+    if (targetTotalResources > 0) {
+        const resourceStolen = 1+Math.floor(Math.random()*targetTotalResources);
+
+        if (resourceStolen <= G.players[num].resources.wheat) {
+            G.players[num].resources.wheat -= 1;
+            G.players[playerID].resources.wheat += 1;
+        }
+        else if (resourceStolen <= G.players[num].resources.sheep + G.players[num].resources.wheat) {
+            G.players[num].resources.sheep -= 1;
+            G.players[playerID].resources.sheep += 1;
+        }
+        else if (resourceStolen <= G.players[num].resources.wood + G.players[num].resources.sheep + G.players[num].resources.wheat) {
+            G.players[num].resources.wood -= 1;
+            G.players[playerID].resources.wood += 1;
+        }
+        else if (resourceStolen <= G.players[num].resources.brick + G.players[num].resources.wood + G.players[num].resources.sheep + G.players[num].resources.wheat) {
+            G.players[num].resources.brick -= 1;
+            G.players[playerID].resources.brick += 1;
+        }
+        else if (resourceStolen <= G.players[num].resources.ore + G.players[num].resources.brick + G.players[num].resources.wood + G.players[num].resources.sheep + G.players[num].resources.wheat) {
+            G.players[num].resources.ore -= 1;
+            G.players[playerID].resources.ore += 1;
+        }   
+    }
+}
+
+
+const discardCards = ({G, ctx}, totalResources, index) => {
+    const discard = Math.floor(totalResources/2);
+    console.log(totalResources/2);
+    console.log(Math.floor(totalResources/2));
+
+
+    for (let i=0; i < discard; i++) {
+        let choice = 1+Math.floor(Math.random() * G.players[index].resources.wheat + G.players[index].resources.sheep + G.players[index].resources.wood + G.players[index].resources.brick + G.players[index].resources.ore);
+        console.log("Choice is " + choice);
+
+        if (choice <= G.players[index].resources.wheat) {
+            G.players[index].resources.wheat--;
+            console.log("Discarded Wheat");
+        }
+        else if (choice <= G.players[index].resources.wheat + G.players[index].resources.sheep) {
+            G.players[index].resources.sheep--;
+            console.log("Discarded Sheep");
+        }
+        else if (choice <= G.players[index].resources.wheat + G.players[index].resources.sheep + G.players[index].resources.wood) {
+            G.players[index].resources.wood--;
+            console.log("Discarded Wood");
+        }
+        else if (choice <= G.players[index].resources.wheat + G.players[index].resources.sheep + G.players[index].resources.wood + G.players[index].resources.brick) {
+            G.players[index].resources.brick--;
+            console.log("Discarded Brick");
+        }
+        else if (choice <= G.players[index].resources.wheat + G.players[index].resources.sheep + G.players[index].resources.wood + G.players[index].resources.brick + G.players[index].resources.ore) {
+            G.players[index].resources.ore--;
+            console.log("Discarded Ore");
+        }
+    }
+}
+
 const makeTrade = (actualG, ctx, currentPlayerIndex, selectedPlayerIndex, tradeResources, wantedResources) => {
     console.log('traderesources in makeTrade:', tradeResources);
     console.log('wantedresources in makeTrade:', wantedResources);
@@ -359,50 +507,63 @@ export const checkLongestRoad = ({G, ctx}, longestNum, prevWinner) => {
   
 export const settlersOffKatan = numPlayers => ({
     setup: () => ({
-            deck: {
-                knight: 14,
-                victory: 5,
-                monopoly: 2,
-                road: 2,
-                plenty: 2
+        tileNums: [9, 8, 5, 12, 11, 3, 6, 10, 6, "Robber", 4, 11, 2, 4, 3, 5, 9, 10, 8],
+        robberIndex: 9,
+        deck: {
+            knight: 14,
+            victory: 5,
+            monopoly: 2,
+            road: 2,
+            plenty: 2
+        },
+        largestArmy: 0,
+        players: Array(numPlayers).fill().map( () => ({
+            score: 0,
+            color: "black",
+            resources: {
+                wheat: 0,
+                sheep: 0,
+                wood: 0,
+                brick: 0,
+                ore: 0
             },
-            players: Array(numPlayers).fill().map(() => ({
-                score: 0,
-                color: "black",
-                resources: {
-                    wheat: 0,
-                    sheep: 0,
-                    wood: 0,
-                    brick: 0,
-                    ore: 0
-                },
-                developmentCards: {
-                    knight: 0,
-                    victory: 0,
-                    monopoly: 0,
-                    road: 0,
-                    plenty: 0
-                },
-                diceRoll: 0,
-                longestRoad: false,
-                canBuildSettlement: false,
-                canBuildRoad: false,
-                canBuyCard: false,
-                canPlayCard: true,
-                startOfTurn: false,
-                settlements: [],
-                cities: [],
-                roads: [],
-                cards: []                
-          })),
-          currentPlayer: 0,
-          turn: 0,
-          currentRoll:0,
-          longestRoad: 4
+            developmentCards: {
+                knight: 0,
+                victory: 0,
+                monopoly: 0,
+                road: 0,
+                plenty: 0
+            },
+            newDevelopmentCards: {
+                knight: 0,
+                monopoly: 0,
+                road: 0,
+                plenty: 0
+            },
+            playedKnights: 0,
+            largestArmyCard: 0,
+            diceRoll: 0,
+            longestRoad: false,
+            totalRoads: 0, //this is for keeping track of if a road was placed for when Road Building is played
+            canBuildSettlement: false,
+            canBuildRoad: false,
+            canBuyCard: false,
+            canPlayCard: true,
+            startOfTurn: false,
+            settlements: [],
+            cities: [],
+            roads: [],
+            cards: []
+        })),
+        currentPlayer: 0,
+        turn: 0,
+        currentRoll:0,
+        longestRoad: 4,
+        robberUsers: [],
     }),
 
     turn: {
-        onBegin: resetDevPlays
+        onBegin: resetDevPlays,
     },
 
     phases: {
@@ -436,9 +597,16 @@ export const settlersOffKatan = numPlayers => ({
         playYearOfPlenty,
         addRoad,
         addSettlement,
+        setPlayerColors,
+        setTileNums,
+        stealResource,
+        playKnight,
+        discardCards,
         upgradeSettlement,
         addInitialResources,
         checkLongestRoad,
+        updateDevelopmentCards,
+        findUsers,
         makeTrade: {
             move: makeTrade,
             client: false,
