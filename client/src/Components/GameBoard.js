@@ -57,9 +57,10 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const [initiateTrade, setInitiateTrade] = useState(false); 
     const [tradeModalIsOpen, setTradeModalIsOpen] = useState(false);
     const [tradeWarning, setTradeWarning] = useState("");
-    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(
-      ctx.currentPlayer === 0 ? 1 : 0
-    );
+    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState("");
+//    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(
+//      ctx.currentPlayer === 0 ? 1 : 0
+//    );
     const [tradeConfirmModalIsOpen, setTradeConfirmModalIsOpen] = useState(false);
     const closeTradeConfirmModal = () => {
       setTradeConfirmModalIsOpen(false);
@@ -262,7 +263,6 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       setLastWantedResources(wantedResources);
     };
     
-
     const renderTradedResources = (resources) => {
       return Object.entries(resources)
         .filter(([key, value]) => value > 0)
@@ -769,7 +769,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
               <option value="" disabled> Select a player</option>
               {getOtherPlayerOptions()}
             </select>&nbsp;&nbsp;
-            <button onClick={() => {handleMakeTrade(G, ctx, moves.makeTrade);}}>Make Trade</button><br></br><br></br>
+            <button onClick={() => {handleMakeTrade();}}>Make Trade</button><br></br><br></br>
           </div>
           <button onClick={() => {setTradeWarning(""); resetTradeWantedResources();}}>Reset Trade Offer</button><br></br><br></br>
           <button onClick={() => {setTradeWarning(""); resetTradeWantedResources(); setTradeModalIsOpen(false);}}>Cancel</button>   
