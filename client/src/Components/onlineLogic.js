@@ -96,7 +96,7 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
 }
 
 const upgradeSettlement = (gameState, vertex, i, vertices) => {
-    if (vertex.props.stroke == gameState.players[gameState.currentPlayer].user ) {
+    if (vertex.props.stroke == gameState.players[gameState.currentPlayer].color ) {
         const newVertex = {...vertex}
         const newProps = {...newVertex.props}
         newProps.type = 'city';

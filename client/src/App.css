@@ -8,7 +8,7 @@ html, body, .App {
 }
 
 .App {
-  background: url("./Components/background.png");
+  background: url("./Components/Images/background.png");
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -110,7 +110,7 @@ button:hover {
 .Game {
   text-align: center;
   padding-top: 80px;
-  background-image: url("./Components/gameBackground.png");
+  background-image: url("./Components/Images/gameBackground.png");
   background-size: cover;
 }
 
