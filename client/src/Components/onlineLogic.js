@@ -84,7 +84,12 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
         boardVertices.set(vertex.props.id, newVertex)
         gameState.players[gameState.currentPlayer].score += 1;
         gameState.players[gameState.currentPlayer].settlements.push(newVertex.props.id);
-    }  
+    }
+    else {
+        newProps.displayTooltip="block";
+        newVertex.props = newProps;
+        vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+    }   
     //gameState correct here
     console.log(gameState);
     return gameState;

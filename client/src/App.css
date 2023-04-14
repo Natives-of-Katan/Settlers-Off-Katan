@@ -275,6 +275,27 @@ circle.active {
   font-size: 16px;
 }
 
+.settlement:not(:hover) .tooltip polygon{
+  display:none;
+}
+
+.settlement:not(:hover) .tooltip text{
+  display:none;
+}
+
+.tooltip polygon {
+  fill-opacity: 1;
+  fill:gold;
+  stroke: white;
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+
+.tooltip text {
+  font-size: 0.11em;
+  font-weight: bold;
+}
+
 .turn-actions {
   display: flex;
   flex-direction: column;

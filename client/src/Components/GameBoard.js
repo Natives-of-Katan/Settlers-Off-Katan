@@ -301,7 +301,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const renderScoreBoard = () => {
       setScoreboard(G.players.map((player, index) => (
         <tr key={index} className={index === Number(ctx.currentPlayer) ? 'current-player' : ''}>
-          {console.log(index)}firs
+          {console.log(index)}
           <td style={{color: player.color}}>Player{index + 1}</td>
           <td>{player.score}</td>
           </tr>
@@ -324,6 +324,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       moves.upgradeSettlement(e, i,vertices);
       canUpgradeSettlement(false);
     }
+    // if a player added a settlement since clicking, they can't build anymore
     if (G.players[ctx.currentPlayer].settlements.length > playerV)
       canBuildSettlement(false);
 
@@ -331,6 +332,12 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
 
   const getResource = (r) => {
     console.log("Resource", r);
+  }
+
+  const checkInvalid = (v) => {
+    if (v.props.displayTooltip == "block")  {
+      v.props.displayTooltip = "none";
+    }
   }
 
   const renderHexTiles = () => {
@@ -343,7 +350,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
         ))}
       { 
         vertices[i].map((v) => (
-        <Vertex {...v.props} onClick={() => onVertexClick(v, i)}></Vertex>
+        <Vertex {...v.props} onMouseOut={() => checkInvalid(v)} onClick={() => onVertexClick(v, i)}></Vertex>
         ))}
         <Text>{tileNums[i]}</Text>
       </CustomHex>
