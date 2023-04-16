@@ -4,6 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 const socketio = require('socket.io');
 const socketServer = require('socket.io')(server, {
+    maxHttpBufferSize: 1e8,
     cors: {
       origin: '*',
     }
@@ -133,42 +134,40 @@ socketServer.on('connect', (socket) => {
     //server sends initial game state
     socket.on('ready', (matchID) => {
         const index = gamesList.findIndex(game => game.matchID === matchID);
-        console.log(gamesList[index].players);
         if(index >= 0 ) {
         const numPlayers = gamesList[index].players.length;
         const gameState = initialize(numPlayers);
         gamesList[index].socketIDs.forEach(socketID => {
-                socketServer.to(socketID).emit('initial-state', gameState)
+                socketServer.to(socketID).emit('initial-state', gameState);
         })
     }
     })
 
 
-   socket.on('state-change', ({gameState, matchID}) => {
+   socket.on('state-change', ({newState, matchID}) => {
         console.log('state change for match %d', matchID);
-        console.log(gameState.players[gameState.currentPlayer].settlements);
         const index = gamesList.findIndex(game => game.matchID === matchID);
         gamesList[index].socketIDs.forEach(socketID => {
             if(socketID != socket.id)
-                socketServer.to(socketID).emit('state-change', gameState)
+                socketServer.to(socketID).emit('state-change', newState);
         })
     })
 
 
-    socket.on('turn-end', ({gameState, matchID}) => {
+    socket.on('turn-end', ({newState, matchID}) => {
 
-        gameState.currentPlayer = (gameState.currentPlayer + 1 ) % gameState.players.length;
-        gameState.turn += 1;
+        newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
+        newState.turn += 1;
 
         //find the game, change phase if necessary
         const index = gamesList.findIndex(game => matchID === matchID);
-        if(gameState.turn == gamesList[index].players.length)
-            gameState.phase = 'initRound2';
-        if(gameState.turn == (gamesList[index].players.length * 2))
-            gameState.phase = 'gameplay';
+        if(newState.turn == gamesList[index].players.length)
+            newState.phase = 'initRound2';
+        if(newState.turn == (gamesList[index].players.length * 2))
+            newState.phase = 'gameplay';
 
         gamesList[index].socketIDs.forEach(socketID => {
-                    socketServer.to(socketID).emit('state-change', gameState)
+                    socketServer.to(socketID).emit('state-change', newState)
             })
     })
 

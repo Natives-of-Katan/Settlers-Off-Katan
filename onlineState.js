@@ -1,4 +1,4 @@
-    const initialize = (num) => {
+    const initialize = (num) => {  
         const state = {
              deck: {
              knight: 14,
@@ -35,7 +35,8 @@
              settlements: [],
              cities: [],
              roads: [],
-             cards: []
+             cards: [],
+            
          })),
          currentPlayer: 0,
          turn: 0,
@@ -43,7 +44,7 @@
          phase: 'initRound1',
          winner: 0,
          gameOver: false,
-         longestRoad: 4
+         longestRoad: 4,
      }
      return state;
     }

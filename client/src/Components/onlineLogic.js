@@ -16,42 +16,44 @@ const tileResource = ["wheat", "wheat", "wheat", "wheat", "sheep", "sheep",
                           "brick", "brick", "brick", "ore", "ore", "ore", "sheep"];
 const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 
-// holds hex information in map
-let hexes = new Map();
-let boardVertices = new Map();
-let boardRoads = new Map();
-
 export const rollDice = (gameState) => {
-    console.log(gameState)
+    
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
     gameState.currentRoll = d1+d2; 
-    console.log(d1+d2);
-    console.log('hello')
+
     if ( gameState.currentRoll !== 7) {
         // settlements and cities get different resources
         gameState = addInitialResources(gameState, d1+d2, 'settlements');
         gameState = addInitialResources(gameState, d1+d2, 'cities');
-        console.log(gameState);
     }
-    console.log('hello');
-    console.log(gameState);
+
     return gameState;
 } 
 
-//this works as intended 
+
 export const addInitialResources = (gameState, diceNum, property) => {
-    
+
+    /*console.log('function called')
+    gameState.boardVertices.forEach((value, key) => {
+        console.log(key, value);
+    })*/
+
     gameState.players.forEach((player) => {
+        
         let playerProperties = property == 'settlements' ? player.settlements : player.cities;
-        console.log(property)
+        //console.log(playerProperties);
         let settlementHexes = playerProperties.map((v) => { 
             // get array of adjacent hexes
-            console.log('hi')
-            return [hexes.get(getHexKey(boardVertices.get(v).props.hexes[0])),
-            hexes.get(getHexKey(boardVertices.get(v).props.hexes[1])),
-            hexes.get(getHexKey(boardVertices.get(v).props.hexes[2]))];
+
+            //.log(v);
+            //console.log(gameState.boardVertices.get(v));
+
+            return [gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[0])),
+            gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[1])),
+            gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[2]))];
         });
+
         // add resources if the hex is rolled
         settlementHexes.forEach((sHexes) => { sHexes.forEach((hex) => {
             if (hex != undefined && (diceNum == 0 || diceNum == hex.props.number) && hex.props.fill != 'desert')
@@ -76,9 +78,8 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
     const newVertex = {...vertex}
     const newProps = {...newVertex.props}
     // check if the vertex is taken
-    console.log(firstSettlements(gameState));
-    if (vertexAvailable(vertex, hexes) && (firstSettlements(gameState) || 
-    (gameState.turn > gameState.players.length * 2 && vertexConnectsRoad(vertex, hexes, gameState.players[gameState.currentPlayer].color)))) 
+    if (vertexAvailable(vertex, gameState.hexes) && (firstSettlements(gameState) || 
+    (gameState.turn > gameState.players.length * 2 && vertexConnectsRoad(vertex, gameState.hexes, gameState.players[gameState.currentPlayer].color)))) 
     {
         if (!firstSettlements(gameState)) {
             gameState.players[gameState.currentPlayer].resources.wood -=1;
@@ -91,7 +92,7 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
         newProps.classes = 'active';
         newVertex.props = newProps
         vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
-        boardVertices.set(vertex.props.id, newVertex)
+        gameState.boardVertices.set(vertex.props.id, newVertex)
         gameState.players[gameState.currentPlayer].score += 1;
         gameState.players[gameState.currentPlayer].settlements.push(newVertex.props.id);
     }  
@@ -107,7 +108,7 @@ const upgradeSettlement = (gameState, vertex, i, vertices) => {
 
         // add to cities list, remove from settlements
         gameState.players[gameState.currentPlayer].cities.push(vertex.props.id);
-        boardVertices.set(vertex.props.id, newVertex)
+        gameState.boardVertices.set(vertex.props.id, newVertex)
         gameState.players[gameState.currentPlayer].settlements = gameState.players[gameState.currentPlayer].settlements.filter(function(item) {
             return item !== vertex.props.id
         })
@@ -128,11 +129,15 @@ const firstSettlements = (gameState) => {
         || (gameState.turn = gameState.players.length && gameState.players[gameState.currentPlayer].settlements.length == 1 ))*/
 }
 
-const firstRoads = (gameState, e, hexes, color) => { 
-    if (initRoadPlacement(e, hexes, color))
+const firstRoads = (gameState, e, color) => { 
+    if(gameState.phase == 'initRound1' || gameState.phase == 'initRound2') {
+        if(gameState.players[gameState.currentPlayer].roads.length < 2)
+            return true;
+    }
+   /* if (initRoadPlacement(e, gameState.hexes, color)) 
         return ((gameState.phase == 'initRound1' && gameState.players[gameState.currentPlayer].settlements.length == 1 
         && gameState.players[gameState.currentPlayer].roads.length == 0) || gameState.phase == 'initRound2' 
-        && gameState.players[gameState.currentPlayer].roads.length == 1)
+        && gameState.players[gameState.currentPlayer].roads.length == 1)*/
     return false;
 }
 
@@ -144,16 +149,16 @@ export const addRoad = (gameState, edge, i, edges) => {
     newProps.classes = newProps.classes + "active";
     newEdge.props = newProps;
     // if edge is available
-    const firstRounds = firstRoads(gameState, edge, hexes, gameState.players[gameState.currentPlayer].color);
-    if (edgeAvailable(edge, hexes) && (firstRounds|| (gameState.turn > gameState.players.length * 2 && 
-        edgeConnectsProperty(edge, hexes, gameState.players[gameState.currentPlayer].color)))) {
+    const firstRounds = firstRoads(gameState, edge, gameState.players[gameState.currentPlayer].color);
+    if (edgeAvailable(edge, gameState.hexes) && (firstRounds|| (gameState.turn > gameState.players.length * 2 && 
+        edgeConnectsProperty(edge, gameState.hexes, gameState.players[gameState.currentPlayer].color)))) {
         edges = edges[i][edges[i].indexOf(edge)] = newEdge;
         if (!firstRounds) {
             gameState.players[gameState.currentPlayer].resources.wood -= 1;
             gameState.players[gameState.currentPlayer].resources.brick -= 1;
         }
         gameState.players[gameState.currentPlayer].roads.push(newEdge.props.id);
-        boardRoads.set(newEdge.props.id, newEdge)
+        gameState.boardRoads.set(newEdge.props.id, newEdge)
     }
     return gameState;
 }
@@ -310,18 +315,20 @@ const resetDevPlays = (gameState) => {
     gameState.players[gameState.currentPlayer].canPlayCard = true;
 }
 
-export const setHexMap = (h) => {
+export const setHexMap = (h, gameState) => {
     h.map((hex) => (
-        hexes.set("q: " + hex.props.q + ", r: " + hex.props.r + ", s: " + hex.props.s, hex)
+        gameState.hexes.set("q: " + hex.props.q + ", r: " + hex.props.r + ", s: " + hex.props.s, hex)
     ))
+    console.log(gameState);
+    return gameState;
 }
 
 export const checkLongestRoad = (gameState, longestNum, prevWinner) => {
     // get player roads from map
     const playerRoads = gameState.players[gameState.currentPlayer].roads.map((r) => (
-        boardRoads.get(r)
+        gameState.boardRoads.get(r)
     ))
-    let longestPlayerRoad = longestRoad(playerRoads, hexes);
+    let longestPlayerRoad = longestRoad(playerRoads, gameState.hexes);
 
     if (longestPlayerRoad > longestNum) {
         if (prevWinner != undefined) {

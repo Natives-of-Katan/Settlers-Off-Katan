@@ -7,6 +7,7 @@ import CustomHex from '../Models/CustomHex';
 import Edge from '../Models/Edge';
 import Vertex from '../Models/Vertex';
 import { initEdges, initVertices } from './boardUtils';
+import {parse, stringify} from 'flatted';
 
 import { SockContext } from '../Contexts/SocketContext';
 import { MatchIDContext } from '../Contexts/MatchIDContext';
@@ -56,30 +57,29 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     socket.emit('ready', matchID);
   }, []);
 
-  useEffect(() => {
-    if(seatNum == 0) {
-      setTurnEnabled(true);
-      setCanEmit(true);
-    }
-  }, [isMounted]);
-
-
   //if gameState changes, emit the changes, only if it's your turn 
   useEffect(() => {
     //checkBuildActions();
     if(isMounted)
       checkVictory();
+
     if(canEmit & isMounted) {
-      socket.emit('state-change', ({gameState, matchID}));
-      console.log(gameState);
+      const newState = {
+        ...gameState, 
+        hexes: stringify(Array.from(gameState.hexes)),
+        boardRoads: stringify(Array.from(gameState.boardRoads)),
+        boardVertices: stringify(Array.from(gameState.boardVertices))
+      }
+      socket.emit('state-change', ({newState, matchID}));
+      console.log('emit change');
+      console.log(newState)
     }
     if(gameState.phase === 'gameplay')
       setFirstRounds(false);
 
-      console.log('emit hange');
-      console.log(gameState)
       
-  }, [gameState]);
+      
+  }, [gameState, gameState.currentRoll]);
 
 
 
@@ -88,20 +88,34 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
   useEffect(()=> {
 
     //received once at the beginning of the game 
-    socket.once('initial-state', gameState => {
-      setGameState(gameState);
+    socket.once('initial-state', receivedState => {
+      const newState = {
+        ...receivedState,
+        hexes: new Map(),
+        boardVertices: new Map(),
+        boardRoads: new Map()
+      }
+      setGameState(newState);
       setIsMounted(true);
 
       //if you're player 1, you can make a move
       if(seatNum === 0) {
         setTurnEnabled(true);
+        setCanEmit(true);
       }
-    },[gameState])
+    })
 
     //when a new state change is received, update gameState, check if current player
-    socket.on('state-change', (newState) => {
-      setGameState(newState);
-      if(seatNum === newState.currentPlayer) {
+    socket.on('state-change', (receivedState) => {
+      console.log(receivedState);
+      setGameState({
+        ...receivedState,
+        hexes: new Map(parse(receivedState.hexes)),
+        boardRoads: new Map(parse(receivedState.boardRoads)),
+        boardVertices: new Map(parse(receivedState.boardVertices))
+     });
+
+      if(seatNum === receivedState.currentPlayer) {
         console.log('your turn');
         setTurnEnabled(true);
         setCanEmit(true);
@@ -111,7 +125,6 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         setCanEmit(false);
       }
       console.log('new state received:\n ');
-      console.log(newState);
     })
 
   },[socket]);
@@ -146,6 +159,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const [longestRoadPlayer, setLongestRoadPlayer] = useState();
     const [victory, setVictory] = useState(false);
     const [phase, setPhase] = useState('initRound1');
+    const [initial, setInitial] = useState(true);
     const navigate = useNavigate();
 
 
@@ -189,21 +203,24 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     
   
     useEffect(() => {
-      if(isMounted)
+      if(isMounted && initial) {
         addInitialResources(gameState, 0, 'settlements')
-    }, [isMounted, firstRounds])
+        setInitial(false);
+      }
+    }, [firstRounds])
 
     useEffect(() => {
       if(isMounted)
-        setHexMap(hexes);
+        setGameState(setHexMap(hexes, gameState));
     }, [isMounted, hexes])
     
 
     //begin turn
     const playTurn = async () => {
-      console.log(gameState);
-      const newState = await(rollDice(gameState));
-      setGameState(newState);
+      console.log(canEmit);
+      const newState = {...gameState};
+      setGameState(await rollDice(newState));
+     // setGameState(await rollDice(gameState));
       setdiceRolled(true);
       console.log('success roll dice')
     }
@@ -257,8 +274,16 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       setBuildSettlement(false);
       setGameStart(false)
 
+      const newState = {
+        ...gameState, 
+        hexes: stringify(Array.from(gameState.hexes)),
+        boardRoads: stringify(Array.from(gameState.boardRoads)),
+        boardVertices: stringify(Array.from(gameState.boardVertices))
+      }
+  
       //emit state at end of turn, then 'turn off' socket emitter
-      socket.emit('turn-end', ({gameState, matchID}));
+      socket.emit('turn-end', ({newState, matchID}));
+      console.log('sent')
       setCanEmit(false);
     }
 
@@ -368,9 +393,9 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
                 {!victory && <div className='current-player'> {gameState.currentPlayer == seatNum ? "Your Turn!" : matchInfo.players[gameState.currentPlayer] +'s turn!' }
                 </div>}
                 <div>
-                {!firstRounds && !diceRolled && !victory && <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
-                    {!gameStart && firstRounds && !victory && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {firstPhasesComplete() && diceRolled && !victory && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                {!firstRounds && !diceRolled && !victory && turnEnabled && <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                    {!gameStart && firstRounds && !victory && turnEnabled && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
+                    {firstPhasesComplete() && diceRolled && !victory && turnEnabled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
