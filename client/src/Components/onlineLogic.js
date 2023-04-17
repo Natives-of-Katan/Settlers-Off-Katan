@@ -84,14 +84,19 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
         boardVertices.set(vertex.props.id, newVertex)
         gameState.players[gameState.currentPlayer].score += 1;
         gameState.players[gameState.currentPlayer].settlements.push(newVertex.props.id);
-    }  
+    }
+    else {
+        newProps.displayTooltip="block";
+        newVertex.props = newProps;
+        vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+    }   
     //gameState correct here
     console.log(gameState);
     return gameState;
 }
 
 const upgradeSettlement = (gameState, vertex, i, vertices) => {
-    if (vertex.props.stroke == gameState.players[gameState.currentPlayer].user ) {
+    if (vertex.props.stroke == gameState.players[gameState.currentPlayer].color ) {
         const newVertex = {...vertex}
         const newProps = {...newVertex.props}
         newProps.type = 'city';

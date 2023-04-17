@@ -1,5 +1,9 @@
+import Tooltip from "./Tooltip";
+
 const Vertex = (props) => {
-    return (
+
+  return (
+    <g class="settlement">
       <circle 
       id={props.id}
       className={[props.type + '-' + props.user, props.classes].join(' ')} 
@@ -9,19 +13,22 @@ const Vertex = (props) => {
       stroke={props.user}
       onClick={props.onClick}
       hexes={props.hexes}
-      title="hello"
+      onMouseMove={props.onMouseOut}
       fill={
         props.type === 'city' ? "url(#city)" : (props.type === 'none' ? "white": "url(#settlement)")
       }
       />
-    );
+      <Tooltip cx={props.cx} cy={props.cy}  
+      display={props.displayTooltip == null ? "none" : props.displayTooltip}></Tooltip>
+    </g>
+  );
 }
 
 Vertex.defaultProps = {
-  classes: '',
-  vertexNumber: 0, 
-  type: 'none',
-  user: 'none'
+classes: '',
+vertexNumber: 0, 
+type: 'none',
+user: 'none'
 }
 
 export default Vertex;

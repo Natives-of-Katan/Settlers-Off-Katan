@@ -93,17 +93,22 @@ const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
         newProps.type = 'settlement';
         newProps.user = G.players[playerID].color;
         newProps.classes = 'active';
-        newVertex.props = newProps
+        newVertex.props = newProps;
 
-        vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+        vertices[i][vertices[i].indexOf(vertex)] = newVertex;
         boardVertices.set(vertex.props.id, newVertex)
         G.players[playerID].score += 1;
         G.players[playerID].settlements.push(newVertex.props.id);
     }  
+    else {
+        newProps.displayTooltip="block";
+        newVertex.props = newProps;
+        vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+    }   
 }
 
 const upgradeSettlement = ({G, playerID}, vertex, i, vertices) => {
-    if (vertex.props.stroke == G.players[playerID].user ) {
+    if (vertex.props.stroke == G.players[playerID].color ) {
         const newVertex = {...vertex}
         const newProps = {...newVertex.props}
         newProps.type = 'city';

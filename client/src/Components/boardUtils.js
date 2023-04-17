@@ -59,7 +59,7 @@ export const initVertices = (hexagons, size) => {
           HexUtils.neighbour(hex, (((d1 - 1) % 6) + 6) % 6),
         ];
         const vertex = <Vertex id={JSON.stringify(hex) + "-v-" + j} vertexNumber={j}
-        cx={points[j].x} cy={points[j].y} hexes={hexes}></Vertex>
+        cx={points[j].x} cy={points[j].y} hexes={hexes} displayTooltip="none"></Vertex>
         hexVertices.push(vertex);
       })
       verticeArray.push(hexVertices);

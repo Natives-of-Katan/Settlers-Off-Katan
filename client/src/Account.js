@@ -227,8 +227,8 @@ const Account = () => {
                                  </div>}
                         </div>
                     </div>
-                <button onClick={() => {setEdit(true)}}>Edit Account</button>
-                <button onClick={deleteAcct}>Delete Account</button>
+                <button  className="btn-default-style" onClick={() => {setEdit(true)}}>Edit Account</button>
+                <button className="btn-default-style" onClick={deleteAcct}>Delete Account</button>
             </div>
             <span><Link to={"/"}>Home Page</Link> </span>
         </div>    
