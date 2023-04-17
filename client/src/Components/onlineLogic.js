@@ -71,7 +71,9 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
     console.log(firstSettlements(gameState))
     console.log(vertexAvailable(vertex, gameState.hexes) && (!firstSettlements(gameState)))
     // check if the vertex is taken
-    if (vertexAvailable(vertex, gameState.hexes) && vertexConnectsRoad(vertex, gameState.hexes, gameState.players[gameState.currentPlayer].color))
+
+    if (firstSettlements(gameState) && (vertexAvailable(vertex, gameState.hexes)) || (vertexAvailable(vertex, gameState.hexes) &&
+         vertexConnectsRoad(vertex, gameState.hexes, gameState.players[gameState.currentPlayer].color)))
     {
         if (!firstSettlements(gameState)) {
             gameState.players[gameState.currentPlayer].resources.wood -=1;
