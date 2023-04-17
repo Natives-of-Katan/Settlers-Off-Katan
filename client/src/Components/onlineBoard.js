@@ -1,25 +1,23 @@
 import { HexGrid, Layout, Text, GridGenerator, HexUtils } from 'react-hexgrid';
-import {React, useEffect, useState, useContext} from 'react';
-import {useNavigate} from 'react-router-dom';
+import { React, useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import configs from './configurations';
 import Pattern from '../Models/Pattern'
 import CustomHex from '../Models/CustomHex';
 import Edge from '../Models/Edge';
 import Vertex from '../Models/Vertex';
 import { initEdges, initVertices } from './boardUtils';
-import {parse, stringify} from 'flatted';
+import { parse, stringify } from 'flatted';
 
 import { SockContext } from '../Contexts/SocketContext';
 import { MatchIDContext } from '../Contexts/MatchIDContext';
 import { MatchInfoContext } from '../Contexts/MatchInfoContext';
 import { SeatNumberContext } from '../Contexts/SeatNumberContext';
-import { AuthContext } from '../Contexts/AuthContext';
 import { SessionContext } from '../Contexts/SessionContext';
 import { OnlineContext } from '../Contexts/OnlineContext';
 
 import {
 rollDice,
-processEndTurn,
 setHexMap,
 addDevelopmentResources,
 drawDevelopmentCard,
@@ -31,35 +29,31 @@ addInitialResources,
 setPlayerColors,
 addSettlement,
 checkLongestRoad,
-upgradeToCity,
-firstSettlements
+upgradeToCity
 } from './onlineLogic';
 
 const OnlineBoard = ({ctx, G, moves, events}) => {
  //online stuff 
  const { socket} = useContext(SockContext);
  const { matchID } = useContext(MatchIDContext);
- const {seatNum } = useContext(SeatNumberContext);
- const {matchInfo} = useContext(MatchInfoContext);
- const { auth } = useContext(AuthContext);
+ const { seatNum } = useContext(SeatNumberContext);
+ const { matchInfo } = useContext(MatchInfoContext);
  const { sessionID } = useContext(SessionContext);
  const { setOnline } = useContext(OnlineContext);
 
- const [isMounted, setIsMounted] = useState(false);
- const [gameState, setGameState] = useState({});
+ const [ isMounted, setIsMounted ] = useState(false);
+ const [ gameState, setGameState ] = useState({});
  
- const [turnEnabled, setTurnEnabled] = useState(false);
- const [canEmit, setCanEmit] = useState(false);
+ const [ turnEnabled, setTurnEnabled ] = useState(false);
+ const [ canEmit, setCanEmit ] = useState(false);
 
-
-   //gameState is the template for our gameState, will use gameState going forward. page renders (isMounted) when gameState is set
-   useEffect(() => {
+//let server know you're ready to receive initial state
+   useEffect( () => {
     socket.emit('ready', matchID);
   }, []);
 
   //if gameState changes, emit the changes, only if it's your turn 
   useEffect(() => {
-    //checkBuildActions();
     if(isMounted)
       checkVictory();
 
@@ -70,11 +64,10 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         boardRoads: stringify(Array.from(gameState.boardRoads)),
         boardVertices: stringify(Array.from(gameState.boardVertices))
       }
-      socket.emit('state-change', ({newState, matchID}));
-      console.log('emit change');
-      console.log(newState)
-      console.log(vertices);
+    socket.emit('state-change', ({newState, matchID}));
+    console.log('change emitted');
     }
+
     if(gameState.phase === 'gameplay')
       setFirstRounds(false);
 
@@ -83,7 +76,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
   //useEffects for socket listeners
   useEffect(()=> {
 
-    //received once at the beginning of the game 
+    //handle initial state from server at game start
     socket.once('initial-state', receivedState => {
       const newState = {
         ...receivedState,
@@ -94,7 +87,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       setGameState(newState);
       setIsMounted(true);
 
-      //if you're player 1, you can make a move
+      //if you're player 1, you start the game 
       if(seatNum === 0) {
         setTurnEnabled(true);
         setCanEmit(true);
@@ -112,8 +105,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         boardVertices: new Map(parse(receivedState.boardVertices))
       };
 
-        setGameState(newState);
-        console.log(newState);
+      setGameState(newState);
+      console.log(newState);
 
       if(seatNum === receivedState.currentPlayer) {
         console.log('your turn');
@@ -124,7 +117,6 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         setTurnEnabled(false);
         setCanEmit(false);
       }
-
       console.log('new state received:\n ');
     })
 
@@ -149,36 +141,34 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const size = { x: 10, y: 10 };
 
     // initialize map
-    const [vertices, updateVertices] = useState(initVertices(hexagons, size));
-    const [edges, setEdges] = useState(initEdges(hexagons, size));
-    const [hexes, updateHexes] = useState(new Map());
+    const [ vertices, updateVertices ] = useState(initVertices(hexagons, size));
+    const [ edges, setEdges ] = useState(initEdges(hexagons, size));
+    const [ hexes, updateHexes ] = useState(new Map());
 
-    const [roadButtonPushed, canBuildRoad] = useState(false);
-    const [settlementButtonPushed, canBuildSettlement] = useState(false);
-    const [upgradeButtonPushed, canUpgradeSettlement] = useState(false);
-    const [firstRounds, setFirstRounds] = useState(true);
-    const [gameStart, setGameStart] = useState(false);
+    const [ roadButtonPushed, canBuildRoad ] = useState(false);
+    const [ settlementButtonPushed, canBuildSettlement ] = useState(false);
+    const [ upgradeButtonPushed, canUpgradeSettlement ] = useState(false);
+    const [ firstRounds, setFirstRounds ] = useState(true);
+    const [ gameStart, setGameStart ] = useState(false);
 
-    const [diceRolled, setdiceRolled] = useState(false);
-    const [scoreBoard, setScoreboard] = useState([]);
-    const [buildSettlement, setBuildSettlement] = useState(false);
-    const [upgradeSettlement, setUpgradeSettlement] = useState(false);
-    const [buyCard, setBuyCard] = useState(false);
+    const [ diceRolled, setdiceRolled ] = useState(false);
+    const [ buildSettlement, setBuildSettlement ] = useState(false);
+    const [ upgradeSettlement, setUpgradeSettlement ] = useState(false);
+    const  [buyCard, setBuyCard ] = useState(false);
 
-    const [buildRoad, setBuildRoad] = useState(false);
-    const [longestRoad, setLongestRoad] = useState(4);
-    const [longestRoadPlayer, setLongestRoadPlayer] = useState();
-    const [victory, setVictory] = useState(false);
-    const [phase, setPhase] = useState('initRound1');
-    const [initial, setInitial] = useState(true);
+    const [ buildRoad, setBuildRoad ] = useState(false);
+    const [ longestRoad, setLongestRoad ] = useState(4);
+    const [ longestRoadPlayer, setLongestRoadPlayer ] = useState();
+    const [ victory, setVictory ] = useState(false);
+    const [ initial, setInitial ] = useState(true);
+
+    //used for leaving page after game end 
     const navigate = useNavigate();
 
-
-
     //button settings
-    const [monopolyPlayed, setMonopolyPlayed] = useState(false);
-    const [plentyPlayed, setPlentyPlayed] = useState(false);
-    const [plentyFirstChoice, setFirstChoice] = useState('');
+    const [ monopolyPlayed, setMonopolyPlayed ] = useState(false);
+    const [ plentyPlayed, setPlentyPlayed ] = useState(false);
+    const [ plentyFirstChoice, setFirstChoice ] = useState('');
 
     // map numbers
     const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
