@@ -71,7 +71,7 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
     console.log(firstSettlements(gameState))
     console.log(vertexAvailable(vertex, gameState.hexes) && (!firstSettlements(gameState)))
     // check if the vertex is taken
-    if (vertexAvailable(vertex, gameState.hexes) && vertexConnectsRoad(vertex, gameState.hexes, gameState.players[gameState.currentPlayer].color));
+    if (vertexAvailable(vertex, gameState.hexes) && vertexConnectsRoad(vertex, gameState.hexes, gameState.players[gameState.currentPlayer].color))
     {
         if (!firstSettlements(gameState)) {
             gameState.players[gameState.currentPlayer].resources.wood -=1;
@@ -87,9 +87,13 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
         gameState.boardVertices.set(vertex.props.id, newVertex)
         gameState.players[gameState.currentPlayer].score += 1;
         gameState.players[gameState.currentPlayer].settlements.push(newVertex.props.id);
-    }  
+    }
+    else {
+        newProps.displayTooltip="block";
+        newVertex.props = newProps;
+        vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+    }   
     return [gameState, vertices]
-    
 }
 
 export const upgradeToCity = (gameState, vertex, i, vertices) => {

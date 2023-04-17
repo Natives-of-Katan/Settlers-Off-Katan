@@ -59,7 +59,7 @@ export const initVertices = (hexagons, size) => {
           HexUtils.neighbour(hex, (((d1 - 1) % 6) + 6) % 6),
         ];
         const vertex = <Vertex id={JSON.stringify(hex) + "-v-" + j} vertexNumber={j}
-        cx={points[j].x} cy={points[j].y} hexes={hexes}></Vertex>
+        cx={points[j].x} cy={points[j].y} hexes={hexes} displayTooltip="none"></Vertex>
         hexVertices.push(vertex);
       })
       verticeArray.push(hexVertices);
@@ -172,6 +172,29 @@ const vertexActive = (v, hexes) => {
   if (o1 != null && isActive(o1.props.vertices[overlap[0]]))
     return true;
   return (o2 != null && isActive(o2.props.vertices[overlap[1]]))
+}
+
+export const vertexUser = (v, hexes) => {
+  // check all overlapping vertices
+  let overlap = getOverlappingVertices(v.props.vertexNumber);
+  let o1 = hexes.get(getHexKey(v.props.hexes[1]));
+  let o2 = hexes.get(getHexKey(v.props.hexes[2]));
+
+  if (o1 != null && vertexUserHelper(o1.props.vertices[overlap[0]]) != "Empty")
+    return (vertexUserHelper(o1.props.vertices[overlap[0]]));
+  else if (o2 != null && vertexUserHelper(o2.props.vertices[overlap[1]]) != "Empty")
+    return (vertexUserHelper(o2.props.vertices[overlap[1]]));
+  else if (vertexUserHelper(v) != undefined)
+    return (vertexUserHelper(v));
+  
+}
+
+const vertexUserHelper = (v) => {
+  if (isActive(v)) 
+    return v.props.user;
+  else 
+    return "Empty";
+  //return (v == null) ? false : v.props.classes.includes('active');
 }
 
 export const initRoadPlacement = (e, hexArr, color) => {

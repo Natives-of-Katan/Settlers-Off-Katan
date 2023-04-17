@@ -352,6 +352,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       socket.emit('vertices-update', {stringifiedVertices, matchID});
       canUpgradeSettlement(false);
     }
+    canBuildSettlement(false);
   }
 
   const getResource = (r) => {
@@ -380,7 +381,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const currentPlayer = gameState.players[gameState.currentPlayer]
     let resources = currentPlayer.resources;
     const enoughResources = Object.values(resources).every(value => value >= 1);
-    if(enoughResources)
+    if(enoughResources || !firstPhasesComplete())
       setBuildSettlement(true);
     else
       setBuildSettlement(false);
