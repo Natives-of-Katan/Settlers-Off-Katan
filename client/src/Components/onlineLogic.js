@@ -96,7 +96,8 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
         gameState.players[gameState.currentPlayer].score += 1;
         gameState.players[gameState.currentPlayer].settlements.push(newVertex.props.id);
     }  
-    return gameState;
+    return [gameState, vertices]
+    
 }
 
 const upgradeSettlement = (gameState, vertex, i, vertices) => {
@@ -319,7 +320,6 @@ export const setHexMap = (h, gameState) => {
     h.map((hex) => (
         gameState.hexes.set("q: " + hex.props.q + ", r: " + hex.props.r + ", s: " + hex.props.s, hex)
     ))
-    console.log(gameState);
     return gameState;
 }
 

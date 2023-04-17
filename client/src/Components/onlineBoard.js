@@ -79,7 +79,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
 
       
       
-  }, [gameState, gameState.currentRoll]);
+  }, [gameState]);
 
 
 
@@ -108,12 +108,15 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     //when a new state change is received, update gameState, check if current player
     socket.on('state-change', (receivedState) => {
       console.log(receivedState);
-      setGameState({
+
+      const newState = {
         ...receivedState,
         hexes: new Map(parse(receivedState.hexes)),
         boardRoads: new Map(parse(receivedState.boardRoads)),
         boardVertices: new Map(parse(receivedState.boardVertices))
-     });
+      };
+      setGameState(newState);
+      console.log(newState);
 
       if(seatNum === receivedState.currentPlayer) {
         console.log('your turn');
@@ -138,7 +141,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const size = { x: 10, y: 10 };
 
     // initialize map
-    const [vertices, updateVertice] = useState(initVertices(hexagons, size));
+    const [vertices, updateVertices] = useState(initVertices(hexagons, size));
     const [edges, updateEdge] = useState(initEdges(hexagons, size));
     const [hexes, updateHexes] = useState([]);
 
@@ -192,8 +195,6 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       }
     }, [isMounted]);
 
-
-  
     useEffect(() => {
       if (isMounted && gameState.longestRoad != longestRoad) {
         setLongestRoad(gameState.longestRoad)
@@ -220,7 +221,6 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       console.log(canEmit);
       const newState = {...gameState};
       setGameState(await rollDice(newState));
-     // setGameState(await rollDice(gameState));
       setdiceRolled(true);
       console.log('success roll dice')
     }
@@ -320,7 +320,17 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
 
   const onVertexClick = (e, i) => {
     if (settlementButtonPushed) {
-      setGameState(addSettlement(gameState, e, i, vertices));
+      const newState = { ...gameState};
+      const newVertices = { ...vertices };
+      const [returnState, returnVertices] = addSettlement(newState, e, i, newVertices);
+
+      setGameState(returnState);
+
+      //breaks it 
+      //updateVertices(returnVertices);
+
+      console.log(returnVertices);
+      console.log(returnState);
       canBuildSettlement(false);
     }
     else if (upgradeButtonPushed) {
@@ -393,7 +403,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
                 {!victory && <div className='current-player'> {gameState.currentPlayer == seatNum ? "Your Turn!" : matchInfo.players[gameState.currentPlayer] +'s turn!' }
                 </div>}
                 <div>
-                {!firstRounds && !diceRolled && !victory && turnEnabled && <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
+                {!firstRounds && !diceRolled && !victory && turnEnabled && <button type='button' className='board-btn' onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && !victory && turnEnabled && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
                     {firstPhasesComplete() && diceRolled && !victory && turnEnabled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
