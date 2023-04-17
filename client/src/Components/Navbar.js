@@ -36,8 +36,8 @@ function Navbar() {
     <li id="logo" class="nav-button"><Link to="/" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Settlers Off Katan</Link></li>
     <li class="nav-button"><Link to="/Options" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Options</Link></li>
     <li class="nav-button"><Link to="/" onClick={() => {if (!userTurnedOff) setPlaying(true);}}>Home</Link></li>
-    {auth && <li><Link to='/Account'>{profile.username}</Link></li>}
-    {auth && <button onClick={handleSubmit}>Logout</button>}
+    {auth && <li class="nav-button"><Link to='/Account'>{profile.username}</Link></li>}
+    {auth && <li class="nav-logout"><button className="online-btn-default" onClick={handleSubmit}>Logout</button></li>}
   </ul> 
   )
 }

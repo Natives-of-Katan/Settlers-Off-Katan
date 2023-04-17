@@ -286,12 +286,12 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
   const onVertexClick = (e, i) => {
     if (settlementButtonPushed) {
       setGameState(addSettlement(gameState, e, i, vertices));
-      canBuildSettlement(false);
     }
     else if (upgradeButtonPushed) {
       upgradeSettlement(gameState, e, i,vertices);
       canUpgradeSettlement(false);
     }
+    canBuildSettlement(false);
   }
 
   const getResource = (r) => {

@@ -335,7 +335,6 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
   }
 
   const onVertexClick = (e, i) => {
-    const playerV = G.players[ctx.currentPlayer].settlements.length;
     if (settlementButtonPushed) {
       moves.addSettlement(e, i, vertices);
     }
@@ -344,8 +343,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       canUpgradeSettlement(false);
     }
     // if a player added a settlement since clicking, they can't build anymore
-    if (G.players[ctx.currentPlayer].settlements.length > playerV)
-      canBuildSettlement(false);
+    canBuildSettlement(false);
 
   }
 

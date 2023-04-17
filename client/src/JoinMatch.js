@@ -78,9 +78,9 @@ const JoinMatch = () => {
                 <form>
                     <p>Invite Code:</p>
                     <div>{invalidCode}</div>
-                    <input type ="text" name="joinMatchCode" placeHolder="Enter code here" onChange={handleMatchIdChange} /><br /><br />
-                    <input type='text' name='username' placeholder='enter username' defaultValue={name} onChange={handleNameChange}/> 
-                    <button class="btn-default-style" type="submit" onClick={handleSubmit}>Enter Lobby</button>
+                    <input className="join-match" type ="text" name="joinMatchCode" placeHolder="Enter code here" onChange={handleMatchIdChange} /><br /><br />
+                    <input className="join-match" type='text' name='username' placeholder='enter username' defaultValue={name} onChange={handleNameChange}/> 
+                    <button className="join-match-btn" type="submit" onClick={handleSubmit}>Enter Lobby</button>
                 </form>
                 }
                 {requested && <div>Waiting for lobby Validation....</div>}

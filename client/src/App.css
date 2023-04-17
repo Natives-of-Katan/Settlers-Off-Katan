@@ -42,6 +42,10 @@ html, body, .App {
   float: right;
 }
 
+.nav-logout {
+  float: left;
+}
+
 .nav-button a {
   display: block;
   color: var(--primary-text);
@@ -98,6 +102,17 @@ h1 {
   font-size: 1.2em;
 }
 
+.online-btn-default {
+  height: 40px;
+  width: 150px;
+  margin-top: auto;
+  background-color: white;
+  border-radius: 20px;
+  border: 1px solid var(--primary-text);
+  font-size: 1.2em;
+  margin-top: 13%;
+}
+
 .options-button, .lobby-button {
   width: 250px;
 }
@@ -148,6 +163,22 @@ svg g {
 
 .error-msg {
   color: red;
+}
+
+.join-match {
+  height: 50px;
+  width: 250px;
+  font-size: 1.2em;
+}
+
+.join-match-btn {
+  height: 53px;
+  width: 150px;
+  margin: 10px;  
+  background-color: white;
+  border-radius: 40px;
+  border: 1px solid var(--primary-text);
+  font-size: 1.2em;
 }
 
 svg g:hover {
