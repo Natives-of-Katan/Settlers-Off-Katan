@@ -8,7 +8,7 @@ html, body, .App {
 }
 
 .App {
-  background: url("./Components/background.png");
+  background: url("./Components/Images/background.png");
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -40,6 +40,10 @@ html, body, .App {
 
 .nav-button {
   float: right;
+}
+
+.nav-logout {
+  float: left;
 }
 
 .nav-button a {
@@ -98,6 +102,17 @@ h1 {
   font-size: 1.2em;
 }
 
+.online-btn-default {
+  height: 40px;
+  width: 150px;
+  margin-top: auto;
+  background-color: white;
+  border-radius: 20px;
+  border: 1px solid var(--primary-text);
+  font-size: 1.2em;
+  margin-top: 13%;
+}
+
 .options-button, .lobby-button {
   width: 250px;
 }
@@ -110,7 +125,7 @@ button:hover {
 .Game {
   text-align: center;
   padding-top: 80px;
-  background-image: url("./Components/gameBackground.png");
+  background-image: url("./Components/Images/gameBackground.png");
   background-size: cover;
 }
 
@@ -148,6 +163,22 @@ svg g {
 
 .error-msg {
   color: red;
+}
+
+.join-match {
+  height: 50px;
+  width: 250px;
+  font-size: 1.2em;
+}
+
+.join-match-btn {
+  height: 53px;
+  width: 150px;
+  margin: 10px;  
+  background-color: white;
+  border-radius: 40px;
+  border: 1px solid var(--primary-text);
+  font-size: 1.2em;
 }
 
 svg g:hover {
@@ -273,6 +304,27 @@ circle.active {
 
 .font-size-1 {
   font-size: 16px;
+}
+
+.settlement:not(:hover) .tooltip polygon{
+  display:none;
+}
+
+.settlement:not(:hover) .tooltip text{
+  display:none;
+}
+
+.tooltip polygon {
+  fill-opacity: 1;
+  fill:gold;
+  stroke: white;
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+
+.tooltip text {
+  font-size: 0.11em;
+  font-weight: bold;
 }
 
 .turn-actions {
