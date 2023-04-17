@@ -174,6 +174,29 @@ const vertexActive = (v, hexes) => {
   return (o2 != null && isActive(o2.props.vertices[overlap[1]]))
 }
 
+export const vertexUser = (v, hexes) => {
+  // check all overlapping vertices
+  let overlap = getOverlappingVertices(v.props.vertexNumber);
+  let o1 = hexes.get(getHexKey(v.props.hexes[1]));
+  let o2 = hexes.get(getHexKey(v.props.hexes[2]));
+
+  if (o1 != null && vertexUserHelper(o1.props.vertices[overlap[0]]) != "Empty")
+    return (vertexUserHelper(o1.props.vertices[overlap[0]]));
+  else if (o2 != null && vertexUserHelper(o2.props.vertices[overlap[1]]) != "Empty")
+    return (vertexUserHelper(o2.props.vertices[overlap[1]]));
+  else if (vertexUserHelper(v) != undefined)
+    return (vertexUserHelper(v));
+  
+}
+
+const vertexUserHelper = (v) => {
+  if (isActive(v)) 
+    return v.props.user;
+  else 
+    return "Empty";
+  //return (v == null) ? false : v.props.classes.includes('active');
+}
+
 export const initRoadPlacement = (e, hexArr, color) => {
   // get 2 road vertices
   let hex = hexArr.get(getHexKey(e.props.hexes[0]));
