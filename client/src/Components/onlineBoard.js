@@ -63,7 +63,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     if(isMounted)
       checkVictory();
 
-    if(canEmit & isMounted) {
+    if(canEmit & isMounted) {  
       const newState = {
         ...gameState, 
         hexes: stringify(Array.from(gameState.hexes)),
@@ -77,8 +77,6 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     if(gameState.phase === 'gameplay')
       setFirstRounds(false);
 
-      
-      
   }, [gameState]);
 
 
@@ -128,6 +126,11 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         setCanEmit(false);
       }
       console.log('new state received:\n ');
+    })
+
+    socket.on('vertices-update', receivedVertices => {
+      const newVertices = parse(receivedVertices);
+      updateVertices(newVertices);
     })
 
   },[socket]);
@@ -194,6 +197,18 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       updateHexes(renderHexTiles());
       }
     }, [isMounted]);
+
+    useEffect(()=> {
+      console.log(vertices);
+      const sendVertices = stringify(vertices);
+      if(canEmit) {
+        socket.emit('vertices-change', {sendVertices, matchID})
+      }
+      else {
+        updateHexes(renderHexTiles());
+      }
+      
+    }, [vertices]);
 
     useEffect(() => {
       if (isMounted && gameState.longestRoad != longestRoad) {
@@ -320,15 +335,15 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
 
   const onVertexClick = (e, i) => {
     if (settlementButtonPushed) {
+
       const newState = { ...gameState};
       const newVertices = { ...vertices };
       const [returnState, returnVertices] = addSettlement(newState, e, i, newVertices);
 
       setGameState(returnState);
 
-      //breaks it 
-      //updateVertices(returnVertices);
-
+      //breaks it, gotta figure out how to update vertices 
+      updateVertices(returnVertices);
       console.log(returnVertices);
       console.log(returnState);
       canBuildSettlement(false);

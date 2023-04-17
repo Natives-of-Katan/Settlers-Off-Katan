@@ -171,6 +171,15 @@ socketServer.on('connect', (socket) => {
             })
     })
 
+    socket.on('vertices-change', ({sendVertices, matchID}) => {
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('vertices-update', sendVertices);
+        })
+
+    });
+
     socket.on('winner', async ({matchID, sessionID}) => {
         console.log('winner');
         const opts = {new:true};

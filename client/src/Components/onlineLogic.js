@@ -91,7 +91,7 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
         newProps.user = gameState.players[gameState.currentPlayer].color;
         newProps.classes = 'active';
         newVertex.props = newProps
-        vertices = vertices[i][vertices[i].indexOf(vertex)] = newVertex;
+        vertices[i][vertices[i].indexOf(vertex)] = newVertex;
         gameState.boardVertices.set(vertex.props.id, newVertex)
         gameState.players[gameState.currentPlayer].score += 1;
         gameState.players[gameState.currentPlayer].settlements.push(newVertex.props.id);
