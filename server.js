@@ -171,14 +171,22 @@ socketServer.on('connect', (socket) => {
             })
     })
 
-    socket.on('vertices-change', ({sendVertices, matchID}) => {
+    socket.on('vertices-update', ({stringifiedVertices, matchID}) => {
         const index = gamesList.findIndex(game => game.matchID === matchID);
         gamesList[index].socketIDs.forEach(socketID => {
             if(socketID != socket.id)
-                socketServer.to(socketID).emit('vertices-update', sendVertices);
+                socketServer.to(socketID).emit('vertices-update', stringifiedVertices);
         })
 
     });
+
+    socket.on('edge-update', ({stringifiedEdges, matchID}) => {
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('edges-update', stringifiedEdges);
+        })
+    })
 
     socket.on('winner', async ({matchID, sessionID}) => {
         console.log('winner');

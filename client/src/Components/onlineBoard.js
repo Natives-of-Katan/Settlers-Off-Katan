@@ -31,7 +31,7 @@ addInitialResources,
 setPlayerColors,
 addSettlement,
 checkLongestRoad,
-upgradeSettlement,
+upgradeToCity,
 firstSettlements
 } from './onlineLogic';
 
@@ -73,15 +73,13 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       socket.emit('state-change', ({newState, matchID}));
       console.log('emit change');
       console.log(newState)
+      console.log(vertices);
     }
     if(gameState.phase === 'gameplay')
       setFirstRounds(false);
 
   }, [gameState]);
 
-
-
-   
   //useEffects for socket listeners
   useEffect(()=> {
 
@@ -113,8 +111,9 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         boardRoads: new Map(parse(receivedState.boardRoads)),
         boardVertices: new Map(parse(receivedState.boardVertices))
       };
-      setGameState(newState);
-      console.log(newState);
+
+        setGameState(newState);
+        console.log(newState);
 
       if(seatNum === receivedState.currentPlayer) {
         console.log('your turn');
@@ -125,6 +124,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         setTurnEnabled(false);
         setCanEmit(false);
       }
+
       console.log('new state received:\n ');
     })
 
@@ -132,6 +132,11 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       const newVertices = parse(receivedVertices);
       updateVertices(newVertices);
     })
+
+    socket.on('edges-update', receivedEdges => {
+      const newEdges = parse (receivedEdges);
+      setEdges(newEdges);
+    });
 
   },[socket]);
   
@@ -145,8 +150,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
 
     // initialize map
     const [vertices, updateVertices] = useState(initVertices(hexagons, size));
-    const [edges, updateEdge] = useState(initEdges(hexagons, size));
-    const [hexes, updateHexes] = useState([]);
+    const [edges, setEdges] = useState(initEdges(hexagons, size));
+    const [hexes, updateHexes] = useState(new Map());
 
     const [roadButtonPushed, canBuildRoad] = useState(false);
     const [settlementButtonPushed, canBuildSettlement] = useState(false);
@@ -199,16 +204,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     }, [isMounted]);
 
     useEffect(()=> {
-      console.log(vertices);
-      const sendVertices = stringify(vertices);
-      if(canEmit) {
-        socket.emit('vertices-change', {sendVertices, matchID})
-      }
-      else {
-        updateHexes(renderHexTiles());
-      }
-      
-    }, [vertices]);
+      updateHexes(renderHexTiles())
+    },[edges, vertices])
 
     useEffect(() => {
       if (isMounted && gameState.longestRoad != longestRoad) {
@@ -237,11 +234,13 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       const newState = {...gameState};
       setGameState(await rollDice(newState));
       setdiceRolled(true);
+      checkBuildActions();
       console.log('success roll dice')
     }
 
     const handleAddResources = id => {
-      addDevelopmentResources(gameState);
+      const tempState = { ...gameState};
+     setGameState(addDevelopmentResources(tempState));
     }
 
     const handleDraw = id => {
@@ -310,10 +309,6 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       setdiceRolled(true)
     }
 
-    const handleBuildSettlement = () => {
-      setBuildSettlement(gameState.players[gameState.currentPlayer].canBuildSettlement())
-    }
-
     const firstPhasesComplete = () => {
       if (gameState.phase == 'initRound1' && (gameState.players[gameState.currentPlayer].settlements.length < 1 
         || gameState.players[gameState.currentPlayer].roads.length < 1)) 
@@ -327,29 +322,44 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
          
   const onEdgeClick = (e, i) => {
     if (roadButtonPushed) {
-      setGameState(addRoad(gameState, e, i, edges));
-    canBuildRoad(false);
+
+      const newState = { ...gameState};
+      const newEdges = { ...edges};
+      const [returnState, returnEdges] = addRoad(newState, e, i, newEdges);
+
+      setGameState(returnState);
+      setEdges(returnEdges);
+      const stringifiedEdges = stringify(returnEdges);
+
+      socket.emit('edge-update', {stringifiedEdges, matchID});
+      canBuildRoad(false);
     setGameState(checkLongestRoad(gameState, longestRoad, longestRoadPlayer));
     }
   }
 
   const onVertexClick = (e, i) => {
     if (settlementButtonPushed) {
-
+      console.log('button push')
       const newState = { ...gameState};
       const newVertices = { ...vertices };
       const [returnState, returnVertices] = addSettlement(newState, e, i, newVertices);
 
       setGameState(returnState);
-
-      //breaks it, gotta figure out how to update vertices 
       updateVertices(returnVertices);
-      console.log(returnVertices);
-      console.log(returnState);
+      const stringifiedVertices = stringify(returnVertices);
+      socket.emit('vertices-update', {stringifiedVertices, matchID})
       canBuildSettlement(false);
     }
     else if (upgradeButtonPushed) {
-      upgradeSettlement(gameState, e, i,vertices);
+    
+      const newState = { ...gameState};
+      const newVertices = { ...vertices};
+      const [returnState, returnVertices] = upgradeToCity(newState, e, i, newVertices);
+      setGameState(returnState);
+      updateVertices(returnVertices);
+      const stringifiedVertices = stringify(returnVertices);
+      console.log('sending')
+      socket.emit('vertices-update', {stringifiedVertices, matchID});
       canUpgradeSettlement(false);
     }
   }
