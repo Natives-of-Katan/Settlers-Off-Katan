@@ -584,14 +584,14 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     <div className="Game">
       <div className="GameBoard">
             <div className='board-text board-header'>
-              <div className='board-header-center'>
-                {!victory && <div className='current-player'>Player {Number(ctx.currentPlayer) + 1} 
+                <div className='board-header-center'>
+                  {!victory && <div className='current-player'>Player {Number(ctx.currentPlayer) + 1} 
                 </div>}
                 <div>
                     {!firstRounds && !movingRobber && !knightPlayed && !stealingResource && !victory && !placedRobber && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && !victory && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
                 </div>
-                
+              
                   {!firstRounds && diceRolled && !movingRobber && !knightPlayed && !stealingResource && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
                   {!firstRounds && diceRolled && movingRobber && !knightPlayed && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}. Choose a tile to move the Robber to</text>}
                   {diceRolled && movingRobber && knightPlayed && <text>You played a knight. Choose a tile to move the Robber to</text>}
@@ -599,15 +599,12 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
                   {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
                     
                     {firstPhasesComplete() && !movingRobber && !victory && !knightPlayed && !stealingResource && !placedRobber && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
-                </div>
-                <div>
-                  {gameStart && <text>Place settlement and road</text>}
-                <div>
-                  {gameStart && !victory && <text>Place settlement and road</text>}
-                  {victory && <text>Game Over!</text>}
-                </div>
+              <div>
+                {gameStart && !victory && <text>Place settlement and road</text>}
+                {victory && <text>Game Over!</text>}
               </div>
-            </div>
+              </div>
+          </div>
               
           <div className= 'grid-container'>
             <div className='turn-actions board-text'>
