@@ -155,12 +155,24 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const [ buildSettlement, setBuildSettlement ] = useState(false);
     const [ upgradeSettlement, setUpgradeSettlement ] = useState(false);
     const  [buyCard, setBuyCard ] = useState(false);
+    const [maxTradeReceive] = useState(20);
+    const [tradeReceiveOptions, setTradeReceiveOptions] = useState([]);
+    const [ outgoingTradeValues, setOutgoingTradeValues ] = useState({ wheat: 0, sheep: 0, 
+          wood: 0,  brick: 0, ore: 0 });
+
+    const [ incomingTradeValues, setIncomingTradeValues ] =  useState({ wheat: 0, sheep: 0, 
+      wood: 0,  brick: 0, ore: 0 });
+    const [ waitingTradeConfirm, setWaitingTradeConfirm ] = useState(false);
 
     const [ buildRoad, setBuildRoad ] = useState(false);
     const [ longestRoad, setLongestRoad ] = useState(4);
+    const [ canTrade, setCanTrade ] = useState(false);
+    const [ conductTrade, setConductTrade ] = useState(false);
     const [ longestRoadPlayer, setLongestRoadPlayer ] = useState();
     const [ victory, setVictory ] = useState(false);
     const [ initial, setInitial ] = useState(true);
+
+    const [ outgoingTrade, setoutGoingTrade ] = useState([]);
 
     //used for leaving page after game end 
     const navigate = useNavigate();
@@ -224,8 +236,16 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       const newState = {...gameState};
       setGameState(await rollDice(newState));
       setdiceRolled(true);
+      checkTradeEligibilty();
       checkBuildActions();
-      console.log('success roll dice')
+      console.log('success roll dice');
+    }
+
+    const checkTradeEligibilty = () => {
+      const playerResources = gameState.players[gameState.currentPlayer].resources;
+      const atLeastOneResource = Object.values(playerResources).some((resource => resource >= 1));
+      console.log(atLeastOneResource);
+      atLeastOneResource ? setCanTrade(true) : setCanTrade(false);
     }
 
     const handleAddResources = id => {
@@ -410,6 +430,51 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     }
   }
 
+  const insertOptions = (requesting) => {
+    const values = [];
+    if(requesting == '') {
+    for(let i = 0; i <= maxTradeReceive; i++) {
+      values.push(
+        <option key={i} value={i}>{i}</option>
+      );
+    }
+  }
+  else {
+    const numResource = gameState.players[gameState.currentPlayer].resources[requesting];
+      for(let i = 0; i <= numResource; i++) {
+        values.push(
+          <option key={i} value={i}>{i}</option>
+        );
+      }
+  }
+    return values;
+  }
+
+  const handleSelectionChange = (event, type, resource) => {
+    const value = event.target.value;
+
+    if(type === 'tradeOut') {
+      const tempOutgoing = { ...outgoingTradeValues};
+      tempOutgoing[resource] = Number(value);
+      setOutgoingTradeValues(tempOutgoing);
+      console.log(tempOutgoing)
+    }
+    else if(type === 'tradeIn') {
+      const tempIncoming= { ...incomingTradeValues };
+      tempIncoming[resource] = Number(value);
+      console.log(tempIncoming)
+      setIncomingTradeValues(tempIncoming);
+    }
+  }
+
+  const handleTradeSubmit = () => {
+    console.log(outgoingTradeValues);
+    const tempOutgoing = { ...outgoingTradeValues };
+    const tempIncoming = { ...incomingTradeValues };
+    socket.emit('trade-request', { tempOutgoing, tempIncoming, matchID});
+    setWaitingTradeConfirm(true);
+  }
+
   //rendering (comment for visual clarity)-------------------------------------------------------------------
     return (
     <div className="Game">
@@ -466,6 +531,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
+                {canTrade && !victory && <button type='button' onClick={ () => setConductTrade(true)}>Trade</button>}
                 {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
                 {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
                 {(gameStart || buildRoad) && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
@@ -556,6 +622,45 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         </table>
         <button onClick={ () => {navigate('/Play'); setOnline(false)}}>Play Again!</button>
         <button onClick={ () => {navigate('/'); setOnline(false)}}>No Thanks</button>
+      </div>}
+    </div>}
+    {conductTrade &&
+    <div className='modal'>
+      {!waitingTradeConfirm &&
+       <div>
+        <p>Create Trade Request</p>
+        <form>
+          <p>Trading:</p>
+          <label htmlFor= 'wheatOut '>Wheat:</label>
+            <select name='wheatOut' id='wheatOut' onChange={e => handleSelectionChange(e, 'tradeOut', 'wheat')}> {insertOptions('wheat')} </select>
+          <label htmlFor='sheepOut' >Sheep:</label>
+            <select name='sheepOut' id='sheepOut' onChange={e => handleSelectionChange(e, 'tradeOut', 'sheep')}> {insertOptions('sheep')} </select>
+          <label htmlFor='woodOut'>Wood:</label>
+            <select name='woodOUt' id='woodOut' onChange={e => handleSelectionChange(e, 'tradeOut', 'wood')}> {insertOptions('wood')} </select>
+          <label htmlFor='brickOut'>Brick:</label>
+            <select name='brickOut' id='brickOut' onChange={e => handleSelectionChange(e, 'tradeOut', 'brick')}> {insertOptions('brick') }</select>
+          <label htmlFor='oreOUt'>Ore:</label>
+            <select name='oreOUt' id='oreOut' onChange={ e => handleSelectionChange(e,'tradeOut', 'ore')}> {insertOptions('ore')} </select>
+            <br></br>
+            <br></br>
+          <p>Requesting:</p>
+          <label htmlFor='wheatIn'>Wheat:</label>
+            <select name='wheatIn' id='wheatIn' onChange={ e => handleSelectionChange(e,'tradeIn', 'wheat')}> {insertOptions('')} </select>
+          <label htmlFor='sheepIn'>Sheep:</label>
+            <select name='sheepIn' id='sheepIn' onChange={ e => handleSelectionChange(e, 'tradeIn', 'sheep')}> {insertOptions('')} </select>
+          <label htmlFor='woodIn'>Wood:</label>
+            <select name='woodIn' id='woodIn' onChange={ e => handleSelectionChange(e, 'tradeIn', 'wood')}> {insertOptions('')} </select>
+          <label htmlFor='brickIn'>Brick:</label>
+            <select name='brickIn' id='brickIn' onChange={ e => handleSelectionChange(e, 'tradeIn', 'brick')}> {insertOptions('') }</select>
+          <label htmlFor='oreIn'>Ore:</label>
+            <select name='oreIn' id='oreIn' onChange={ e=> handleSelectionChange(e,'tradeIn', 'ore')}> {insertOptions('')} </select>
+        </form>
+        <button onClick={handleTradeSubmit}>Submit Trade Request</button>
+        <button onClick={()=>setConductTrade(false)}>Close</button>
+      </div>}
+      {waitingTradeConfirm && conductTrade && 
+       <div>
+        <p>Waiting For Players to Accept/Reject Trade.....</p>
       </div>}
     </div>}
     {!isMounted && <div>Initializing Game...</div>}

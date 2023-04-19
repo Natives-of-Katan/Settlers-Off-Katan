@@ -201,6 +201,11 @@ socketServer.on('connect', (socket) => {
     );
     console.log(user);
     });
+
+    socket.on('trade-request', ({tempOutgoing, tempIncoming, matchID}) => {
+        console.log(tempOutgoing);
+        console.log(tempIncoming);
+    });
 });
 
  
