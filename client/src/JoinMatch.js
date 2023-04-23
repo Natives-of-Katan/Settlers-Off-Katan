@@ -76,10 +76,10 @@ const JoinMatch = () => {
                 <h1>Got a Game Code?</h1>
                 {!requested && 
                 <form>
-                    <p>Invite Code:</p>
+                    <p className="gen-text">Invite Code and Username:</p>
                     <div>{invalidCode}</div>
                     <input className="join-match" type ="text" name="joinMatchCode" placeHolder="Enter code here" onChange={handleMatchIdChange} /><br /><br />
-                    <input className="join-match" type='text' name='username' placeholder='enter username' defaultValue={name} onChange={handleNameChange}/> 
+                    <input className="join-match" type='text' name='username' placeholder="Enter username" defaultValue={name} onChange={handleNameChange}/> <br /><br />
                     <button className="join-match-btn" type="submit" onClick={handleSubmit}>Enter Lobby</button>
                 </form>
                 }
