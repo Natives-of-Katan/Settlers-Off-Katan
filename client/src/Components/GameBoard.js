@@ -93,7 +93,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       { q: 3, r: -3, s: 0 }, { q: 3, r: -1, s: 1 }, { q: 2, r: 1, s: 1 }, { q: 0, r: 3, s: -3 }, { q: -2, r: 3, s: -2 }, 
       { q: -3, r: 2, s: 2 }, { q: -3, r: 0, s: 2 }, { q: -1, r: -2, s: 3 }, { q: 1, r: -3, s: 2 },
     ];
-    const portNums = [ "3:1 ?", "2:1 Wheat", "2:1 Ore", "3:1 ?", "2:1 Sheep", "3:1 ?", "3:1 ?", "2:1 Brick", "2:1 Wood"
+    const portNums = [ "? 3:1", "Wheat 2:1", "Ore 2:1", "? 3:1", "Sheep 2:1", "? 3:1", "? 3:1", "Brick 2:1", "Wood 2:1"
     ];
 
     useEffect(() => {
@@ -267,11 +267,12 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
         .map(([key, value]) => `${value} ${key}`)
         .join(" and ");
     };
-    
-        
+            
     useEffect(() => {
       console.log('Selected Player Index (inside useEffect):', selectedPlayerIndex);
     }, [selectedPlayerIndex]);
+
+    // trade functions end
 
     const handleAddResources = id => {
       moves.addDevelopmentResources();
@@ -772,7 +773,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
               <option value="" disabled> Select a player</option>
               {getOtherPlayerOptions()}
             </select>&nbsp;&nbsp;
-            <button onClick={() => {handleMakeTrade();}}>Make Trade</button><br></br><br></br>
+            <button onClick={() => {handleMakeTrade();}} >Make Trade</button><br></br><br></br>
           </div>
           <button onClick={() => {setTradeWarning(""); resetTradeWantedResources();}}>Reset Trade Offer</button><br></br><br></br>
           <button onClick={() => {setTradeWarning(""); resetTradeWantedResources(); setTradeModalIsOpen(false);}}>Cancel</button>   
@@ -787,10 +788,10 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
         >
           <h2>Trade Successful</h2>
           <p>
-            Player {Number(ctx.currentPlayer) + 1} has traded their{" "}
+            <b>Player {Number(ctx.currentPlayer) + 1}</b> has traded their{" "}
             {renderTradedResources(lastTradedResources)}, for{" "}
-            {renderTradedResources(lastWantedResources)} from Player{" "}
-            {selectedPlayerIndex + 1}
+            {renderTradedResources(lastWantedResources)} from <b>Player{" "}
+            {selectedPlayerIndex + 1}</b>.
           </p>
           <button onClick={closeTradeConfirmModal}>Close</button>
         </Modal>
