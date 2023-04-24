@@ -5,7 +5,7 @@ import {AuthContext} from '../Contexts/AuthContext';
 import {ProfileContext} from '../Contexts/ProfileContext';
 import {useContext} from 'react';
 import axios from 'axios';
-import MusicModal from './MusicModal';
+import MusicModal from './MusicModal.js';
 
 function Navbar() {
   const {auth, setAuth} = useContext(AuthContext);

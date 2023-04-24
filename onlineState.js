@@ -1,4 +1,4 @@
-    const initialize = (num) => {
+    const initialize = (num) => {  
         const state = {
              deck: {
              knight: 14,
@@ -9,7 +9,7 @@
          },
          players: Array(num).fill().map( () => ({
             //score of 10 will be removed in production, used to test game over screen!
-             score: 10,
+             score: 0,
              color: "black",
              resources: {
                  wheat: 0,
@@ -35,7 +35,8 @@
              settlements: [],
              cities: [],
              roads: [],
-             cards: []
+             cards: [],
+            
          })),
          currentPlayer: 0,
          turn: 0,
@@ -43,7 +44,8 @@
          phase: 'initRound1',
          winner: 0,
          gameOver: false,
-         longestRoad: 4
+         longestRoad: 4,
+         tradeInProgress: false
      }
      return state;
     }
