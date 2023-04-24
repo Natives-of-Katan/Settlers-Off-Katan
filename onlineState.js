@@ -45,6 +45,7 @@
          winner: 0,
          gameOver: false,
          longestRoad: 4,
+         tradeInProgress: false
      }
      return state;
     }

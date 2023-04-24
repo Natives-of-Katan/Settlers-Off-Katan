@@ -64,6 +64,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         boardRoads: stringify(Array.from(gameState.boardRoads)),
         boardVertices: stringify(Array.from(gameState.boardVertices))
       }
+
     socket.emit('state-change', ({newState, matchID}));
     console.log('change emitted');
     }
@@ -98,6 +99,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     socket.on('state-change', (receivedState) => {
       console.log(receivedState);
 
+      if(typeof receivedState !== 'undefined') {
       const newState = {
         ...receivedState,
         hexes: new Map(parse(receivedState.hexes)),
@@ -106,7 +108,9 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       };
 
       setGameState(newState);
+      console.log('new state received:\n ');
       console.log(newState);
+    
 
       if(seatNum === receivedState.currentPlayer) {
         console.log('your turn');
@@ -117,7 +121,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         setTurnEnabled(false);
         setCanEmit(false);
       }
-      console.log('new state received:\n ');
+     
+    }
     })
 
     socket.on('vertices-update', receivedVertices => {
@@ -129,6 +134,40 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       const newEdges = parse (receivedEdges);
       setEdges(newEdges);
     });
+
+    socket.on('trade-request', (filteredOutgoing, filteredIncoming, tempState) => {
+
+      const newState = {
+        ...tempState,
+        hexes: new Map(parse(tempState.hexes)),
+        boardRoads: new Map(parse(tempState.boardRoads)),
+        boardVertices: new Map(parse(tempState.boardVertices))
+      };
+
+      setGameState(newState);
+
+      setProposedTrade(displayTradeRequest( matchInfo.players[newState.currentPlayer], filteredOutgoing, filteredIncoming));
+      setIncomingTradeReq(true);
+      setTradeGetting(filteredOutgoing);
+      setTradeGiving(filteredIncoming);
+      setTradeButton(disableTradeButton(newState.players[seatNum].resources, filteredIncoming));
+    });
+
+    socket.on('trade-success', receivedState => {
+      const newState = {
+        ...receivedState,
+        hexes: new Map(parse(receivedState.hexes)),
+        boardRoads: new Map(parse(receivedState.boardRoads)),
+        boardVertices: new Map(parse(receivedState.boardVertices))
+      };
+
+      setGameState(newState);
+      setInitiateTrade(false);
+      setCanTrade(false);
+      setWaitingTradeConfirm(false);
+      
+
+    })
 
   },[socket]);
   
@@ -156,7 +195,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const [ upgradeSettlement, setUpgradeSettlement ] = useState(false);
     const  [buyCard, setBuyCard ] = useState(false);
     const [maxTradeReceive] = useState(20);
-    const [tradeReceiveOptions, setTradeReceiveOptions] = useState([]);
+    const [ incomingTradeReq, setIncomingTradeReq ] = useState(false);
     const [ outgoingTradeValues, setOutgoingTradeValues ] = useState({ wheat: 0, sheep: 0, 
           wood: 0,  brick: 0, ore: 0 });
 
@@ -167,10 +206,15 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const [ buildRoad, setBuildRoad ] = useState(false);
     const [ longestRoad, setLongestRoad ] = useState(4);
     const [ canTrade, setCanTrade ] = useState(false);
-    const [ conductTrade, setConductTrade ] = useState(false);
+    const [proposedTrade, setProposedTrade] = useState('');
+
+    const [ initiateTrade, setInitiateTrade ] = useState(false);
     const [ longestRoadPlayer, setLongestRoadPlayer ] = useState();
     const [ victory, setVictory ] = useState(false);
     const [ initial, setInitial ] = useState(true);
+    const [tradeButton, setTradeButton ] = useState(false);
+    const [ tradeGiving, setTradeGiving ] = useState({});
+    const [tradeGetting, setTradeGetting] = useState({});
 
     const [ outgoingTrade, setoutGoingTrade ] = useState([]);
 
@@ -231,14 +275,13 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     
 
     //begin turn
-    const playTurn = async () => {
+    const playTurn = () => {
       console.log(canEmit);
       const newState = {...gameState};
-      setGameState(await rollDice(newState));
+      setGameState(rollDice(newState));
       setdiceRolled(true);
       checkTradeEligibilty();
       checkBuildActions();
-      console.log('success roll dice');
     }
 
     const checkTradeEligibilty = () => {
@@ -468,11 +511,63 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
   }
 
   const handleTradeSubmit = () => {
-    console.log(outgoingTradeValues);
     const tempOutgoing = { ...outgoingTradeValues };
     const tempIncoming = { ...incomingTradeValues };
-    socket.emit('trade-request', { tempOutgoing, tempIncoming, matchID});
+
+    const newState = {
+      ...gameState, 
+      hexes: stringify(Array.from(gameState.hexes)),
+      boardRoads: stringify(Array.from(gameState.boardRoads)),
+      boardVertices: stringify(Array.from(gameState.boardVertices))
+    }
+
+    socket.emit('trade-request', ({ tempOutgoing, tempIncoming, matchID, newState}));
     setWaitingTradeConfirm(true);
+  }
+
+  const displayTradeRequest = (player, reqResources, tradeComp) => {
+    const reqResourcesString = Object.entries(reqResources).map(([key, value]) => `${value} ${key}`).join(' and ');
+    const tradeCompString = Object.entries(tradeComp).map(([key, value]) => `${value} ${key}`).join(' and ');
+    return <p> {player} wants to trade {reqResourcesString} for {tradeCompString}</p>
+  }
+
+  const disableTradeButton = (yourResources, tradeGiving) => {
+
+    console.log(tradeGiving);
+    for (const [resource, requiredAmount] of Object.entries(tradeGiving)) {
+      if (!yourResources[resource] || yourResources[resource] < requiredAmount) {
+        return true; 
+      }
+    }
+    return false; 
+  };
+
+
+    
+
+  const handleValidTrade = () => {
+
+    const tempState = {
+      ...gameState, 
+      hexes: stringify(Array.from(gameState.hexes)),
+      boardRoads: stringify(Array.from(gameState.boardRoads)),
+      boardVertices: stringify(Array.from(gameState.boardVertices))
+    }
+
+    Object.entries(tradeGetting).forEach(([resource, amount]) => {
+      tempState.players[seatNum].resources[resource] += amount;
+      tempState.players[tempState.currentPlayer].resources[resource] -= amount;
+    })
+
+    Object.entries(tradeGiving).forEach(([resource, amount]) => {
+      tempState.players[seatNum].resources[resource] -= amount;
+      tempState.players[tempState.currentPlayer].resources[resource] += amount;
+    })
+
+    console.log(tempState);
+    setGameState(tempState);
+    socket.emit('trade-complete', ({tempState, matchID}));
+    setIncomingTradeReq(false);
   }
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
@@ -531,7 +626,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
              </table>
           
               <div className='action-btns'>
-                {canTrade && !victory && <button type='button' onClick={ () => setConductTrade(true)}>Trade</button>}
+                {canTrade && !victory && diceRolled && <button type='button' onClick={ () => setInitiateTrade(true)}>Trade</button>}
                 {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
                 {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
                 {(gameStart || buildRoad) && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
@@ -624,7 +719,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         <button onClick={ () => {navigate('/'); setOnline(false)}}>No Thanks</button>
       </div>}
     </div>}
-    {conductTrade &&
+    {initiateTrade &&
     <div className='modal'>
       {!waitingTradeConfirm &&
        <div>
@@ -656,13 +751,20 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
             <select name='oreIn' id='oreIn' onChange={ e=> handleSelectionChange(e,'tradeIn', 'ore')}> {insertOptions('')} </select>
         </form>
         <button onClick={handleTradeSubmit}>Submit Trade Request</button>
-        <button onClick={()=>setConductTrade(false)}>Close</button>
+        <button onClick={()=>setInitiateTrade(false)}>Close</button>
       </div>}
-      {waitingTradeConfirm && conductTrade && 
+      {waitingTradeConfirm && initiateTrade && 
        <div>
         <p>Waiting For Players to Accept/Reject Trade.....</p>
       </div>}
     </div>}
+    {incomingTradeReq &&
+    <div className='modal'>
+      <p>{proposedTrade}</p>
+      <button disabled={tradeButton} onClick={handleValidTrade}>Accept Trade </button>
+      <button onClick={()=> setIncomingTradeReq(false)}>Reject Trade </button>
+      </div>}
+
     {!isMounted && <div>Initializing Game...</div>}
    </div>
   );

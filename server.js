@@ -202,10 +202,41 @@ socketServer.on('connect', (socket) => {
     console.log(user);
     });
 
-    socket.on('trade-request', ({tempOutgoing, tempIncoming, matchID}) => {
-        console.log(tempOutgoing);
-        console.log(tempIncoming);
+    socket.on('trade-request', ({tempOutgoing, tempIncoming, matchID, newState}) => {
+        console.log('request')
+        const tempState = { ...newState };
+        const filteredOutgoing = Object.entries(tempOutgoing).reduce((acc, [resource, value]) => {
+            if(value > 0) {
+                acc[resource] = value;
+            }
+            return acc;
+        }, {});
+
+        const filteredIncoming = Object.entries(tempIncoming).reduce((acc, [resource, value]) => {
+            if(value > 0) {
+                acc[resource] = value;
+            }
+            return acc;
+        }, {});
+
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('trade-request', filteredOutgoing, filteredIncoming, tempState);
+        }) 
     });
+
+    socket.on('trade-complete', ({tempState, matchID}) => {
+        console.log('trade done')
+        const newState = { ...tempState };
+        newState.tradeInProgress = false;
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('trade-success', newState);
+        })
+    }
+    )
 });
 
  
