@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Link, useNavigate, useLocation} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {GameMusicContext} from '../Contexts/GameMusicContext';
 import {AuthContext} from '../Contexts/AuthContext';
 import {ProfileContext} from '../Contexts/ProfileContext';
@@ -13,7 +13,6 @@ function Navbar() {
   const {setPlaying, userTurnedOff} = useContext(GameMusicContext);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -48,24 +47,12 @@ function Navbar() {
       <ul id="navbar">
         <li id="logo" class="nav-button">
           <Link
-            to={location.pathname === "/Game" ? "#" : "/"}
-            onClick={(e) => {
-              if (location.pathname === "/Game") {
-                e.preventDefault();
-                if (
-                  window.confirm(
-                    "Leaving while the game is in progress will terminate the game. Are you sure you want to leave?"
-                  )
-                ) {
-                  if (!userTurnedOff) setPlaying(true);
-                  navigate("/");
-                }
-              } else {
-                if (!userTurnedOff) setPlaying(true);
-              }
+            to="/"
+            onClick={() => {
+              if (!userTurnedOff) setPlaying(true);
             }}
           >
-            Settlers Of Katan
+            Settlers Off Katan
           </Link>
         </li>
         <li class="nav-button nav-options-button">
@@ -78,17 +65,16 @@ function Navbar() {
             Options
           </button>
         </li>
-        {location.pathname !== "/Game" && (
-          <li class="nav-button">
-            <Link
-              to="/" onClick={() => {
-                if (!userTurnedOff) setPlaying(true);
-              }}
-            >
-              Home
-            </Link>
-          </li>
-        )}
+        <li class="nav-button">
+          <Link
+            to="/"
+            onClick={() => {
+              if (!userTurnedOff) setPlaying(true);
+            }}
+          >
+            Home
+          </Link>
+        </li>
         {auth && (
           <li class="nav-button">
             <Link to="/Account">{profile.username}</Link>

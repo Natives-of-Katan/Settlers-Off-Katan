@@ -15,7 +15,7 @@ const Home = () => {
   return(
       <div className="App home">
           <div className ="content">
-              <h1>Welcome to Settlers Of Katan</h1>
+              <h1>Welcome to Settlers Off Katan</h1>
               <Link to={"/Play"}>
                   <button class="home-button btn-default-style" onClick={musicPlay}>Play</button>
               </Link>
