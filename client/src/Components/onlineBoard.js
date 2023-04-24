@@ -721,7 +721,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
               portHexagons.map((hex, i) => (
                <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">
                 <Pattern id="port" link="https://www.metalearth.com/content/images/thumbs/0004703_uss-constitution_1200.png" size={{x:3, y:9}} />
-                <Text className="port-info">{portNums[i]}</Text>
+                {/*<Text className="port-info">{portNums[i]}</Text>*/}
                 </CustomHex>
               ))
             }
