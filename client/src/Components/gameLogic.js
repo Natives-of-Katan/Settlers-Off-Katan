@@ -448,8 +448,8 @@ const tradeWithBank = (actualG, ctx, currentPlayerIndex, resourceToTrade, resour
     const G = produce(actualG.G, draft => {
 
         console.log('currentPlayerIndex in tradeWithBank:', currentPlayerIndex);
-        console.log('resourceToTrade in makeTrade:', resourceToTrade);
-        console.log('resourceToReceive in makeTrade:', resourceToReceive);
+        console.log('resourceToTrade in tradeWithBank:', resourceToTrade);
+        console.log('resourceToReceive in tradeWithBank:', resourceToReceive);
 
         if (draft.players[currentPlayerIndex].resources[resourceToTrade] >= tradeRatio) {
             draft.players[currentPlayerIndex].resources[resourceToTrade] -= tradeRatio;
