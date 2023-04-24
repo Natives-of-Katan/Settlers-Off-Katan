@@ -113,8 +113,8 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       { q: 3, r: -3, s: 0 }, { q: 3, r: -1, s: 1 }, { q: 2, r: 1, s: 1 }, { q: 0, r: 3, s: -3 }, { q: -2, r: 3, s: -2 }, 
       { q: -3, r: 2, s: 2 }, { q: -3, r: 0, s: 2 }, { q: -1, r: -2, s: 3 }, { q: 1, r: -3, s: 2 },
     ];
-    const portNums = [ "? 3:1", "Wheat 2:1", "Ore 2:1", "? 3:1", "Sheep 2:1", "? 3:1", "? 3:1", "Brick 2:1", "Wood 2:1"
-    ];
+    /*const portNums = [ "? 3:1", "Wheat 2:1", "Ore 2:1", "? 3:1", "Sheep 2:1", "? 3:1", "? 3:1", "Brick 2:1", "Wood 2:1"
+    ]; */
 
     useEffect(() => {
       moves.setPlayerColors();
@@ -779,7 +779,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
               portHexagons.map((hex, i) => (
                <CustomHex className='port-hex' key={i} q={hex.q} r={hex.r} s={hex.s} fill={"port"} vertices="" edges="">
                 <Pattern id="port" link="https://www.metalearth.com/content/images/thumbs/0004703_uss-constitution_1200.png" size={{x:3, y:9}} />
-                <Text className="port-info">{portNums[i]}</Text>
+                {/*<Text className="port-info">{portNums[i]}</Text> */}
                 </CustomHex>
               ))
             }
