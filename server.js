@@ -226,14 +226,34 @@ socketServer.on('connect', (socket) => {
         }) 
     });
 
-    socket.on('trade-complete', ({tempState, matchID}) => {
+    socket.on('decline-trade', ({seatNum, matchID}) => {
+        console.log('trade declined in match %s', matchID);
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('trade-declined', seatNum);
+        })
+    })
+
+    socket.on('cancel-trade', ({matchID}) => {
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('trade-cancelled');
+        })
+    })
+
+    socket.on('trade-complete', ({tempState, seatNum, matchID}) => {
         console.log('trade done')
         const newState = { ...tempState };
         newState.tradeInProgress = false;
         const index = gamesList.findIndex(game => game.matchID === matchID);
         gamesList[index].socketIDs.forEach(socketID => {
-            if(socketID != socket.id)
+            if(socketID != socket.id) {
                 socketServer.to(socketID).emit('trade-success', newState);
+                socketServer.to(socketID).emit('trade-partner', seatNum);
+            }
+                
         })
     }
     )

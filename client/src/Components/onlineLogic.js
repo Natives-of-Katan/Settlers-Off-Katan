@@ -18,12 +18,10 @@ const tileNums = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 
 export const rollDice = (gameState) => {
     
-  
     const d1 = 1+Math.floor(Math.random() *6);
     const d2 = 1+Math.floor(Math.random() *6);
-    gameState.currentRoll = d1+d2; 
-    console.log(gameState)
-    if ( gameState.currentRoll !== 7) {
+    gameState.currentRoll = d1+d2;
+    if( gameState.currentRoll !== 7) {
         // settlements and cities get different resources
         gameState = addInitialResources(gameState, d1+d2, 'settlements');
         gameState = addInitialResources(gameState, d1+d2, 'cities');
@@ -34,13 +32,10 @@ export const rollDice = (gameState) => {
 
 
 export const addInitialResources = (gameState, diceNum, property) => {
-    console.log(gameState);
-
     gameState.players.forEach((player) => {
         
         let playerProperties = property == 'settlements' ? player.settlements : player.cities;
         let settlementHexes = playerProperties.map((v) => {
-            console.log('hi!');
             return [gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[0])),
             gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[1])),
             gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[2]))];

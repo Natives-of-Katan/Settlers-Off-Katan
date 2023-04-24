@@ -153,7 +153,13 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       setTradeButton(disableTradeButton(newState.players[seatNum].resources, filteredIncoming));
     });
 
-    socket.on('trade-success', receivedState => {
+    socket.on('trade-partner', seatNum => {
+      const tempArray = [ ...tradeResponses ];
+      tempArray[seatNum] = 'Accepted';
+      setTradeResponses(tempArray);
+    });
+
+    socket.on('trade-success', (receivedState) => {
       const newState = {
         ...receivedState,
         hexes: new Map(parse(receivedState.hexes)),
@@ -162,12 +168,22 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       };
 
       setGameState(newState);
-      setInitiateTrade(false);
-      setCanTrade(false);
-      setWaitingTradeConfirm(false);
-      
+      setTradeInitiatorMsg('Trade Successful!');
+      setTradeSuccess(true);
+      resetTradeValues();
+    });
 
-    })
+    socket.on('trade-declined', seatNum => {
+      const tempArray = [ ...tradeResponses ];
+      tempArray[seatNum] = 'Declined';
+      setTradeResponses(tempArray);
+    });
+
+    socket.on('trade-cancelled' ,() => {
+      setTradeButton(true);
+      setProposedTrade('Trade Request was Cancelled!');
+      resetTradeValues();
+    });
 
   },[socket]);
   
@@ -215,6 +231,9 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     const [tradeButton, setTradeButton ] = useState(false);
     const [ tradeGiving, setTradeGiving ] = useState({});
     const [tradeGetting, setTradeGetting] = useState({});
+    const [ tradeResponses, setTradeResponses ] = useState((matchInfo.players.map( () => 'pending')));
+    const [tradeSuccess, setTradeSuccess ] = useState(false);
+    const [tradeInitiatorMsg, setTradeInitiatorMsg] = useState('');
 
     const [ outgoingTrade, setoutGoingTrade ] = useState([]);
 
@@ -511,6 +530,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
   }
 
   const handleTradeSubmit = () => {
+    setTradeInitiatorMsg('Waiting For Players To Accept/Decline Trade....')
     const tempOutgoing = { ...outgoingTradeValues };
     const tempIncoming = { ...incomingTradeValues };
 
@@ -542,11 +562,12 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     return false; 
   };
 
-
-    
+  const handleDeclineTrade = () => {
+    setIncomingTradeReq(false);
+    socket.emit('decline-trade', ({seatNum, matchID}));
+  }
 
   const handleValidTrade = () => {
-
     const tempState = {
       ...gameState, 
       hexes: stringify(Array.from(gameState.hexes)),
@@ -566,8 +587,31 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
 
     console.log(tempState);
     setGameState(tempState);
-    socket.emit('trade-complete', ({tempState, matchID}));
+    socket.emit('trade-complete', ({tempState, seatNum, matchID}));
+    resetTradeValues();
     setIncomingTradeReq(false);
+    setProposedTrade('');
+  }
+
+  const cancelTrade = () => {
+    if(!tradeSuccess) {
+      socket.emit('cancel-trade', {matchID});
+    }
+    setWaitingTradeConfirm(false);
+    setInitiateTrade(false);
+    const resetResponses = new Array(matchInfo.players.length).fill('pending');
+    setTradeResponses(resetResponses);
+  }
+
+  const resetTradeValues = () => {
+    const resetIncomingValues = {
+      wheat: 0, sheep: 0, wood: 0,  brick: 0, ore: 0
+    }
+    const resetOutgoingValues = {
+      wheat: 0, sheep: 0, wood: 0,  brick: 0, ore: 0
+    }
+    setIncomingTradeValues(resetIncomingValues);
+    setOutgoingTradeValues(resetOutgoingValues);
   }
 
   //rendering (comment for visual clarity)-------------------------------------------------------------------
@@ -755,14 +799,26 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       </div>}
       {waitingTradeConfirm && initiateTrade && 
        <div>
-        <p>Waiting For Players to Accept/Reject Trade.....</p>
+        <p>{tradeInitiatorMsg}</p>
+        <table>
+          <tbody>
+          {matchInfo.players.map((player,index) => (
+            index!== seatNum &&
+            <tr key={index}>
+              <td>{player}</td>
+              <td>{tradeResponses[index]}</td>
+            </tr>
+        ))}
+          </tbody>
+        </table>
+        <button onClick={cancelTrade}>{tradeSuccess ? 'Close' : 'Cancel Trade Request'}</button>
       </div>}
     </div>}
     {incomingTradeReq &&
     <div className='modal'>
       <p>{proposedTrade}</p>
       <button disabled={tradeButton} onClick={handleValidTrade}>Accept Trade </button>
-      <button onClick={()=> setIncomingTradeReq(false)}>Reject Trade </button>
+      <button onClick={handleDeclineTrade}>Decline Trade </button>
       </div>}
 
     {!isMounted && <div>Initializing Game...</div>}
