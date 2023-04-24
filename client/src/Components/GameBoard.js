@@ -9,8 +9,6 @@ import Vertex from '../Models/Vertex';
 import { initEdges, initVertices, vertexUser } from './boardUtils';
 import Modal from 'react-modal';
 
-
-
 const GameBoard = ({ctx, G, moves, events, playerID}) => {
 
     useEffect(() => {
@@ -53,18 +51,41 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const [robberPosition, setRobberPosition] = useState("");
     const [scoreBoard, setScoreboard] = useState([]);
     
-    //trade hooks
+    /*trade hooks*/
     const [initiateTrade, setInitiateTrade] = useState(false); 
     const [tradeModalIsOpen, setTradeModalIsOpen] = useState(false);
     const [tradeWarning, setTradeWarning] = useState("");
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState("");
-
-    const [tradeConfirmModalIsOpen, setTradeConfirmModalIsOpen] = useState(false);
-    const closeTradeConfirmModal = () => {
-      setTradeConfirmModalIsOpen(false);
-    };
+    const [tradedWithBank, setTradedWithBank] = useState(false);
+    const [tradeWithBankDisabled, setTradeWithBankDisabled] = useState(true);
+    const [tradeConfirmModalIsOpen, setTradeConfirmModalIsOpen] = useState(false);    
     const [lastTradedResources, setLastTradedResources] = useState({}); //for traded resources after trade
     const [lastWantedResources, setLastWantedResources] = useState({}); //for wanted resources after trade
+
+    const [tradeCounts, setTradeCounts] = useState({
+      wheat: 0,
+      sheep: 0,
+      wood: 0,
+      brick: 0,
+      ore: 0,
+    });
+
+    const [wantedResourceCounts, setWantedResourceCounts] = useState({
+      wheat: 0,
+      sheep: 0,
+      wood: 0,
+      brick: 0,
+      ore: 0,
+    });
+
+    useEffect(() => {
+      console.log('Selected Player Index: ', selectedPlayerIndex);
+    }, [selectedPlayerIndex]);
+
+    useEffect(() => {
+      updateTradeWithBankDisabled();
+    }, [tradeCounts, wantedResourceCounts]);   
+    /*trade hooks end*/
 
     const [buildSettlement, setBuildSettlement] = useState(false);
     const [upgradeSettlement, setUpgradeSettlement] = useState(false);
@@ -75,7 +96,6 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     const [longestRoadPlayer, setLongestRoadPlayer] = useState();
     const [victory, setVictory] = useState(false);
     const navigate = useNavigate();
-
     
     //button settings
     const [monopolyPlayed, setMonopolyPlayed] = useState(false);
@@ -93,7 +113,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       { q: 3, r: -3, s: 0 }, { q: 3, r: -1, s: 1 }, { q: 2, r: 1, s: 1 }, { q: 0, r: 3, s: -3 }, { q: -2, r: 3, s: -2 }, 
       { q: -3, r: 2, s: 2 }, { q: -3, r: 0, s: 2 }, { q: -1, r: -2, s: 3 }, { q: 1, r: -3, s: 2 },
     ];
-    const portNums = [ "3:1 ?", "2:1 Wheat", "2:1 Ore", "3:1 ?", "2:1 Sheep", "3:1 ?", "3:1 ?", "2:1 Brick", "2:1 Wood"
+    const portNums = [ "? 3:1", "Wheat 2:1", "Ore 2:1", "? 3:1", "Sheep 2:1", "? 3:1", "? 3:1", "Brick 2:1", "Wood 2:1"
     ];
 
     useEffect(() => {
@@ -146,26 +166,15 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       setdiceRolled(true);
     }
 
-    //Trade functions
+    /*Trade functions*/
     const openTradeModal = () => {
       setTradeModalIsOpen(true);
     };
 
-    const [tradeCounts, setTradeCounts] = useState({
-      wheat: 0,
-      sheep: 0,
-      wood: 0,
-      brick: 0,
-      ore: 0,
-    });
-
-    const [wantedResourceCounts, setWantedResourceCounts] = useState({
-      wheat: 0,
-      sheep: 0,
-      wood: 0,
-      brick: 0,
-      ore: 0,
-    });
+    const closeTradeConfirmModal = () => {
+      setTradeConfirmModalIsOpen(false);
+      setTradedWithBank(false);
+    };
 
     const resetTradeWantedResources = () => {
       setTradeCounts({
@@ -189,22 +198,28 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
       setTradeCounts((prevCounts) => {
         const availableResource = G.players[ctx.currentPlayer].resources[resource];
         if (prevCounts[resource] < availableResource) {
-          return {
+          const updatedCounts = {
             ...prevCounts,
             [resource]: prevCounts[resource] + 1,
           };
+          updateTradeWithBankDisabled();
+          return updatedCounts;
         }
         return prevCounts;
       });
     };
-
+    
     const handleWantedResourceButtonClick = (resource) => {
-      setWantedResourceCounts((prevCounts) => ({
-        ...prevCounts,
-        [resource]: prevCounts[resource] + 1,
-      }));
-    }; 
-
+      setWantedResourceCounts((prevCounts) => {
+        const updatedCounts = {
+          ...prevCounts,
+          [resource]: prevCounts[resource] + 1,
+        };
+        updateTradeWithBankDisabled();
+        return updatedCounts;
+      });
+    };
+    
     const getOtherPlayerOptions = () => {
       return G.players
         .map((player, index) => {
@@ -267,11 +282,79 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
         .map(([key, value]) => `${value} ${key}`)
         .join(" and ");
     };
+
+    const isInvalidTrade = () => {
+      let hasOfferedResources = false;
+      let hasRequestedResources = false;
+      let hasSameResource = false;
     
+      for (const resource in tradeCounts) {
+        if (tradeCounts[resource] > 0) {
+          hasOfferedResources = true;
+        }
+        if (wantedResourceCounts[resource] > 0) {
+          hasRequestedResources = true;
+        }
+        if (tradeCounts[resource] > 0 && wantedResourceCounts[resource] > 0) {
+          hasSameResource = true;
+        }
+      }
+    
+      return !hasOfferedResources || !hasRequestedResources || hasSameResource;
+    };
+
+    const handleTradeWithBank = () => {
+      const currentPlayerIndex = parseInt(ctx.currentPlayer, 10);
+      const resourceToTrade = Object.keys(tradeCounts).find(
+        (resource) => tradeCounts[resource] >= 3
+      );
+      const resourceToReceive = Object.keys(wantedResourceCounts).find(
+        (resource) => wantedResourceCounts[resource] === 1
+      );
+    
+      if (resourceToTrade && resourceToReceive) {
+        moves.tradeWithBank(G, currentPlayerIndex, resourceToTrade, resourceToReceive);
+
+        setTradeModalIsOpen(false);
+        resetTradeWantedResources();
+        setSelectedPlayerIndex("");
+        setTradedWithBank(true);
+        setTradeConfirmModalIsOpen(true);
         
-    useEffect(() => {
-      console.log('Selected Player Index (inside useEffect):', selectedPlayerIndex);
-    }, [selectedPlayerIndex]);
+        let resourcesTraded = {};
+        for (const resource in tradeCounts) {
+          if (tradeCounts[resource] > 0) {
+            resourcesTraded[resource] = tradeCounts[resource];
+          }
+        }
+        setLastTradedResources(resourcesTraded);
+
+        let resourcesReceived = {};
+        for (const resource in wantedResourceCounts) {
+          if (wantedResourceCounts[resource] > 0) {
+            resourcesReceived[resource] = wantedResourceCounts[resource];
+          }
+        }
+        setLastWantedResources(resourcesReceived);
+        setTradedWithBank(true);
+        setTradeConfirmModalIsOpen(true);
+
+      }
+    };
+    
+    const updateTradeWithBankDisabled = () => {
+      const tradeWithBankConditionsMet =
+        Object.values(tradeCounts).filter((count) => count >= 3).length === 1 &&
+        Object.values(tradeCounts).every((count) => count < 4) &&
+        Object.values(wantedResourceCounts).filter((count) => count === 1).length === 1;
+    
+      const hasSameResource = Object.entries(tradeCounts).some(
+        ([resource, count]) => count >= 3 && wantedResourceCounts[resource] === 1
+      );
+    
+      setTradeWithBankDisabled(!tradeWithBankConditionsMet || hasSameResource);
+    };
+    /*trade functions end */
 
     const handleAddResources = id => {
       moves.addDevelopmentResources();
@@ -502,8 +585,6 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     setPlacedRobber(false);
   }
 
-
-
   const getResource = (r) => {
     console.log("Resource", r);
   }
@@ -705,7 +786,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
           </Layout>
         </HexGrid>
 
-        <Modal className='modal' shouldCloseOnOverlayClick={false} isOpen={tradeModalIsOpen} onRequestClose={() => setTradeModalIsOpen(false)}>
+        <Modal className='modal' shouldCloseOnOverlayClick={false} isOpen={tradeModalIsOpen} onRequestClose={() => setTradeModalIsOpen(false)} ariaHideApp={false}>
           <h2>Trade Resources</h2>
           <div>
             <h3>Resources To Trade</h3>
@@ -742,24 +823,24 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
               <tbody>
                 <tr>
                   <td>
-                    Wheat: {wantedResourceCounts.wheat}{' '}
-                    <button onClick={() => handleWantedResourceButtonClick('wheat')}>Add</button>
+                    Wheat: &nbsp;
+                    <button onClick={() => handleWantedResourceButtonClick('wheat')}>Receive: {wantedResourceCounts.wheat}{' '}</button>
                   </td>&nbsp;&nbsp;
                   <td>
-                    Sheep: {wantedResourceCounts.sheep}{' '}
-                    <button onClick={() => handleWantedResourceButtonClick('sheep')}>Add</button>
+                    Sheep: &nbsp; 
+                    <button onClick={() => handleWantedResourceButtonClick('sheep')}>Receive: {wantedResourceCounts.sheep}{' '}</button>
                   </td>&nbsp;&nbsp;
                   <td>
-                    Wood: {wantedResourceCounts.wood}{' '}
-                    <button onClick={() => handleWantedResourceButtonClick('wood')}>Add</button>
+                    Wood: &nbsp; 
+                    <button onClick={() => handleWantedResourceButtonClick('wood')}>Receive: {wantedResourceCounts.wood}{' '}</button>
                   </td>&nbsp;&nbsp;
                   <td>
-                    Brick: {wantedResourceCounts.brick}{' '}
-                    <button onClick={() => handleWantedResourceButtonClick('brick')}>Add</button>
+                    Brick: &nbsp; 
+                    <button onClick={() => handleWantedResourceButtonClick('brick')}>Receive: {wantedResourceCounts.brick}{' '}</button>
                   </td>&nbsp;&nbsp;
                   <td>
-                    Ore: {wantedResourceCounts.ore}{' '}
-                    <button onClick={() => handleWantedResourceButtonClick('ore')}>Add</button>
+                    Ore: &nbsp; 
+                    <button onClick={() => handleWantedResourceButtonClick('ore')}>Receive: {wantedResourceCounts.ore}{' '}</button>
                   </td>
                 </tr>
               </tbody>
@@ -772,25 +853,22 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
               <option value="" disabled> Select a player</option>
               {getOtherPlayerOptions()}
             </select>&nbsp;&nbsp;
-            <button onClick={() => {handleMakeTrade();}}>Make Trade</button><br></br><br></br>
+            <button onClick={() => {handleMakeTrade();}} disabled={isInvalidTrade()} className={isInvalidTrade() ? "disabled" : ""}>Make Trade With Player</button><br></br><br></br>
+            <button onClick={handleTradeWithBank} disabled={tradeWithBankDisabled} className={tradeWithBankDisabled ? "disabled" : ""}>Trade with Bank (3 resources for 1)</button><br></br><br></br>
           </div>
-          <button onClick={() => {setTradeWarning(""); resetTradeWantedResources();}}>Reset Trade Offer</button><br></br><br></br>
+          <button onClick={() => {setTradeWarning(""); resetTradeWantedResources(); setSelectedPlayerIndex(""); setTradeWithBankDisabled(true); setTradedWithBank(false);}}>Reset Trade Offer</button><br></br><br></br>
           <button onClick={() => {setTradeWarning(""); resetTradeWantedResources(); setTradeModalIsOpen(false);}}>Cancel</button>   
-
         </Modal>
 
-        <Modal
-          className="modal"
-          shouldCloseOnOverlayClick={false}
-          isOpen={tradeConfirmModalIsOpen}
-          onRequestClose={closeTradeConfirmModal}
-        >
+        <Modal className="modal" shouldCloseOnOverlayClick={false} isOpen={tradeConfirmModalIsOpen} onRequestClose={closeTradeConfirmModal} ariaHideApp={false}>
           <h2>Trade Successful</h2>
           <p>
-            Player {Number(ctx.currentPlayer) + 1} has traded their{" "}
-            {renderTradedResources(lastTradedResources)}, for{" "}
-            {renderTradedResources(lastWantedResources)} from Player{" "}
-            {selectedPlayerIndex + 1}
+            <b>Player {Number(ctx.currentPlayer) + 1}</b> has traded their{" "} {renderTradedResources(lastTradedResources)}, for{" "}{renderTradedResources(lastWantedResources)}{" "}
+            {tradedWithBank ? (
+              "from the bank."
+            ) : (
+              <span>from <b>Player {selectedPlayerIndex + 1}</b>.</span>
+            )}
           </p>
           <button onClick={closeTradeConfirmModal}>Close</button>
         </Modal>
@@ -829,8 +907,6 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     </div>
     );
     }
-
-
 
   export default GameBoard;
   

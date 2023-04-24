@@ -1,13 +1,11 @@
 import './App.css';
 import {BrowserRouter} from 'react-router-dom';
 import {Routes, Route} from 'react-router-dom';
-import GameMusic from "./Components/GameMusic";
 import Results from './Results';
 import Game from './Game';
 import Lobby from './Lobby';
 import JoinMatch from './JoinMatch';
 import PassAndPlay from './PassAndPlay';
-import Options from './Options';
 import Rules from './Rules';
 import Play from './Play';
 import Account from './Account';
@@ -15,7 +13,7 @@ import Login from './Login';
 import CreateAccount from './CreateAccount';
 import Home from './Home';
 import Navbar from "./Components/Navbar"
-import {GameMusicContext} from "./Contexts/GameMusicContext";
+import {GameMusicProvider} from "./Contexts/GameMusicContext";
 import {AuthContext} from "./Contexts/AuthContext"
 import {ProfileContext} from './Contexts/ProfileContext'
 import {NumPlayersContext} from './Contexts/NumPlayersContext'
@@ -34,8 +32,6 @@ import io from 'socket.io-client'
 function App() {
   
   //initial states for contexts
-  const [playing, setPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.2);
   const [auth, setAuth] = useState(false);
   const [profile, setProfile] = useState({});
   const [numPlayers, setNumPlayers] = useState({});
@@ -45,15 +41,11 @@ function App() {
   const [matchID, setMatchID] = useState();
   const [seatNum, setSeatNum] = useState();
   const [matchInfo, setMatchInfo] = useState({});
-  const [userTurnedOff, setUserTurnedOff] = useState(false);
   const [sessionID, setSessionID] = useState('');
   const [initialState, setInitialState] = useState({});
   return (
     <div>
-        <GameMusicContext.Provider
-          value={{playing, setPlaying, volume, setVolume,  userTurnedOff, setUserTurnedOff}}
-        >
-        <GameMusic />    
+      <GameMusicProvider>
         <BrowserRouter>    
           <AuthContext.Provider value={{auth, setAuth}}>
           <SessionContext.Provider value={{sessionID, setSessionID}}>
@@ -73,7 +65,6 @@ function App() {
             <Route exact path="/Lobby" element={<Lobby/>} />
             <Route exact path="/JoinMatch" element={<JoinMatch/>} />
             <Route exact path="/PassAndPlay" element={<PassAndPlay/>} />
-            <Route exact path="/Options" element={<Options/>} />
             <Route exact path="/Rules" element={<Rules/>} />
             <Route exact path="/Play" element={<Play/>} />
             <Route exact path="/Account" element={auth ? <Account/> : <Login/>} />
@@ -93,9 +84,10 @@ function App() {
           </SessionContext.Provider>
           </AuthContext.Provider>
         </BrowserRouter>
-        </GameMusicContext.Provider>
+        </GameMusicProvider>
       </div>
   );
 }
 
 export default App;
+
