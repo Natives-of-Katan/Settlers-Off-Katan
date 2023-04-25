@@ -887,6 +887,14 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
               </tr>
             </tbody>
           </table>}
+          
+          <p className='board-action-text'>
+          <a href="rules" target="_blank"><button>Open Rules</button></a><br/><br/>
+          Build Road:<br/> 1 Wood<br/>1 Brick<br/><br/>
+          Build Settlement:<br/> 1 Wheat<br/>1 Sheep<br/>1 Wood<br/>1 Brick<br/><br/>
+          Upgrade Settlement:<br/> 2 Wheat<br/>3 Ore<br/><br/>
+          Draw Development Card:<br/> 1 Wheat<br/>1 Sheep<br/>1 Ore<br/><br/>
+          Play Development Card:<br/> A Development Card</p>
         </div>
       </div>
         {victory && 

@@ -15,7 +15,7 @@ const Rules = () => {
                 General Overview<br/>
                 </p>
                 <p class = "rules-paragraph">
-                Each player will play as either a Settler trying to expand their control over the island of Katan. Settlers work against both each other and the Natives and win the game by being the first to 10 Victory points. Each Settlement is worth 1 VP, each City is worth 2 VP, each Victory Point card is worth 1 VP, and the Largest Army and Longest Road special cards are each worth 2 VP<br/><br/>
+                Each player will play as a Settler trying to expand their control over the island of Katan. The first player to reach 10 Victory points wins. Each Settlement is worth 1 VP, each City is worth 2 VP, each Victory Point card is worth 1 VP, and the Largest Army and Longest Road special cards are each worth 2 VP<br/><br/>
                 <br/><br/>
                 
                 There are 5 types of terrain tiles on Katan. Each tile produces 1 type of resource.<br/><br/>
@@ -40,7 +40,7 @@ const Rules = () => {
                 <p>
                 Game Setup</p>
                 <p class="rules-paragraph">
-                1. In clockwise order, starting with a random Settler, each Settler then places 1 Settlement and 1 Road on the board. The Road must be attached to the Settlement and Settlements must be at least 2 edges away from eachother (no matter who they belong to).<br/><br/>
+                1. In clockwise order, starting with the first player, each Settler places 1 Settlement and 1 Road on the board. The Road must be attached to the Settlement and Settlements must be at least 2 edges away from eachother (no matter who they belong to).<br/><br/>
                 2. In counter-clockwise order, starting with whoever placed the last Settlement in step 5, each Settler then places another Settlement and Road, with the same restrictions as step 5.<br/><br/>
                 3. Each Settler starts with the resources that the Settlement they placed in step 6 could produce.<br/><br/>
                 4. Play begins with the Settler who placed the first Settlement in step 1. Then proceeds in clockwise order.
