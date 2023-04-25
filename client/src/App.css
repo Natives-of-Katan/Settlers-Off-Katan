@@ -308,6 +308,25 @@ circle:hover {
   text-align: center;
 }
 
+.board-action-text {
+  color: #ffb400;
+  font-weight: 500;
+  font-size: 16px;
+  text-align: left;
+}
+
+.board-rules-text {
+  font-weight: 500;
+  font-size: 8px;
+  text-align: center;
+}
+
+.board-rules-text-left {
+  font-weight: 500;
+  font-size: 16px;
+  text-align: left;
+}
+
 .board-btn {
   width: 150px;
   height: 50px;
