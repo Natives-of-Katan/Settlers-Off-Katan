@@ -1,3 +1,3 @@
 import {createContext} from 'react'
 
-export const SockContext = createContext('');
+export const SockContext = createContext(null);

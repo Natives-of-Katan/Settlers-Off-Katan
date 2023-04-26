@@ -448,6 +448,28 @@ const discardCards = ({G, ctx}, totalResources, index) => {
     }
 }
 
+const tradeWithBank = (actualG, ctx, currentPlayerIndex, resourceToTrade, resourceToReceive) => {
+
+    const tradeRatio = 3;
+ 
+    const G = produce(actualG.G, draft => {
+
+        console.log('currentPlayerIndex in tradeWithBank:', currentPlayerIndex);
+        console.log('resourceToTrade in tradeWithBank:', resourceToTrade);
+        console.log('resourceToReceive in tradeWithBank:', resourceToReceive);
+
+        if (draft.players[currentPlayerIndex].resources[resourceToTrade] >= tradeRatio) {
+            draft.players[currentPlayerIndex].resources[resourceToTrade] -= tradeRatio;
+            draft.players[currentPlayerIndex].resources[resourceToReceive] += 1;
+          } else {
+            console.error(`Player ${currentPlayerIndex}+1 doesn't have enough ${resourceToTrade} resources to trade.`);
+          }
+
+    });
+    
+    return G;
+}
+
 const makeTrade = (actualG, ctx, currentPlayerIndex, selectedPlayerIndex, tradeResources, wantedResources) => {
     console.log('traderesources in makeTrade:', tradeResources);
     console.log('wantedresources in makeTrade:', wantedResources);
@@ -619,6 +641,11 @@ export const settlersOffKatan = numPlayers => ({
         checkLongestRoad,
         updateDevelopmentCards,
         findUsers,
+        tradeWithBank: {
+            move: tradeWithBank,
+            client: false,
+            redact: true,
+        },
         makeTrade: {
             move: makeTrade,
             client: false,

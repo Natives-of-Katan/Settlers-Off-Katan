@@ -6,7 +6,6 @@ import OnlineBoard from './Components/onlineBoard';
 import { NumPlayersContext } from './Contexts/NumPlayersContext';
 import { SeatNumberContext } from './Contexts/SeatNumberContext';
 import {useContext} from 'react'
-import GameMusic from "./Components/GameMusic";
 
 const Game = () => {
 
@@ -24,7 +23,6 @@ const Game = () => {
 
   return (
     <div>
-      <GameMusic />
       <GameClient />
     </div>
   );
@@ -40,7 +38,6 @@ else {
 
   return (
     <div>
-      <GameMusic />
       <GameClient />
     </div>
   );

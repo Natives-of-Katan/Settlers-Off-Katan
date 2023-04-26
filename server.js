@@ -4,6 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 const socketio = require('socket.io');
 const socketServer = require('socket.io')(server, {
+    maxHttpBufferSize: 1e8,
     cors: {
       origin: '*',
     }
@@ -57,7 +58,7 @@ server.listen(port, () => {
 
 //socket handlers for lobby creation/game state management  ------------------------------------------------------------------------------------------------------
 socketServer.on('connect', (socket) => {
-    console.log('A user connected');
+    console.log('socketid %s connected', socket.id);
 
     //user creates lobby, emit back the matchID and the player name
     socket.on('create-lobby', (lobbyObject) => {
@@ -133,30 +134,29 @@ socketServer.on('connect', (socket) => {
     //server sends initial game state
     socket.on('ready', (matchID) => {
         const index = gamesList.findIndex(game => game.matchID === matchID);
-        console.log(gamesList[index].players);
         if(index >= 0 ) {
         const numPlayers = gamesList[index].players.length;
         const gameState = initialize(numPlayers);
         gamesList[index].socketIDs.forEach(socketID => {
-                socketServer.to(socketID).emit('initial-state', gameState)
+                socketServer.to(socketID).emit('initial-state', gameState);
         })
     }
     })
 
 
-   socket.on('state-change', ({gameState, matchID}) => {
+   socket.on('state-change', ({newState, matchID}) => {
         console.log('state change for match %d', matchID);
-        console.log(gameState.players[gameState.currentPlayer].settlements);
         const index = gamesList.findIndex(game => game.matchID === matchID);
         gamesList[index].socketIDs.forEach(socketID => {
             if(socketID != socket.id)
-                socketServer.to(socketID).emit('state-change', gameState)
+                socketServer.to(socketID).emit('state-change', newState);
         })
     })
 
 
-    socket.on('turn-end', ({gameState, matchID}) => {
-        const newState = { ...gameState }
+    socket.on('turn-end', ({newState, matchID}) => {
+
+        console.log('turn ended in match %s', matchID);
         newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
         newState.turn += 1;
 
@@ -170,7 +170,23 @@ socketServer.on('connect', (socket) => {
         gamesList[index].socketIDs.forEach(socketID => {
                     socketServer.to(socketID).emit('state-change', newState)
             })
-        console.log(newState);
+    })
+
+    socket.on('vertices-update', ({stringifiedVertices, matchID}) => {
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('vertices-update', stringifiedVertices);
+        })
+
+    });
+
+    socket.on('edge-update', ({stringifiedEdges, matchID}) => {
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('edges-update', stringifiedEdges);
+        })
     })
 
     socket.on('winner', async ({matchID, sessionID}) => {
@@ -186,6 +202,62 @@ socketServer.on('connect', (socket) => {
     );
     console.log(user);
     });
+
+    socket.on('trade-request', ({tempOutgoing, tempIncoming, matchID, newState}) => {
+        console.log('request')
+        const tempState = { ...newState };
+        const filteredOutgoing = Object.entries(tempOutgoing).reduce((acc, [resource, value]) => {
+            if(value > 0) {
+                acc[resource] = value;
+            }
+            return acc;
+        }, {});
+
+        const filteredIncoming = Object.entries(tempIncoming).reduce((acc, [resource, value]) => {
+            if(value > 0) {
+                acc[resource] = value;
+            }
+            return acc;
+        }, {});
+
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('trade-request', filteredOutgoing, filteredIncoming, tempState);
+        }) 
+    });
+
+    socket.on('decline-trade', ({seatNum, matchID}) => {
+        console.log('trade declined in match %s', matchID);
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('trade-declined', seatNum);
+        })
+    })
+
+    socket.on('cancel-trade', ({matchID}) => {
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id)
+                socketServer.to(socketID).emit('trade-cancelled');
+        })
+    })
+
+    socket.on('trade-complete', ({tempState, seatNum, matchID}) => {
+        console.log('trade done')
+        const newState = { ...tempState };
+        newState.tradeInProgress = false;
+        const index = gamesList.findIndex(game => game.matchID === matchID);
+        gamesList[index].socketIDs.forEach(socketID => {
+            if(socketID != socket.id) {
+                socketServer.to(socketID).emit('trade-success', newState);
+                socketServer.to(socketID).emit('trade-partner', seatNum);
+            }
+                
+        })
+    }
+    )
 });
 
  
