@@ -44,9 +44,9 @@ export const addInitialResources = (gameState, diceNum, property) => {
         console.log(player.settlements);
         let settlementHexes = playerProperties.map((v) => { 
             // get array of adjacent hexes
-            return [hexes.get(getHexKey(boardVertices.get(v).props.hexes[0])),
-            hexes.get(getHexKey(boardVertices.get(v).props.hexes[1])),
-            hexes.get(getHexKey(boardVertices.get(v).props.hexes[2]))];
+            return [gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[0])),
+            gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[1])),
+            gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[2]))];
         });
 
         // add resources if the hex is rolled
@@ -73,12 +73,11 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
     const newVertex = {...vertex}
     console.log(vertex)
     const newProps = {...newVertex.props}
-    console.log(firstSettlements(gameState))
-    console.log(vertexAvailable(vertex, gameState.hexes) && (!firstSettlements(gameState)))
     // check if the vertex is taken
-
-    if (firstSettlements(gameState) && (vertexAvailable(vertex, gameState.hexes)) || (vertexAvailable(vertex, gameState.hexes) &&
-         vertexConnectsRoad(vertex, gameState.hexes, gameState.players[gameState.currentPlayer].color)))
+    console.log("VAvailable", vertexAvailable(vertex, gameState.hexes));
+    console.log("GState", firstSettlements(gameState))
+    if (vertexAvailable(vertex, gameState.hexes) && (firstSettlements(gameState) ||
+        (gameState.turn > gameState.players.length * 2 && vertexConnectsRoad(vertex, gameState.hexes, gameState.players[gameState.currentPlayer].color))))
     {
         if (!firstSettlements(gameState)) {
             gameState.players[gameState.currentPlayer].resources.wood -=1;
@@ -126,17 +125,19 @@ export const upgradeToCity = (gameState, vertex, i, vertices) => {
 }
 
 const firstSettlements = (gameState) => {
-    if(gameState.phase =='initRound1' || gameState.phase == 'initRound2') {
-        if(gameState.players[gameState.currentPlayer].settlements.length < 2)
-            return true;
+    if((gameState.phase =='initRound1' &&  gameState.players[gameState.currentPlayer].settlements.length == 0)
+    || (gameState.phase == 'initRound2' && gameState.players[gameState.currentPlayer].settlements.length == 1)) {
+        return true;
     }
     return false;
 }
 
 const firstRoads = (gameState, e, color) => { 
-    if(gameState.phase == 'initRound1' || gameState.phase == 'initRound2') {
-        if(gameState.players[gameState.currentPlayer].roads.length < 2)
-            return true;
+    if (initRoadPlacement(e, gameState.hexes, color)) {
+        if((gameState.phase == 'initRound1' && gameState.players[gameState.currentPlayer].settlements.length == 1 && gameState.players[gameState.currentPlayer].roads.length == 0)
+        || (gameState.phase == 'initRound2' &&  gameState.players[gameState.currentPlayer].settlements.length == 2 && gameState.players[gameState.currentPlayer].roads.length == 1)) {
+            return true
+        }
     }
     return false;
 }
