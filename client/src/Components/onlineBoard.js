@@ -638,7 +638,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
                 <div>
                 {!firstRounds && !diceRolled && !victory && turnEnabled && <button type='button' className='board-btn' onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && !victory && turnEnabled && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {firstPhasesComplete() && !victory && turnEnabled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {firstPhasesComplete() && !victory && turnEnabled && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
