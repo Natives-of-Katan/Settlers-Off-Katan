@@ -368,13 +368,20 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
         ...gameState, 
         hexes: stringify(Array.from(gameState.hexes)),
         boardRoads: stringify(Array.from(gameState.boardRoads)),
-        boardVertices: stringify(Array.from(gameState.boardVertices))
+        boardVertices: stringify(Array.from(gameState.boardVertices)),
       }
   
+      newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
+      newState.turn += 1;
+      if(newState.turn == newState.players.length)
+      newState.phase = 'initRound2';
+      if(newState.turn == (newState.players.length * 2))
+      newState.phase = 'gameplay';
       //emit state at end of turn, then 'turn off' socket emitter
-      socket.emit('turn-end', ({newState, matchID}));
+      socket.emit('state-change', ({newState, matchID}));
       console.log('sent')
       setCanEmit(false);
+      setTurnEnabled(false);
     }
 
     const startGame = () => {
