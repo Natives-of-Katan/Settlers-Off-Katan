@@ -35,8 +35,15 @@ export const rollDice = (gameState) => {
 } 
 
 export const addInitialResources = (gameState, diceNum, property) => {
+    let playerProperties;
+
     gameState.players.forEach((player) => {
-        let playerProperties = property == 'settlements' ? player.settlements : player.cities;
+        // On place resouces phase, only add resources for second settlement
+        if (diceNum == 0 && player.settlements.length == 2)
+            playerProperties = [player.settlements[1]];
+        else
+            playerProperties = property == 'settlements' ? player.settlements : player.cities;
+
         console.log(player.settlements);
         let settlementHexes = playerProperties.map((v) => { 
             // get array of adjacent hexes
@@ -96,7 +103,7 @@ export const addSettlement = (gameState, vertex, i, vertices) => {
 }
 
 const upgradeSettlement = (gameState, vertex, i, vertices) => {
-    if (vertex.props.stroke == gameState.players[gameState.currentPlayer].color ) {
+    if (vertex.props.user == gameState.players[gameState.currentPlayer].color ) {
         const newVertex = {...vertex}
         const newProps = {...newVertex.props}
         newProps.type = 'city';
