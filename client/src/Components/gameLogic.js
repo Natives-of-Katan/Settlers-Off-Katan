@@ -36,9 +36,15 @@ const rollDice = ({G, playerID, ctx}, d1, d2) => {
 }
 
 const addInitialResources = ({G, ctx, playerID}, diceNum, property) => {
+    let playerProperties;
+
     G.players.forEach((player) => {
-        console.log(player);
-        let playerProperties = property == 'settlements' ? player.settlements : player.cities;
+        // On place resouces phase, only add resources for second settlement
+        if (diceNum == 0 && player.settlements.length == 2)
+            playerProperties = [player.settlements[1]];
+        else
+            playerProperties = property == 'settlements' ? player.settlements : player.cities;
+
         let settlementHexes = playerProperties.map((v) => { 
             // get array of adjacent hexes
             return [hexes.get(getHexKey(boardVertices.get(v).props.hexes[0])),
@@ -108,7 +114,7 @@ const addSettlement = ({G, playerID, ctx}, vertex, i, vertices) => {
 }
 
 const upgradeSettlement = ({G, playerID}, vertex, i, vertices) => {
-    if (vertex.props.stroke == G.players[playerID].color ) {
+    if (vertex.props.user == G.players[playerID].color ) {
         const newVertex = {...vertex}
         const newProps = {...newVertex.props}
         newProps.type = 'city';
@@ -137,6 +143,7 @@ const firstRoads = (G, ctx, playerID, e, hexes, color) => {
     if (initRoadPlacement(e, hexes, color))
         return ((ctx.phase == 'initRound1' && G.players[playerID].settlements.length == 1 
         && G.players[playerID].roads.length == 0) || ctx.phase == 'initRound2' 
+        && G.players[playerID].settlements.length == 2 
         && G.players[playerID].roads.length == 1)
     return false;
 }

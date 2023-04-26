@@ -404,7 +404,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     }
          
   const onEdgeClick = (e, i) => {
-    if (roadButtonPushed) {
+    if (roadButtonPushed || gameStart) {
 
       const newState = { ...gameState};
       const newEdges = { ...edges};
@@ -416,12 +416,12 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
 
       socket.emit('edge-update', {stringifiedEdges, matchID});
       canBuildRoad(false);
-    setGameState(checkLongestRoad(gameState, longestRoad, longestRoadPlayer));
+      setGameState(checkLongestRoad(gameState, longestRoad, longestRoadPlayer));
     }
   }
 
   const onVertexClick = (e, i) => {
-    if (settlementButtonPushed) {
+    if (settlementButtonPushed || gameStart) {
       console.log('button push')
       const newState = { ...gameState};
       const newVertices = { ...vertices };
@@ -445,6 +445,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
       socket.emit('vertices-update', {stringifiedVertices, matchID});
       canUpgradeSettlement(false);
     }
+
     canBuildSettlement(false);
   }
 
@@ -636,7 +637,7 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
                 <div>
                 {!firstRounds && !diceRolled && !victory && turnEnabled && <button type='button' className='board-btn' onClick={playTurn}>Click to Roll!</button> }
                     {!gameStart && firstRounds && !victory && turnEnabled && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
-                    {firstPhasesComplete() && diceRolled && !victory && turnEnabled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {firstPhasesComplete() && !victory && turnEnabled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
                 </div>
                 <div>
                   {gameStart && <text>Place settlement and road</text>}
@@ -683,8 +684,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
               <div className='action-btns'>
                 {canTrade && !victory && diceRolled && <button type='button' onClick={ () => setInitiateTrade(true)}>Trade</button>}
                 {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
-                {buildSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
-                {(gameStart || buildRoad) && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
+                {buildSettlement && !gameStart && diceRolled && <button type='button' onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
+                {buildRoad && !gameStart && diceRolled && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
                 
                 {!monopolyPlayed && !plentyPlayed && <button onClick={handleDraw}>Draw Development Card (Costs 1 Sheep, Wheat, and Ore) </button>}

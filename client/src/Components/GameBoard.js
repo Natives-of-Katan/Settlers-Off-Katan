@@ -476,7 +476,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
     }
                 
   const onEdgeClick = (e, i) => {
-    if (roadButtonPushed)
+    if (roadButtonPushed || gameStart)
       moves.addRoad(e, i, edges, false, false);
     else if (roadPlayed && roadsWhenPlayed === G.players[ctx.currentPlayer].totalRoads) {
       moves.addRoad(e, i, edges, true, false);
@@ -492,7 +492,7 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
   }
 
   const onVertexClick = (e, i) => {
-    if (settlementButtonPushed) {
+    if (settlementButtonPushed || gameStart) {
       moves.addSettlement(e, i, vertices);
     }
     else if (upgradeButtonPushed) {
@@ -668,19 +668,19 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
                 </div>}
                 <div>
                     {!firstRounds && !movingRobber && !knightPlayed && !stealingResource && !victory && !placedRobber && !diceRolled &&  <button type='button' className='board-btn'onClick={playTurn}>Click to Roll!</button> }
-                    {!gameStart && firstRounds && !victory && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }
+                    {firstPhasesComplete() && !movingRobber && !victory && !knightPlayed && !stealingResource && !placedRobber && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
+                    {!gameStart && firstRounds && !victory && <button type='button' className='board-btn' onClick={startGame}>Place Pieces</button> }                
                 </div>
               
-                  {!firstRounds && diceRolled && !movingRobber && !knightPlayed && !stealingResource && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
                   {!firstRounds && diceRolled && movingRobber && !knightPlayed && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}. Choose a tile to move the Robber to</text>}
                   {diceRolled && movingRobber && knightPlayed && <text>You played a knight. Choose a tile to move the Robber to</text>}
                   {diceRolled && stealingResource && <text>Choose a player to steal a resource from</text>}
                   {!firstRounds && !gameStart && !diceRolled && <text>Roll The Dice!</text>}
-                    
-                    {firstPhasesComplete() && !movingRobber && !victory && !knightPlayed && !stealingResource && !placedRobber && diceRolled && <button type='button' className='board-btn' onClick={handleEndTurn}>End Turn</button> }
-              <div>
-                {gameStart && !victory && <text>Place settlement and road</text>}
-                {victory && <text>Game Over!</text>}
+                  {!firstRounds && diceRolled && !movingRobber && !knightPlayed && !stealingResource && <text>You rolled: {JSON.stringify(G.players[Number(ctx.currentPlayer)].diceRoll)}</text>}
+
+                <div>
+                  {gameStart && !victory && <text>Place settlement and road</text>}
+                  {victory && <text>Game Over!</text>}
               </div>
               </div>
           </div>
@@ -720,10 +720,9 @@ const GameBoard = ({ctx, G, moves, events, playerID}) => {
 
                 {initiateTrade && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && <button type='button' disabled={!diceRolled} onClick={openTradeModal}>Trade</button>}
                 {upgradeSettlement && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
-                {buildSettlement && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
-                {(gameStart || buildRoad) && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
+                {buildRoad && !gameStart && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && diceRolled && <button type='button' onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
+                {buildSettlement && !gameStart && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && diceRolled && <button type='button' onClick={() => canBuildRoad(true)}>Build Road</button> }
   
-                
                 {buyCard && !firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !placedRobber && !movingRobber && !knightPlayed && !stealingResource && <button onClick={handleDraw}>Buy Development Card</button>}
                 {!firstRounds && !roadPlayed && !monopolyPlayed && !plentyPlayed && !movingRobber && !placedRobber && !knightPlayed && !stealingResource && <button onClick={handleAddResources}>Add 1 of each resource (this button is for dev purposes)</button>}
         
