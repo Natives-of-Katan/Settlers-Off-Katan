@@ -68,9 +68,10 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     socket.emit('state-change', ({newState, matchID}));
     console.log('change emitted');
     }
-
-    if(gameState.phase === 'gameplay')
+    if(gameState.phase === 'gameplay') {
       setFirstRounds(false);
+      checkBuildActions();
+    }
 
   }, [gameState]);
 
@@ -684,6 +685,9 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
               <div className='action-btns'>
                 {canTrade && !victory && diceRolled && <button type='button' onClick={ () => setInitiateTrade(true)}>Trade</button>}
                 {upgradeSettlement && <button type='button' disabled = {!diceRolled} onClick={() => canUpgradeSettlement(true)}>Upgrade Settlement</button> }
+                {console.log("BuildRoad", buildRoad)}
+                {console.log("GameStart", !gameStart)}
+                {console.log("DiceRolled", diceRolled)}
                 {buildSettlement && !gameStart && diceRolled && <button type='button' onClick={() => canBuildSettlement(true)}>Build Settlement</button> }
                 {buildRoad && !gameStart && diceRolled && <button type='button' disabled = {!diceRolled} onClick={() => canBuildRoad(true)}>Build Road</button> }
                 {buyCard && <button type='button' disabled = {!diceRolled}>Buy Development Card</button> }
