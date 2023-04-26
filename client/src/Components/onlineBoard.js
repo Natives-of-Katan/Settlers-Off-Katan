@@ -316,18 +316,21 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
     }
 
     const handleDraw = id => {
-      drawDevelopmentCard(gameState);
+      const tempState = { ...gameState };
+      setGameState(drawDevelopmentCard(tempState));
     }
 
     const handleVictoryCard = id => {
-      playVictoryCard(gameState);
+      const tempState = { ...gameState};
+      setGameState(playVictoryCard(tempState));
     }
 
     const handleMonopoly = (choice) => {
       if (!monopolyPlayed)
         setMonopolyPlayed(true);
       else {
-        playMonopoly(gameState, choice);
+        const tempState = { ...gameState};
+        setGameState(playMonopoly(tempState, choice));
         setMonopolyPlayed(false);
       }
     }
@@ -348,7 +351,8 @@ const OnlineBoard = ({ctx, G, moves, events}) => {
             setFirstChoice('ore');
         }
         else {
-          playYearOfPlenty(gameState, plentyFirstChoice, choice2);
+          const tempState = { ...gameState};
+          setGameState(playYearOfPlenty(tempState, plentyFirstChoice, choice2));
           setFirstChoice('');
           setPlentyPlayed(false);
         }
