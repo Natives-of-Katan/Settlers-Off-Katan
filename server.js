@@ -58,7 +58,7 @@ server.listen(port, () => {
 
 //socket handlers for lobby creation/game state management  ------------------------------------------------------------------------------------------------------
 socketServer.on('connect', (socket) => {
-    console.log('A user connected');
+    console.log('socketid %s connected', socket.id);
 
     //user creates lobby, emit back the matchID and the player name
     socket.on('create-lobby', (lobbyObject) => {
@@ -156,6 +156,7 @@ socketServer.on('connect', (socket) => {
 
     socket.on('turn-end', ({newState, matchID}) => {
 
+        console.log('turn ended in match %s', matchID);
         newState.currentPlayer = (newState.currentPlayer + 1 ) % newState.players.length;
         newState.turn += 1;
 

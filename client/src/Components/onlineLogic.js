@@ -41,8 +41,6 @@ export const addInitialResources = (gameState, diceNum, property) => {
             gameState.hexes.get(getHexKey(gameState.boardVertices.get(v).props.hexes[2]))];
         });
 
-     
-
         // add resources if the hex is rolled
         settlementHexes.forEach((sHexes) => { sHexes.forEach((hex) => {
             if (hex != undefined && (diceNum == 0 || diceNum == hex.props.number) && hex.props.fill != 'desert')
@@ -173,6 +171,7 @@ export const addDevelopmentResources = (gameState) => {
 }
 
 export const drawDevelopmentCard = (gameState) => {
+    const temp = { ...gameState };
     const current = gameState.currentPlayer;
     //Checks if the player has the required resources and that the deck has at least 1 card in it
     if (gameState.players[current].resources.sheep > 0 && gameState.players[current].resources.wheat > 0 && gameState.players[current].resources.ore > 0 && gameState.deck.knight + gameState.deck.victory + gameState.deck.monopoly + gameState.deck.plenty + gameState.deck.road > 0) {
@@ -181,33 +180,33 @@ export const drawDevelopmentCard = (gameState) => {
         const drawnCard = 1+Math.floor(Math.random() * (gameState.deck.knight+gameState.deck.victory+gameState.deck.monopoly+gameState.deck.plenty+gameState.deck.road));
         
         //Subtracts the resources from the player
-        gameState.players[current].resources.sheep -= 1;
-        gameState.players[current].resources.wheat -= 1;
-        gameState.players[current].resources.ore -= 1;
+        temp.players[current].resources.sheep -= 1;
+        temp.players[current].resources.wheat -= 1;
+        temp.players[current].resources.ore -= 1;
         
         //Adds card to player's hand and removes it from the deck
         if (drawnCard <= gameState.deck.knight) {
-            gameState.players[current].developmentCards.knight += 1;
-            gameState.deck.knight -= 1;
+            temp.players[current].developmentCards.knight += 1;
+            temp.deck.knight -= 1;
         }
         else if (drawnCard <= (gameState.deck.knight+gameState.deck.victory)) {
-            gameState.players[current].developmentCards.victory += 1;
-            gameState.deck.victory -= 1;
+            temp.players[current].developmentCards.victory += 1;
+            temp.deck.victory -= 1;
         }
         else if (drawnCard <= (gameState.deck.knight+gameState.deck.victory+gameState.deck.monopoly)) {
-            gameState.players[current].developmentCards.monopoly += 1;
-            gameState.deck.monopoly -= 1;
+            temp.players[current].developmentCards.monopoly += 1;
+            temp.deck.monopoly -= 1;
         }
         else if (drawnCard <= (gameState.deck.knight+gameState.deck.victory+gameState.deck.monopoly+gameState.deck.plenty)) {
-            gameState.players[current].developmentCards.plenty += 1;
-            gameState.deck.plenty -= 1;
+            temp.players[current].developmentCards.plenty += 1;
+            temp.deck.plenty -= 1;
         }
         else if (drawnCard <= (gameState.deck.knight + gameState.deck.victory + gameState.deck.monopoly + gameState.deck.plenty + gameState.deck.road)) {
-            gameState.players[current].developmentCards.road += 1;
-            gameState.deck.road -= 1;
+            temp.players[current].developmentCards.road += 1;
+            temp.deck.road -= 1;
         }
     }
-    return gameState;
+    return temp;
 }
 
 export const playVictoryCard = (gameState) => {
